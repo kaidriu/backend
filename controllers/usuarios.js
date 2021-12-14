@@ -10,9 +10,9 @@ const usuariosPost = async (req,res=response)=>{
     try {
         // userId=usuario.id;
 
-        const {name,lastname,email,password} =req.body;
+        const {name,email,password} =req.body;
         
-        const usuario = new User({name,lastname,email,password});
+        const usuario = new User({name,email,password});
 
         //encriptar contraseña
         const salt = bcrypts.genSaltSync();

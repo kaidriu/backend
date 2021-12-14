@@ -22,8 +22,10 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
 
-db.profile = require("../models/profile.js")(sequelize, Sequelize);
+
 db.user = require("../models/user.js")(sequelize, Sequelize);
+db.profile = require("../models/profile.js")(sequelize, Sequelize);
+
 
 
 

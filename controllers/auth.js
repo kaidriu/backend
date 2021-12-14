@@ -2,6 +2,7 @@ const { response } = require("express");
 const bcrypts = require('bcryptjs');
 const db = require('../database/db');
 const { generarJWT } = require("../helpers/generarJWT");
+const { googleVerify } = require("../helpers/google-verify");
 const User = db.user;
 const Profile = db.profile;
 
@@ -97,8 +98,73 @@ const renewToken = async(req, res = response) => {
 }
 
 
+const GoogleSingIn = async( req,res=response) =>{
+
+
+    const googleToken = req.body.token;
+
+    try {
+
+        const {name, email, picture} = await googleVerify(googleToken);
+       console.log(email);
+        const  usuarioDB = await  User.findOne({where:{email}});
+        // let usuario;
+        console.log(usuarioDB);
+        console.log(name, email);
+
+        if(!usuarioDB){
+            console.log('nuevo');
+
+            const usuario = new User({
+                name,
+                email,password :'xxx',
+                google : true
+            })
+
+            await usuario.save();
+
+            userId=usuario.id;
+
+            image_perfil=picture;
+
+            const profile = new Profile({userId,image_perfil});
+            await profile.save();
+            
+            await usuario.update({profileId:usuario.id});
+        }else {
+            console.log('viejo');
+            usuario = usuarioDB;
+            usuario.password = 'xxx';
+        }
+
+        const token = await generarJWT(usuario.id);
+
+        res.json(
+            {
+                ok:true,
+                token
+
+            }
+        )   
+        
+    } catch (error) {
+        res.status(401).json(
+            {
+                ok:false,
+                msg:'token no es correcto'
+            }
+        )
+    }
+
+
+
+
+}
+
+
 
 module.exports={
     login,
-    renewToken
+    renewToken,
+    GoogleSingIn
 }
