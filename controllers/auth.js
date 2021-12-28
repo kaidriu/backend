@@ -3,8 +3,12 @@ const bcrypts = require('bcryptjs');
 const db = require('../database/db');
 const { generarJWT } = require("../helpers/generarJWT");
 const { googleVerify } = require("../helpers/google-verify");
+
 const User = db.user;
 const Profile = db.profile;
+const Type = db.userType;
+const UserDetails = db.userDetails;
+const Ubication = db.ubication;
 
 
 const login=async (req,res=response)=>{
@@ -25,6 +29,8 @@ const login=async (req,res=response)=>{
             })
         }
 
+
+
         //si existe el usuario
 
         //verificar la contraseña
@@ -40,9 +46,37 @@ const login=async (req,res=response)=>{
         
         //Generar JWT
         const token = await generarJWT(usuario.id);
+        const id=usuario.id;
+        const perfil = await Profile.findOne({
+            
+            where:{id},
+            attributes: {exclude: ['createdAt','updatedAt','ubicationId','userTypeId','userDetailId'] },
+            include: [
+                {
+                    model: User,
+                    attributes: {exclude: ['password','createdAt','updatedAt','id'] },
+                },
+                {
+                    model: Ubication,
+                    attributes: {exclude: ['createdAt','updatedAt','id'] },
+                },
+                {
+                    model: UserDetails,
+                    attributes: {exclude: ['createdAt','updatedAt','id'] },
+                },
+                {
+                    model:Type,
+                    attributes: {exclude: ['createdAt','updatedAt','id'] },
+                }
+            ],
+            
+            
+           });
+    
 
         res.json({
-            usuario,
+            // usuario,
+            perfil,
             token
         })
         
@@ -62,9 +96,6 @@ const renewToken = async(req, res = response) => {
     // Generar el TOKEN - JWT
     const token = await generarJWT( id );
 
-
-
-
     // console.log(email);
 
     // let usuario = await User.findOne({
@@ -75,16 +106,32 @@ const renewToken = async(req, res = response) => {
     //         where:{id}
     //     }]
     // })
-
     // let perfil = await Profile.findByPk(usuario.id);
 
-    const usuario = await User.findOne({
-        attributes: {exclude: ['password'] },
+    const perfil = await Profile.findOne({
+        
         where:{id},
-        include: [{
-            model: Profile,
-            attributes: {exclude: ['userId']}
-        }]
+        attributes: {exclude: ['createdAt','updatedAt','ubicationId','userTypeId','userDetailId'] },
+        include: [
+            {
+                model: User,
+                attributes: {exclude: ['password','createdAt','updatedAt','id'] },
+            },
+            {
+                model: Ubication,
+                attributes: {exclude: ['createdAt','updatedAt','id'] },
+            },
+            {
+                model: UserDetails,
+                attributes: {exclude: ['createdAt','updatedAt','id'] },
+            },
+            {
+                model:Type,
+                attributes: {exclude: ['createdAt','updatedAt','id'] },
+            }
+        ],
+        
+        
        });
 
 
@@ -92,7 +139,7 @@ const renewToken = async(req, res = response) => {
         ok: true,
         token,
         // usuario,
-        usuario
+        perfil
     });
 
 }
@@ -107,15 +154,15 @@ const GoogleSingIn = async( req,res=response) =>{
 
         const {name, email, picture} = await googleVerify(googleToken);
        console.log(email);
+
         const  usuarioDB = await  User.findOne({where:{email}});
-        // let usuario;
-        console.log(usuarioDB);
-        console.log(name, email);
+         let usuario;
 
         if(!usuarioDB){
+
             console.log('nuevo');
 
-            const usuario = new User({
+            usuario = new User({
                 name,
                 email,password :'xxx',
                 google : true
@@ -127,23 +174,37 @@ const GoogleSingIn = async( req,res=response) =>{
 
             image_perfil=picture;
 
-            const profile = new Profile({userId,image_perfil});
+
+            const details = new UserDetails();
+            await details.save();
+
+
+            const profile = new Profile({image_perfil,userTypeId:1});
             await profile.save();
+    
+            const ubication = new Ubication()
+            await ubication.save();
+    
             
+    
             await usuario.update({profileId:usuario.id});
+
+             await profile.update({ubicationId:usuario.id,userDetailId:usuario.id});
+
+
         }else {
             console.log('viejo');
             usuario = usuarioDB;
             usuario.password = 'xxx';
         }
+        
 
-        const token = await generarJWT(usuario.id);
+         const token = await generarJWT(usuario.id);
 
         res.json(
             {
                 ok:true,
                 token
-
             }
         )   
         
@@ -151,7 +212,7 @@ const GoogleSingIn = async( req,res=response) =>{
         res.status(401).json(
             {
                 ok:false,
-                msg:'token no es correcto'
+                msg:'token no es correcto 2 ' + error
             }
         )
     }

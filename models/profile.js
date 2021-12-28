@@ -1,14 +1,10 @@
 module.exports = (sequelize, Sequelize) => {
     const Profile = sequelize.define("profile", {
-      day_of_birthay: { 
+      edad: { 
         type: Sequelize.STRING
       },
       gender: {
         type: Sequelize.STRING
-      },
-      country: {
-        type: Sequelize.STRING
-        
       },
       image_perfil: {
         type: Sequelize.STRING
@@ -16,19 +12,15 @@ module.exports = (sequelize, Sequelize) => {
       },
       profession: {
         type: Sequelize.STRING
-        
       },
-      biogra: {
+      aboutMe: {
         type: Sequelize.STRING
-        
-      },
-      addres: {
-        type: Sequelize.STRING
-        
       },
       phone: {
+        type: Sequelize.STRING      
+      },
+      education:{
         type: Sequelize.STRING
-        
       }
       // userId: {
       //   allowNull: true,

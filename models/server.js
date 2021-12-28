@@ -22,7 +22,8 @@ class Server{
         this.paths={
             auth         : '/api/auth',
             usuario      : '/api/usuarios',
-            sendemail    : '/api/send'
+            sendemail    : '/api/send',
+            type         : '/api/type'
         }
 
 
@@ -72,13 +73,14 @@ class Server{
         this.app.use(this.paths.auth,require('../routes/auth'));
         this.app.use(this.paths.usuario,require('../routes/usuarios'));
         this.app.use(this.paths.sendemail,require('../routes/sendMail'));
+        this.app.use(this.paths.type,require('../routes/types'));
 
     }
 
 
     bd(){
         db.sequelize.sync();
-        db.sequelize.sync({ force: true }).then(() => {
+        db.sequelize.sync({ force: false }).then(() => {
         console.log("Elimina y reinicia la db.");
         });
     }
