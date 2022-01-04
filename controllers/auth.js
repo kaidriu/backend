@@ -6,9 +6,9 @@ const { googleVerify } = require("../helpers/google-verify");
 
 const User = db.user;
 const Profile = db.profile;
-const Type = db.userType;
+const Type = db.UserType;
 const UserDetails = db.userDetails;
-const Ubication = db.ubication;
+const Ubication = db.Ubication;
 
 
 const login=async (req,res=response)=>{
@@ -46,37 +46,38 @@ const login=async (req,res=response)=>{
         
         //Generar JWT
         const token = await generarJWT(usuario.id);
-        const id=usuario.id;
-        const perfil = await Profile.findOne({
+        // const id=usuario.id;
+
+        // const perfil = await Profile.findOne({
             
-            where:{id},
-            attributes: {exclude: ['createdAt','updatedAt','ubicationId','userTypeId','userDetailId'] },
-            include: [
-                {
-                    model: User,
-                    attributes: {exclude: ['password','createdAt','updatedAt','id'] },
-                },
-                {
-                    model: Ubication,
-                    attributes: {exclude: ['createdAt','updatedAt','id'] },
-                },
-                {
-                    model: UserDetails,
-                    attributes: {exclude: ['createdAt','updatedAt','id'] },
-                },
-                {
-                    model:Type,
-                    attributes: {exclude: ['createdAt','updatedAt','id'] },
-                }
-            ],
+        //     where:{id},
+        //     attributes: {exclude: ['createdAt','updatedAt','ubicationId','userTypeId','userDetailId'] },
+        //     include: [
+        //         {
+        //             model: User,
+        //             attributes: {exclude: ['password','createdAt','updatedAt','id'] },
+        //         },
+        //         {
+        //             model: Ubication,
+        //             attributes: {exclude: ['createdAt','updatedAt','id'] },
+        //         },
+        //         {
+        //             model: UserDetails,
+        //             attributes: {exclude: ['createdAt','updatedAt','id'] },
+        //         },
+        //         {
+        //             model:Type,
+        //             attributes: {exclude: ['createdAt','updatedAt','id'] },
+        //         }
+        //     ],
             
             
-           });
+        //    });
     
 
         res.json({
-            // usuario,
-            perfil,
+            usuario,
+            // perfil,
             token
         })
         

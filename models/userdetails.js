@@ -26,10 +26,6 @@ module.exports = (sequelize, Sequelize) => {
       //   }
       // }
     });
-  
-
-
-
     return userDetail;
   };
 

@@ -2,6 +2,9 @@ const {response}= require('express');
 const bcrypts=require('bcryptjs');
 const db = require('../database/db');
 
+const cloudinary = require('cloudinary').v2
+cloudinary.config(process.env.CLOUDINARY_URL);
+
 const User = db.user;
 const Profile = db.profile;
 const Ubication = db.Ubication;
@@ -106,37 +109,92 @@ const usuariosGet = async(req,res=response)=>{
 
 const usuariosPut = async(req,res=response)=>{
     
-    const  {name,password,country,state,aboutMe,profession,phone,edad,gender,image_perfil} =req.body;
+    try {
 
-    const {id} = req.usuario;
+        let image_perfil = '';
+             
+        if (!req.files || Object.keys(req.files).length === 0 || !req.files.archivo) {
+            image_perfil = '';
+            console.log('hola');
 
-    const perfil = await Profile.findByPk(id);
+        }else{
+            // image = await subirArchivo(req.files,undefined,'publicacion');
+            const{tempFilePath}=req.files.archivo;
+            const {secure_url} = await cloudinary.uploader.upload(tempFilePath)
+            image_perfil= secure_url;
+
+        }
+
+
+        const  {name,country,state,aboutMe,profession,phone,edad,gender} =req.body;
+
+        const {id} = req.usuario;
     
-    await perfil.update({edad,gender,image_perfil,profession,aboutMe,phone})
+        const perfil = await Profile.findByPk(id);
+        
+        await perfil.update({edad,gender,image_perfil,profession,aboutMe,phone})
+    
+        const usuario = await User.findByPk(id);
+    
+        // if(password){
+        //     const salt = bcrypts.genSaltSync();
+        //     password = await bcrypts.hash(password,salt);
+        // }
+    
+        await usuario.update({name});
+    
+        const ubication = await Ubication.findByPk(id);
+    
+        await ubication.update({country,state})
+    
+        res.json({
+            perfil
+        })
+            
+       
+        
+    } catch (error) {   
+        console.log(error);
+        res.status(500).json({
+            msg: `Hable con el administrador`
+        })
+        
+    }
+
+
+
+}
+
+
+const usuariosPassword = async (req,res=response)=>{
+    const  {password,passwordnew} =req.body;
+    const {id} = req.usuario;
 
     const usuario = await User.findByPk(id);
 
-    if(password){
-        const salt = bcrypts.genSaltSync();
-        password = await bcrypts.hash(password,salt);
+    const validarPassword = bcrypts.compareSync(password,usuario.password);
+
+    if(!validarPassword){
+        return res.status(400).json({
+            msg:`El passsword esta mal : ${password}`
+        })
     }
 
-    await usuario.update({name,password});
-
-
-  
-
+    const salt = bcrypts.genSaltSync();
+   const passwordnews = await bcrypts.hash(passwordnew,salt);
+    
+    await usuario.update({password:passwordnews});
 
     res.json({
-
-        perfil
-
+        msg:`Password Actualizado : ${passwordnews}`
     })
+
 }
 
 
 module.exports={
     usuariosPost,
     usuariosGet,
-    usuariosPut
+    usuariosPut,
+    usuariosPassword
 }

@@ -4,6 +4,8 @@ const cors = require('cors');
 const db = require("../database/db");
 
 
+const fileUpload = require('express-fileupload');
+
 const { createServer } = require('http');
 
 
@@ -23,7 +25,8 @@ class Server{
             auth         : '/api/auth',
             usuario      : '/api/usuarios',
             sendemail    : '/api/send',
-            type         : '/api/type'
+            type         : '/api/type',
+            Request      : '/api/request'
         }
 
 
@@ -38,7 +41,7 @@ class Server{
         this.routes();
 
 
-        //socket
+        
 
      
     }
@@ -63,6 +66,11 @@ class Server{
         //directorio publico
         this.app.use(express.static('public'));
 
+        this.app.use(fileUpload({
+            useTempFiles : true,
+            tempFileDir : '/tmp/',
+            createParentPath : true
+        }));
 
 
     }
@@ -74,13 +82,14 @@ class Server{
         this.app.use(this.paths.usuario,require('../routes/usuarios'));
         this.app.use(this.paths.sendemail,require('../routes/sendMail'));
         this.app.use(this.paths.type,require('../routes/types'));
+        this.app.use(this.paths.Request,require('../routes/request'));
 
     }
 
 
     bd(){
         db.sequelize.sync();
-        db.sequelize.sync({ force: false }).then(() => {
+        db.sequelize.sync({ alter: true }).then(() => {
         console.log("Elimina y reinicia la db.");
         });
     }

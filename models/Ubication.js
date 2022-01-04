@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-    const Publication = sequelize.define("ubication", {
+    const Ubication = sequelize.define("ubication", {
 
       country: { 
         type: Sequelize.STRING
@@ -15,11 +15,16 @@ module.exports = (sequelize, Sequelize) => {
       //     key: 'id'
       //   }
       // }
-    });
+    },
+    {
+      tableName: 'Ubication',
+	    freezeTableName: true,
+    }
+    );
   
 
 
 
-    return Publication;
+    return Ubication;
   };
 
