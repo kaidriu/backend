@@ -67,8 +67,8 @@ const usuariosPost = async (req,res=response)=>{
 
 const usuariosGet = async(req,res=response)=>{
 
-    
-    const {id} = req.params;
+    const {id} = req.usuario;
+    // const {id} = req.params;
 
     const perfil = await Profile.findOne({
         where:{id},
@@ -106,31 +106,74 @@ const usuariosGet = async(req,res=response)=>{
 
 }
 
+const usuariosAllGet = async(req,res=response)=>{
+
+    // const {id} = req.usuario;
+    // const {id} = req.params;
+
+    const perfil = await Profile.findAll({
+        attributes: {exclude: ['createdAt','updatedAt','ubicationId','userTypeId','userDetailId'] },
+        include: [
+            {
+                model: User,
+                attributes: {exclude: ['password','createdAt','updatedAt','id'] },
+            },
+            {
+                model: Ubication,
+                attributes: {exclude: ['createdAt','updatedAt','id'] },
+            },
+            {
+                model: UserDetails,
+                attributes: {exclude: ['createdAt','updatedAt','id'] },
+            },
+            {
+                model:Type,
+                attributes: {exclude: ['createdAt','updatedAt','id'] },
+            }
+        ],
+        
+        
+       });
+
+     if(!perfil){
+         res.status(404).json({
+             msg:`No exite el usuario con el id : ${id}`
+         })
+     }
+     res.json({
+        perfil
+     })
+
+}
+
+
 
 const usuariosPut = async(req,res=response)=>{
     
     try {
 
         let image_perfil = '';
+
+        const {id} = req.usuario;
+
+        const perfil = await Profile.findByPk(id);
              
         if (!req.files || Object.keys(req.files).length === 0 || !req.files.archivo) {
-            image_perfil = '';
-            console.log('hola');
+            image_perfil = perfil.image_perfil;
+
 
         }else{
             // image = await subirArchivo(req.files,undefined,'publicacion');
             const{tempFilePath}=req.files.archivo;
             const {secure_url} = await cloudinary.uploader.upload(tempFilePath)
             image_perfil= secure_url;
-
+            console.log(secure_url);
         }
-
-
         const  {name,country,state,aboutMe,profession,phone,edad,gender} =req.body;
 
-        const {id} = req.usuario;
+     
     
-        const perfil = await Profile.findByPk(id);
+        // const perfil = await Profile.findByPk(id);
         
         await perfil.update({edad,gender,image_perfil,profession,aboutMe,phone})
     
@@ -196,5 +239,6 @@ module.exports={
     usuariosPost,
     usuariosGet,
     usuariosPut,
-    usuariosPassword
-}
+    usuariosPassword,
+    usuariosAllGet
+}   

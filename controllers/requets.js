@@ -4,6 +4,9 @@ const Request=db.requestI;
 const RequestC=db.requestC;
 const User=db.user;
 const Profile = db.profile;
+const Ubication = db.Ubication;
+const UserDetails = db.userDetails;
+const Type = db.UserType;
 
 
 const SolicitudInstructor = async(req,res=response)=>{
@@ -33,6 +36,42 @@ const SolicitudInstructor = async(req,res=response)=>{
 
     res.json({
         requ
+    })
+
+}
+
+const getSolicitudInstructor = async(req,res=response)=>{
+
+    const request = await Request.findAll({
+        attributes: {exclude: ['updatedAt','profileId'] },
+        include: [
+            {
+                model: Profile,
+                attributes: {exclude: ['createdAt','updatedAt','ubicationId','userTypeId','userDetailId','profession','aboutMe','phone','education','edad','gender'] },
+                     include: [
+                         {
+                             model: User,
+                             attributes: {exclude: ['password','createdAt','updatedAt','id','email','is_active','google','profileId'] },
+                         },
+                        //  {
+                        //      model: Ubication,
+                        //      attributes: {exclude: ['createdAt','updatedAt','id'] },
+                        //  },
+                        //  {
+                        //      model: UserDetails,
+                        //      attributes: {exclude: ['createdAt','updatedAt','id'] },
+                        //  },
+                        //  {
+                        //      model:Type,
+                        //      attributes: {exclude: ['createdAt','updatedAt','id'] },
+                        //  }
+                     ],
+            } 
+        ]   
+    });
+
+    res.json({
+        request
     })
 
 }
@@ -69,8 +108,46 @@ const SolicitudCurso = async(req,res=response)=>{
 
 }
 
+const getSolicitudCurso = async(req,res=response)=>{
+
+    const request = await RequestC.findAll({
+        attributes: {exclude: ['createdAt','updatedAt','profileId'] },
+        include: [
+            {
+                model: Profile,
+                attributes: {exclude: ['createdAt','updatedAt','ubicationId','userTypeId','userDetailId'] },
+                     include: [
+                         {
+                             model: User,
+                             attributes: {exclude: ['password','createdAt','updatedAt','id'] },
+                         },
+                         {
+                             model: Ubication,
+                             attributes: {exclude: ['createdAt','updatedAt','id'] },
+                         },
+                         {
+                             model: UserDetails,
+                             attributes: {exclude: ['createdAt','updatedAt','id'] },
+                         },
+                         {
+                             model:Type,
+                             attributes: {exclude: ['createdAt','updatedAt','id'] },
+                         }
+                     ],
+            } 
+        ]   
+    });
+
+    res.json({
+        request
+    })
+
+}
+
 
 module.exports={
     SolicitudInstructor,
-    SolicitudCurso
+    SolicitudCurso,
+    getSolicitudInstructor,
+    getSolicitudCurso   
 }
