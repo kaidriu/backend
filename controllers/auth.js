@@ -1,6 +1,7 @@
 const { response } = require("express");
 const bcrypts = require('bcryptjs');
 const db = require('../database/db');
+const { Op } = require("sequelize");
 const { generarJWT } = require("../helpers/generarJWT");
 const { googleVerify } = require("../helpers/google-verify");
 
@@ -16,7 +17,6 @@ const login=async (req,res=response)=>{
     const{email,password}=req.body;
 
     try {
-
         //verificar si existe el email
 
         const usuario = await User.findOne({
@@ -29,10 +29,7 @@ const login=async (req,res=response)=>{
             })
         }
 
-
-
         //si existe el usuario
-
         //verificar la contraseña
 
         const validarPassword = bcrypts.compareSync(password,usuario.password);
@@ -42,44 +39,85 @@ const login=async (req,res=response)=>{
                 msg:`El passsword esta mal : ${password}`
             })
         }
-
-        
+     
         //Generar JWT
         const token = await generarJWT(usuario.id);
-        // const id=usuario.id;
-
-        // const perfil = await Profile.findOne({
-            
-        //     where:{id},
-        //     attributes: {exclude: ['createdAt','updatedAt','ubicationId','userTypeId','userDetailId'] },
-        //     include: [
-        //         {
-        //             model: User,
-        //             attributes: {exclude: ['password','createdAt','updatedAt','id'] },
-        //         },
-        //         {
-        //             model: Ubication,
-        //             attributes: {exclude: ['createdAt','updatedAt','id'] },
-        //         },
-        //         {
-        //             model: UserDetails,
-        //             attributes: {exclude: ['createdAt','updatedAt','id'] },
-        //         },
-        //         {
-        //             model:Type,
-        //             attributes: {exclude: ['createdAt','updatedAt','id'] },
-        //         }
-        //     ],
-            
-            
-        //    });
-    
-
+     
         res.json({
             usuario,
-            // perfil,
             token
         })
+        
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            msg:'Hable con el administrador'
+        })
+    }   
+
+}
+
+const loginadministrador=async (req,res=response)=>{
+
+    const{email,password}=req.body;
+
+    try {
+        //verificar si existe el email
+
+        const usuario = await User.findOne({
+            where: {email}  
+        });
+        
+        if(!usuario){
+            return res.status(400).json({
+                msg:`No existe un usuario con ese email : ${email}`
+            })
+        }
+
+        //si existe el usuario
+        //verificar la contraseña
+
+        const validarPassword = bcrypts.compareSync(password,usuario.password);
+
+        if(!validarPassword){
+            return res.status(400).json({
+                msg:`El passsword esta mal : ${password}`
+            })
+        }
+        const id = usuario.id;
+        // const {id} = req.params;
+    
+        const perfil = await Profile.findOne({
+            where:{id},
+            attributes: {exclude: ['createdAt','updatedAt','ubicationId','userTypeId','userDetailId'] },
+            include: [
+                {
+                    model:Type,
+                    attributes: {exclude: ['createdAt','updatedAt','id'] },
+                }
+            ],
+            
+            
+           });
+    
+        console.log(perfil.userType.name);
+
+        if(perfil.userType.name=='administrador'){
+             //Generar JWT
+        const token = await generarJWT(usuario.id);
+     
+        res.json({
+            usuario,
+            token
+        })
+           
+        }else{
+            return res.status(400).json({
+                msg:`Usuario Denegado`
+            })
+        }
+     
+       
         
     } catch (error) {
         console.log(error);
@@ -228,5 +266,6 @@ const GoogleSingIn = async( req,res=response) =>{
 module.exports={
     login,
     renewToken,
-    GoogleSingIn
+    GoogleSingIn,
+    loginadministrador
 }

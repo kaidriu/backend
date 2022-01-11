@@ -11,6 +11,9 @@ module.exports = (sequelize, Sequelize) => {
       state: {
         type: Sequelize.STRING
       },
+      fecha: {
+        type: Sequelize.STRING
+      },
       category: {
         type: Sequelize.STRING
       },
