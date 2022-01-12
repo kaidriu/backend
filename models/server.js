@@ -26,7 +26,8 @@ class Server{
             usuario      : '/api/usuarios',
             sendemail    : '/api/send',
             type         : '/api/type',
-            Request      : '/api/request'
+            Request      : '/api/request',
+            curso        : '/api/curso'
         }
 
 
@@ -83,6 +84,7 @@ class Server{
         this.app.use(this.paths.sendemail,require('../routes/sendMail'));
         this.app.use(this.paths.type,require('../routes/types'));
         this.app.use(this.paths.Request,require('../routes/request'));
+        this.app.use(this.paths.curso,require('../routes/course'));
 
     }
 

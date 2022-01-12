@@ -106,12 +106,13 @@ const usuariosGet = async(req,res=response)=>{
 
 }
 
-const usuariosAllGet = async(req,res=response)=>{
+const usuariosGetId = async(req,res=response)=>{
 
     // const {id} = req.usuario;
-    // const {id} = req.params;
+    const {id} = req.params;
 
-    const perfil = await Profile.findAll({
+    const perfil = await Profile.findOne({
+        where:{id},
         attributes: {exclude: ['createdAt','updatedAt','ubicationId','userTypeId','userDetailId'] },
         include: [
             {
@@ -146,6 +147,41 @@ const usuariosAllGet = async(req,res=response)=>{
 
 }
 
+const usuariosAllGet = async(req,res=response)=>{
+
+    // const {id} = req.usuario;
+    // const {id} = req.params;
+
+    const perfil = await Profile.findAll({
+        attributes: {exclude: ['createdAt','updatedAt','ubicationId','userTypeId','userDetailId'] },
+        include: [
+            {
+                model: User,
+                attributes: {exclude: ['password','createdAt','updatedAt','id'] },
+            },
+            {
+                model: Ubication,
+                attributes: {exclude: ['createdAt','updatedAt','id'] },
+            },
+            {
+                model: UserDetails,
+                attributes: {exclude: ['createdAt','updatedAt','id'] },
+            },
+            {
+                model:Type,
+                attributes: {exclude: ['createdAt','updatedAt','id'] },
+            }
+        ],
+        
+        
+       });
+
+     res.json({
+        perfil
+     })
+
+}
+
 
 
 const usuariosPut = async(req,res=response)=>{
@@ -163,6 +199,14 @@ const usuariosPut = async(req,res=response)=>{
 
 
         }else{
+            //borrar antigua foto
+            const nombreArr=perfil.image_perfil.split('/');
+            const nombre = nombreArr[nombreArr.length -1];
+            const [public_id]=nombre.split('.');
+            cloudinary.uploader.destroy(public_id);
+            
+
+
             // image = await subirArchivo(req.files,undefined,'publicacion');
             const{tempFilePath}=req.files.archivo;
             const {secure_url} = await cloudinary.uploader.upload(tempFilePath)
@@ -240,5 +284,6 @@ module.exports={
     usuariosGet,
     usuariosPut,
     usuariosPassword,
-    usuariosAllGet
+    usuariosAllGet,
+    usuariosGetId
 }   

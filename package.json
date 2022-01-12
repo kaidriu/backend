@@ -20,6 +20,7 @@
     "express-validator": "^6.13.0",
     "google-auth-library": "^7.10.3",
     "jsonwebtoken": "^8.5.1",
+    "node-moodle": "^1.0.0",
     "nodemailer": "^6.7.2",
     "pg": "^8.7.1",
     "pg-hstore": "^2.3.4",
