@@ -58,7 +58,7 @@ const getCursos = async(req, res=response)=>{
         }
 
 
-        res.json(datos);
+        res.json({datos});
 
         
     } catch (error) {
