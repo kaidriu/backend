@@ -18,15 +18,15 @@ const getCursos = async(req, res=response)=>{
 
 
         let resP = await moodle.core.course.getCourses();
-       
+        
 
-        const requ = {
-            courseid:2
+        // const requ = {
+        //     courseid:2
 
-            };
+        //     };
 
 
-        let resW = await moodle.core.course.getContents(requ);
+        // let resW = await moodle.core.course.getContents(requ);
         
 
     
@@ -58,7 +58,7 @@ const getCursos = async(req, res=response)=>{
         }
 
 
-        res.json(resW);
+        res.json(datos);
 
         
     } catch (error) {

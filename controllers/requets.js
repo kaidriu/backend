@@ -91,39 +91,51 @@ const SolicitudInstructor = async(req,res=response)=>{
 
 const getSolicitudInstructor = async(req,res=response)=>{
 
-    const request = await Request.findAll({
 
-        where:{state:'pendiente'},
-        attributes: {exclude: ['createdAt','updatedAt','profileId'] },
-        include: [
-            {
-                model: Profile,
-                attributes: {exclude: ['createdAt','updatedAt','ubicationId','userTypeId','userDetailId','profession','aboutMe','phone','education','edad','gender'] },
-                     include: [
-                         {
-                             model: User,
-                             attributes: {exclude: ['password','createdAt','updatedAt','id','email','is_active','google','profileId'] },
-                         },
-                        //  {
-                        //      model: Ubication,
-                        //      attributes: {exclude: ['createdAt','updatedAt','id'] },
-                        //  },
-                        //  {
-                        //      model: UserDetails,
-                        //      attributes: {exclude: ['createdAt','updatedAt','id'] },
-                        //  },
-                        //  {
-                        //      model:Type,
-                        //      attributes: {exclude: ['createdAt','updatedAt','id'] },
-                        //  }
-                     ],
-            } 
-        ]   
-    });
+    const desde = Number(req.query.desde) || 0;
 
 
-    res.json({
-        request
+   const [request, total] = await  Promise.all([
+
+       Request.findAll({
+
+            offset: desde, limit: 10,
+                order: [['id', 'ASC']],
+            where:{state:'pendiente'},
+            attributes: {exclude: ['createdAt','updatedAt','profileId'] },
+            include: [
+                {
+                    model: Profile,
+                    attributes: {exclude: ['createdAt','updatedAt','ubicationId','userTypeId','userDetailId','profession','aboutMe','phone','education','edad','gender'] },
+                         include: [
+                             {
+                                 model: User,
+                                 attributes: {exclude: ['password','createdAt','updatedAt','id','email','is_active','google','profileId'] },
+                             },
+                            //  {
+                            //      model: Ubication,
+                            //      attributes: {exclude: ['createdAt','updatedAt','id'] },
+                            //  },
+                            //  {
+                            //      model: UserDetails,
+                            //      attributes: {exclude: ['createdAt','updatedAt','id'] },
+                            //  },
+                            //  {
+                            //      model:Type,
+                            //      attributes: {exclude: ['createdAt','updatedAt','id'] },
+                            //  }
+                         ],
+                } 
+            ]   
+        }),
+        Request.count()
+ 
+    ])
+
+
+    res.json({  
+        request,
+        total
     })
 
 }
