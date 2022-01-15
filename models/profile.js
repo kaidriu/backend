@@ -14,7 +14,8 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING
       },
       aboutMe: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING(600),
+
       },
       phone: {
         type: Sequelize.STRING      

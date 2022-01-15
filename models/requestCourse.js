@@ -27,6 +27,9 @@ module.exports = (sequelize, Sequelize) => {
       },
       state: {
         type: Sequelize.STRING
+      },
+      modality:{
+        type:Sequelize.STRING
       }
 
     });
