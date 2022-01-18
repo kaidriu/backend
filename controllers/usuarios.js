@@ -9,6 +9,7 @@ const User = db.user;
 const Profile = db.profile;
 const Ubication = db.Ubication;
 const UserDetails = db.userDetails;
+
 const Type = db.UserType;
 
 const usuariosPost = async (req,res=response)=>{
@@ -148,39 +149,60 @@ const usuariosGetId = async(req,res=response)=>{
 }
 
 const usuariosAllGet = async(req,res=response)=>{
+    
+    const desde = Number(req.query.desde) || 0;
 
     // const {id} = req.usuario;
     // const {id} = req.params;
+    const [usuarios, total] = await  Promise.all([
 
-    const perfil = await Profile.findAll({
-        attributes: {exclude: ['createdAt','updatedAt','ubicationId','userTypeId','userDetailId'] },
-        include: [
-            {
-                model: User,
-                attributes: {exclude: ['password','createdAt','updatedAt','id'] },
-            },
-            {
-                model: Ubication,
-                attributes: {exclude: ['createdAt','updatedAt','id'] },
-            },
-            {
-                model: UserDetails,
-                attributes: {exclude: ['createdAt','updatedAt','id'] },
-            },
-            {
-                model:Type,
-                attributes: {exclude: ['createdAt','updatedAt','id'] },
-            }
-        ],
-        
-        
-       });
+        Profile.findAll({
+            offset: desde, limit: 5,
+                order: [['id', 'ASC']],
+            attributes: {exclude: ['createdAt','updatedAt','ubicationId','userTypeId','userDetailId'] },
+            include: [
+                {
+                    model: User,
+                    attributes: {exclude: ['password','createdAt','updatedAt','id'] },
+                },
+                {
+                    model: Ubication,
+                    attributes: {exclude: ['createdAt','updatedAt','id'] },
+                },
+                {
+                    model: UserDetails,
+                    attributes: {exclude: ['createdAt','updatedAt','id'] },
+                },
+                {
+                    model:Type,
+                    where:{
+                        name:'usuario'
+                    },
+                    attributes: {exclude: ['createdAt','updatedAt','id'] },
+                }
+            ],
+            
+            
+           }),
+           
+           Profile.count({
+               include:[
+                {
+                    model:Type,
+                    where:{
+                        name:'usuario'
+                    },
+                }
+               ]
+           })
+
+    ])
 
      res.json({
-        perfil
+        usuarios,total
      })
 
-}
+} 
 
 
 
@@ -252,6 +274,68 @@ const usuariosPut = async(req,res=response)=>{
 
 }
 
+const usuariosPutInstructor = async(req,res=response)=>{
+    
+    try {
+
+
+
+        const {id} = req.usuario;
+        const  {aboutMe,linkCurriculum,linkYT,linkfb,linkTW,linkIG} =req.body;  
+
+
+        const ver = await Profile.findOne({
+            include: [
+                {
+                    model:Type,
+                    where:{
+                        name:"instructor"
+                    },
+                    attributes: {exclude: ['createdAt','updatedAt','id'] },
+                }
+            ]
+        })
+    
+        if(!ver){
+    
+            res.status(400).json({
+                msg:"El usuario no es instructor"
+            })
+    
+        }else{
+            const instructor = await UserDetails.findOne({
+                where:{id}
+            });
+    
+            
+            await instructor.update({aboutMe,linkCurriculum,linkYT,linkfb,linkTW,linkIG})
+        
+        
+            res.json({
+                instructor
+            })
+                
+           
+
+        }
+
+
+   
+
+       
+        
+    } catch (error) {   
+        console.log(error);
+        res.status(500).json({
+            msg: `Hable con el administrador`
+        })
+        
+    }
+
+
+
+}
+
 
 const usuariosPassword = async (req,res=response)=>{
     const  {password,passwordnew} =req.body;
@@ -285,5 +369,6 @@ module.exports={
     usuariosPut,
     usuariosPassword,
     usuariosAllGet,
-    usuariosGetId
+    usuariosGetId,
+    usuariosPutInstructor
 }   

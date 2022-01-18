@@ -3,7 +3,7 @@ const { check } = require('express-validator');
 const { validarEmail } = require('../helpers/db-validator');
 const {validarCampos} = require('../middlewares/validar-campos');
 const {validarJWT} = require('../middlewares/validar-JWT');
-const {usuariosPost, usuariosGet, usuariosPut, usuariosPassword,usuariosAllGet, usuariosGetId}=require('../controllers/usuarios');
+const {usuariosPost, usuariosGet, usuariosPut, usuariosPassword,usuariosAllGet, usuariosGetId, usuariosPutInstructor}=require('../controllers/usuarios');
 
 
 const router = Router();
@@ -27,6 +27,7 @@ router.get('/all',[validarJWT,validarCampos],usuariosAllGet);
 
 
 router.put('/perfil',[validarJWT,validarCampos],usuariosPut);
+router.put('/perfil-instructor',[validarJWT,validarCampos],usuariosPutInstructor);
 
 router.put('/password',[validarJWT,validarCampos],usuariosPassword);
 

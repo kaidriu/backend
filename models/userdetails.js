@@ -16,6 +16,9 @@ module.exports = (sequelize, Sequelize) => {
         },
         linkTW:{
             type:Sequelize.STRING
+        },
+        linkIG:{
+            type:Sequelize.STRING
         }
       // userId: {
       //   allowNull: true,
