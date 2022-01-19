@@ -176,7 +176,7 @@ const usuariosAllGet = async(req,res=response)=>{
                 {
                     model:Type,
                     where:{
-                        name:'usuario'
+                        nametype:'usuario'
                     },
                     attributes: {exclude: ['createdAt','updatedAt','id'] },
                 }
@@ -190,7 +190,7 @@ const usuariosAllGet = async(req,res=response)=>{
                 {
                     model:Type,
                     where:{
-                        name:'usuario'
+                        nametye:'usuario'
                     },
                 }
                ]
@@ -289,7 +289,7 @@ const usuariosPutInstructor = async(req,res=response)=>{
                 {
                     model:Type,
                     where:{
-                        name:"instructor"
+                        nametype:"instructor"
                     },
                     attributes: {exclude: ['createdAt','updatedAt','id'] },
                 }
