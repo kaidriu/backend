@@ -27,6 +27,7 @@ router.get('/all',[validarJWT,validarCampos],usuariosAllGet);
 
 
 router.put('/perfil',[validarJWT,validarCampos],usuariosPut);
+
 router.put('/perfil-instructor',[validarJWT,validarCampos],usuariosPutInstructor);
 
 router.put('/password',[validarJWT,validarCampos],usuariosPassword);

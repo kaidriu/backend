@@ -2,7 +2,7 @@ module.exports = (sequelize, Sequelize) => {
     const UserType = sequelize.define("userType", {
 
 
-      name: {
+      nametype: {
         type: Sequelize.STRING
       }
 

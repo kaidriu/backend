@@ -11,11 +11,11 @@ const typesPost = async(req,res=response)=>{
     const administrador = "administrador";
     const instructor = "instructor";
 
-    let type = new Type({name:usuario});
+    let type = new Type({nametype:usuario});
     await type.save();
-    type = new Type({name:administrador});
+    type = new Type({nametype:administrador});
     await type.save();
-    type = new Type({name:instructor});
+    type = new Type({nametype:instructor});
     await type.save();
 
 
