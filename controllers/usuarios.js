@@ -190,7 +190,7 @@ const usuariosAllGet = async(req,res=response)=>{
                 {
                     model:Type,
                     where:{
-                        nametye:'usuario'
+                        nametype:'usuario'
                     },
                 }
                ]
