@@ -204,6 +204,62 @@ const usuariosAllGet = async(req,res=response)=>{
 
 } 
 
+const instructorAllGet = async(req,res=response)=>{
+    
+    const desde = Number(req.query.desde) || 0;
+
+    // const {id} = req.usuario;
+    // const {id} = req.params;
+    const [usuarios, total] = await  Promise.all([
+
+        Profile.findAll({
+            offset: desde, limit: 5,
+                order: [['id', 'ASC']],
+            attributes: {exclude: ['createdAt','updatedAt','ubicationId','userTypeId','userDetailId'] },
+            include: [
+                {
+                    model: User,
+                    attributes: {exclude: ['password','createdAt','updatedAt','id'] },
+                },
+                {
+                    model: Ubication,
+                    attributes: {exclude: ['createdAt','updatedAt','id'] },
+                },
+                {
+                    model: UserDetails,
+                    attributes: {exclude: ['createdAt','updatedAt','id'] },
+                },
+                {
+                    model:Type,
+                    where:{
+                        nametype:'instructor'
+                    },
+                    attributes: {exclude: ['createdAt','updatedAt','id'] },
+                }
+            ],
+            
+            
+           }),
+           
+           Profile.count({
+               include:[
+                {
+                    model:Type,
+                    where:{
+                        nametype:'usuario'
+                    },
+                }
+               ]
+           })
+
+    ])
+
+     res.json({
+        usuarios,total
+     })
+
+} 
+
 
 
 const usuariosPut = async(req,res=response)=>{
@@ -369,6 +425,7 @@ module.exports={
     usuariosPut,
     usuariosPassword,
     usuariosAllGet,
+    instructorAllGet,
     usuariosGetId,
     usuariosPutInstructor
 }   
