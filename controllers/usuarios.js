@@ -246,7 +246,7 @@ const instructorAllGet = async(req,res=response)=>{
                 {
                     model:Type,
                     where:{
-                        nametype:'usuario'
+                        nametype:'instructor'
                     },
                 }
                ]
