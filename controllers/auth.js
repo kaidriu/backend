@@ -100,9 +100,9 @@ const loginadministrador=async (req,res=response)=>{
             
            });
     
-        console.log(perfil.userType.name);
+        // console.log(perfil.userType.nametype);
 
-        if(perfil.userType.name=='administrador'){
+        if(perfil.userType.nametype=='administrador'){
              //Generar JWT
         const token = await generarJWT(usuario.id);
      

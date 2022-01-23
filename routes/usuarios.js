@@ -3,7 +3,8 @@ const { check } = require('express-validator');
 const { validarEmail } = require('../helpers/db-validator');
 const {validarCampos} = require('../middlewares/validar-campos');
 const {validarJWT} = require('../middlewares/validar-JWT');
-const {instructorAllGet,usuariosPost, usuariosGet, usuariosPut, usuariosPassword,usuariosAllGet, usuariosGetId, usuariosPutInstructor}=require('../controllers/usuarios');
+const {instructorAllGet,usuariosPost, usuariosGet, usuariosPut, usuariosPassword,usuariosAllGet, usuariosGetId, usuariosPutInstructor, video}=require('../controllers/usuarios');
+
 
 
 const router = Router();
@@ -29,6 +30,8 @@ router.get('/instructor-all',[validarJWT,validarCampos],instructorAllGet);
 
 
 router.put('/perfil',[validarJWT,validarCampos],usuariosPut);
+
+router.post('/video',video);
 
 router.put('/perfil-instructor',[validarJWT,validarCampos],usuariosPutInstructor);
 

@@ -5,12 +5,148 @@ const db = require('../database/db');
 const cloudinary = require('cloudinary').v2
 cloudinary.config(process.env.CLOUDINARY_URL);
 
+let Vimeo = require('vimeo').Vimeo;
+let client = new Vimeo(process.env.client_id, process.env.client_secret, process.env.access_token);
+
 const User = db.user;
 const Profile = db.profile;
 const Ubication = db.Ubication;
 const UserDetails = db.userDetails;
 
 const Type = db.UserType;
+
+const {Router} = require('express');
+const router = Router();
+
+const getEmpleado = ( link ) => {
+
+    
+    return new Promise(( resolve, reject ) => {
+        let file_name = link;
+        const x = client.upload(
+            file_name,
+            {
+                'name': 'Untitled',
+                'description': 'The description goes here.'
+            },
+            function (uri) {
+
+                client.request(uri + '?fields=link', function (error, body, _statusCode, _headers) {
+                    if (error) {
+                        console.log('There was an error making the request.');
+                        console.log('Server reported: ' + error);
+                        return;
+                    }
+
+                    console.log('Your video link is: ' + body.link);
+                    mio = body.link;
+                });
+                console.log('Your video URI is: ' + uri);
+            },
+            function (bytes_uploaded, bytes_total) {
+                var percentage = (bytes_uploaded / bytes_total * 100).toFixed(2);
+                console.log(bytes_uploaded, bytes_total, percentage + '%');
+            },
+            function (error) {
+                console.log('Failed because: ' + error);
+            }
+            
+        );
+
+
+    });
+}
+
+
+
+const video = async(req,res=response)=>{
+    
+    try {
+        const{tempFilePath}=req.files.archivo;
+
+        let file_name = tempFilePath;
+
+
+        // client.request(/*options*/{
+        //     method: 'GET',
+        //     path: 'https://api.vimeo.com/hola/  '
+        //   }, /*callback*/function (error, body, status_code, headers) {
+        //     if (error) {
+        //       console.log('error');
+        //       console.log(error);
+        //     } else {
+        //       console.log('body');
+        //       console.log(body);
+        //     }
+          
+        //     console.log('status code');
+        //     console.log(status_code);
+        //     console.log('headers');
+        //     console.log(headers);
+        //   });
+
+        client.upload(  
+            file_name,
+            {
+                'name': 'Untitledd',
+                'description': 'The description goes here.'
+            },
+            function (uri) {
+
+                client.request(uri + '?fields=link', function (error, body, _statusCode, _headers) {
+                    if (error) {
+                        console.log('There was an error making the request.');
+                        console.log('Server reported: ' + error);
+                        return;
+                    }
+
+                    console.log('Your video link is: ' + body.link);
+                });
+                console.log('Your video URI is: ' + uri);
+
+                client.request({
+                    method: 'PATCH',
+                    path: uri,
+                    query: {
+                        
+                      'folder_uri' : 'videos/hola/xxx'
+                    }
+                  }, function (error, body, status_code, headers) {
+                    console.log(uri + ' will now require a password to be viewed on Vimeo.')
+                  })
+
+            
+
+            },
+            function (bytes_uploaded, bytes_total) {
+                var percentage = (bytes_uploaded / bytes_total * 100).toFixed(2);
+                console.log(bytes_uploaded, bytes_total, percentage + '%');
+            },
+            function (error) {
+                console.log('Failed because: ' + error);
+            }
+            
+        );
+
+    
+        res.json({
+            msg:'hola'
+        })
+            
+       
+        
+    } catch (error) {   
+        console.log(error);
+        res.status(500).json({
+            msg: `Hable con el administrador`
+        })
+        
+    }
+
+
+
+}
+
 
 const usuariosPost = async (req,res=response)=>{
 
@@ -210,7 +346,7 @@ const instructorAllGet = async(req,res=response)=>{
 
     // const {id} = req.usuario;
     // const {id} = req.params;
-    const [usuarios, total] = await  Promise.all([
+    const [instructores, total] = await  Promise.all([
 
         Profile.findAll({
             offset: desde, limit: 5,
@@ -255,7 +391,7 @@ const instructorAllGet = async(req,res=response)=>{
     ])
 
      res.json({
-        usuarios,total
+        instructores,total
      })
 
 } 
@@ -427,5 +563,6 @@ module.exports={
     usuariosAllGet,
     instructorAllGet,
     usuariosGetId,
-    usuariosPutInstructor
+    usuariosPutInstructor,
+    video
 }   
