@@ -18,44 +18,6 @@ const Type = db.UserType;
 const {Router} = require('express');
 const router = Router();
 
-const getEmpleado = ( link ) => {
-
-    
-    return new Promise(( resolve, reject ) => {
-        let file_name = link;
-        const x = client.upload(
-            file_name,
-            {
-                'name': 'Untitled',
-                'description': 'The description goes here.'
-            },
-            function (uri) {
-
-                client.request(uri + '?fields=link', function (error, body, _statusCode, _headers) {
-                    if (error) {
-                        console.log('There was an error making the request.');
-                        console.log('Server reported: ' + error);
-                        return;
-                    }
-
-                    console.log('Your video link is: ' + body.link);
-                    mio = body.link;
-                });
-                console.log('Your video URI is: ' + uri);
-            },
-            function (bytes_uploaded, bytes_total) {
-                var percentage = (bytes_uploaded / bytes_total * 100).toFixed(2);
-                console.log(bytes_uploaded, bytes_total, percentage + '%');
-            },
-            function (error) {
-                console.log('Failed because: ' + error);
-            }
-            
-        );
-
-
-    });
-}
 
 
 
@@ -65,25 +27,6 @@ const video = async(req,res=response)=>{
         const{tempFilePath}=req.files.archivo;
 
         let file_name = tempFilePath;
-
-
-        // client.request(/*options*/{
-        //     method: 'GET',
-        //     path: 'https://api.vimeo.com/hola/  '
-        //   }, /*callback*/function (error, body, status_code, headers) {
-        //     if (error) {
-        //       console.log('error');
-        //       console.log(error);
-        //     } else {
-        //       console.log('body');
-        //       console.log(body);
-        //     }
-          
-        //     console.log('status code');
-        //     console.log(status_code);
-        //     console.log('headers');
-        //     console.log(headers);
-        //   });
 
         client.upload(  
             file_name,
@@ -105,18 +48,21 @@ const video = async(req,res=response)=>{
                 console.log('Your video URI is: ' + uri);
 
                 client.request({
-                    method: 'PATCH',
-                    path: uri,
+                    method: 'POST',
+                    path: '/me/projects',
                     query: {
-                        
-                      'folder_uri' : 'videos/hola/xxx'
-                    }
-                  }, function (error, body, status_code, headers) {
-                    console.log(uri + ' will now require a password to be viewed on Vimeo.')
+                        'name': 'finish2'
+                      }
+                  }, function (error, body, status_code, headers,location) {
+                    console.log(headers.location);
+                    client.request({
+                        method: 'PUT',
+                        path: headers.location+uri,
+                      }, function (error, body, status_code, headers) {
+                        console.log(body);
+                        console.log(uri + ' will now require a password to be viewed on Vimeo.')
+                      })
                   })
-
-            
-
             },
             function (bytes_uploaded, bytes_total) {
                 var percentage = (bytes_uploaded / bytes_total * 100).toFixed(2);
@@ -128,7 +74,8 @@ const video = async(req,res=response)=>{
             
         );
 
-    
+            
+
         res.json({
             msg:'hola'
         })
@@ -285,6 +232,7 @@ const usuariosGetId = async(req,res=response)=>{
 }
 
 const usuariosAllGet = async(req,res=response)=>{
+
     
     const desde = Number(req.query.desde) || 0;
 

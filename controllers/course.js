@@ -3,10 +3,29 @@ require('dotenv').config();
 const { MoodleClient } = require('node-moodle');
 
 
+const db = require('../database/db')
+
+const { Op } = require("sequelize");
+
+
+const Request=db.requestI;
+const RequestC=db.requestC;
+const User=db.user;
+const Profile = db.profile;
+const Ubication = db.Ubication;
+const UserDetails = db.userDetails;
+const Type = db.UserType;
+const Course = db.course;
+
+
 const moodle = new MoodleClient({
     baseUrl: process.env.WWWROOT, //<-- Put your Moodle URL here
     token: process.env.TOKEN,//<-- Put your token here
 });
+
+
+
+
 
 const getCursos = async(req, res=response)=>{
 
@@ -70,7 +89,39 @@ const getCursos = async(req, res=response)=>{
 }
 
     
+const SolicitudCurso = async(req,res=response)=>{
+
+    const  {title,description,objectives ,image_course,link_presentation,mode,price} =req.body;
+    const {id} = req.usuario;
+
+    const usuario = await User.findByPk(id);
+
+    const state = "pendiente";
+    const userId = id;
+
+
+    const course = new Course({title,description,objectives ,image_course,link_presentation,mode,state,price,userId});
+
+    await course.save();
+
+    const requC = await course.findOne({
+        where: {title},
+        include: [
+            {
+                model: User,
+            }
+        ],
+      
+    });
+
+    res.json({
+        requC
+    })
+
+}
+
 
 module.exports={
-    getCursos
+    getCursos,
+    SolicitudCurso
 }
