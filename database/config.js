@@ -6,7 +6,7 @@ module.exports = {
     PASSWORD: "vvlJcM_48UQPvkBi_d6RxnkQllhR8FeQ",
     DB: "odcwqpiy",
 
-    // BD LOCAL
+    // // BD LOCAL
     // HOST: "localhost",
     // USER: "postgres",
     // PASSWORD: "solsito28",

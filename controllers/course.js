@@ -5,7 +5,7 @@ const { MoodleClient } = require('node-moodle');
 
 const db = require('../database/db')
 
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
 
 
 const Request=db.requestI;
@@ -16,15 +16,12 @@ const Ubication = db.Ubication;
 const UserDetails = db.userDetails;
 const Type = db.UserType;
 const Course = db.course;
-
+const Subcategory = db.subcategory;
 
 const moodle = new MoodleClient({
     baseUrl: process.env.WWWROOT, //<-- Put your Moodle URL here
     token: process.env.TOKEN,//<-- Put your token here
 });
-
-
-
 
 
 const getCursos = async(req, res=response)=>{
@@ -91,20 +88,24 @@ const getCursos = async(req, res=response)=>{
     
 const SolicitudCurso = async(req,res=response)=>{
 
-    const  {title,description,objectives ,image_course,link_presentation,mode,price} =req.body;
+    const  {title,description,objectives,image_course,link_presentation,mode,price,name_subcategory} =req.body;
     const {id} = req.usuario;
 
-    const usuario = await User.findByPk(id);
+    // const usuario = await User.findByPk(id);
 
     const state = "pendiente";
     const userId = id;
 
+    const subcategory = await Subcategory.findOne({
+        where: {name_subcategory}  
+    });
 
-    const course = new Course({title,description,objectives ,image_course,link_presentation,mode,state,price,userId});
+
+    const course = new Course({title,description,objectives ,image_course,link_presentation,mode,state,price,userId,subcategoryId:subcategory.id});
 
     await course.save();
 
-    const requC = await course.findOne({
+    const requC = await Course.findOne({
         where: {title},
         include: [
             {
@@ -115,7 +116,7 @@ const SolicitudCurso = async(req,res=response)=>{
     });
 
     res.json({
-        requC
+        course
     })
 
 }

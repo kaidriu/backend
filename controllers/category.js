@@ -21,10 +21,9 @@ const PostCategory = async(req,res=response)=>{
 }
 
 
-
 const DeleteCategory = async(req,res=response)=>{
 
-        const  {name_category} =req.body;
+        const  {name_category} =req.params;
     
         const category = await Category.findOne({
                 where: {name_category}  
@@ -128,7 +127,7 @@ const PostSubCategory = async(req,res=response)=>{
 
 const DeleteSubCategory = async(req,res=response)=>{
 
-    const  {name_subcategory} =req.body;
+    const  {name_subcategory} =req.params;
 
     const subcategory = await Subcategory.findOne({
             where: {name_subcategory}  
@@ -140,7 +139,6 @@ const DeleteSubCategory = async(req,res=response)=>{
         subcategory
     })
 } 
-
 
 
 
