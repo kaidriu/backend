@@ -107,18 +107,22 @@ const PostSubCategory = async(req,res=response)=>{
             where: {name_category}  
         });
 
-        console.log(category);
-        
-    const categoryId = category.id;
+    if(!category){
+        res.json({
+            msg:"No existe esa categoria"
+        })
 
-    const subcategory = new Subcategory({name_subcategory,categoryId});
+    }else{
+        const categoryId = category.id;
 
-    await subcategory.save();
-
-    res.json({
-        subcategory
-    })
-
+        const subcategory = new Subcategory({name_subcategory,categoryId});
+    
+        await subcategory.save();
+    
+        res.json({
+            subcategory
+        })
+    }
 }
 
 
