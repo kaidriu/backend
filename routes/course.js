@@ -1,5 +1,5 @@
 const {Router}=require('express');
-const {  PostChapter, PostTopic, PostCourse, getCursosMoodle, GetCourse, myrequtesCourse } = require('../controllers/course');
+const {  PostChapter, PostTopic, PostCourse, getCursosMoodle, GetCourse, myrequtesCourse, GetCourseid } = require('../controllers/course');
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJWT } = require('../middlewares/validar-JWT');
 
@@ -14,6 +14,8 @@ router.post('/chapter',[validarJWT,validarCampos],PostChapter);
 router.post('/topic',[validarJWT,validarCampos],PostTopic);
 
 router.get('/curso/:title',[validarJWT,validarCampos],GetCourse);
+
+router.get('/mycurso/:id',[validarJWT,validarCampos],GetCourseid);
 
 router.get('/getmerequets',[validarJWT,validarCampos],myrequtesCourse);
 

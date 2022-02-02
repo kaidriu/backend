@@ -178,6 +178,9 @@ const PostTopic = async (req,res=response)=>{
 
 }
 
+
+
+
 const GetCourse = async(req,res=response)=>{
 
     const {title} = req.params;
@@ -195,7 +198,22 @@ const GetCourse = async(req,res=response)=>{
     res.json({curso,chapter});
 }
 
+const GetCourseid = async(req,res=response)=>{
 
+    const {id} = req.params;
+
+    const curso = await Course.findOne({
+        where:{id}
+    })
+
+    // const chapter = await Chapter.findAll({
+    //     where:{courseId:curso.id},
+    //         // include:[{model:Course}]
+
+    // })
+
+    res.json({curso});
+}
 
 
 const myrequtesCourse = async(req, res = response)=>{
@@ -215,5 +233,6 @@ module.exports={
     PostChapter,
     PostTopic,
     GetCourse,
-    myrequtesCourse
+    myrequtesCourse,
+    GetCourseid
 }
