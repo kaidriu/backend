@@ -95,7 +95,7 @@ const PostCourse = async(req,res=response)=>{
 
     // const usuario = await User.findByPk(id);
 
-    const state = "pendiente";
+    const state = "proceso";
     const userId = id;
 
     // const subcategory = await Subcategory.findOne({
@@ -195,10 +195,25 @@ const GetCourse = async(req,res=response)=>{
     res.json({curso,chapter});
 }
 
+
+
+
+const myrequtesCourse = async(req, res = response)=>{
+
+    const {id} = req.usuario;
+
+    const curso = await Course.findAll({
+        where:{[Op.and]:[{userId:id},{state : 'proceso'}]}
+    })
+
+    res.json({curso});
+}
+
 module.exports={
     getCursosMoodle,
     PostCourse,
     PostChapter,
     PostTopic,
-    GetCourse
+    GetCourse,
+    myrequtesCourse
 }
