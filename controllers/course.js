@@ -17,6 +17,8 @@ const UserDetails = db.userDetails;
 const Type = db.UserType;
 const Course = db.course;
 const Subcategory = db.subcategory;
+const Chapter = db.chapter;
+const Topic = db.topic;
 
 const moodle = new MoodleClient({
     baseUrl: process.env.WWWROOT, //<-- Put your Moodle URL here
@@ -24,7 +26,7 @@ const moodle = new MoodleClient({
 });
 
 
-const getCursos = async(req, res=response)=>{
+const getCursosMoodle = async(req, res=response)=>{
 
 
     try {
@@ -86,7 +88,7 @@ const getCursos = async(req, res=response)=>{
 }
 
     
-const SolicitudCurso = async(req,res=response)=>{
+const PostCourse = async(req,res=response)=>{
 
     const  {title,description,objectives,image_course,link_presentation,mode,price,name_subcategory} =req.body;
     const {id} = req.usuario;
@@ -105,6 +107,7 @@ const SolicitudCurso = async(req,res=response)=>{
 
     await course.save();
 
+
     const requC = await Course.findOne({
         where: {title},
         include: [
@@ -116,13 +119,85 @@ const SolicitudCurso = async(req,res=response)=>{
     });
 
     res.json({
-        course
+        requC
     })
 
 }
 
 
+const PostChapter = async (req,res=response)=>{
+
+    const {number_chapter,title_chapter,title} = req.body;
+
+    const course = await Course.findOne({
+        where: {title}
+    });
+
+    if(!course){
+        res.json({
+            msg:"No existe el curso"
+        })
+    }else{
+        const chapter = new Chapter({number_chapter,title_chapter,courseId:course.id});
+        await chapter.save();
+        res.json({chapter});
+    }
+}
+
+
+const PostTopic = async (req,res=response)=>{
+
+    const {number_topic,title_topic,description_topic,link_video_topic,recurso,title_chapter,title} = req.body;
+
+
+    const course = await Course.findOne({
+        where: {title}
+    });
+
+    if(!course){
+        res.json({
+            msg:"No existe el curso"
+        })
+    }else{
+
+        const chapter = await Chapter.findOne({
+            where: {title_chapter}
+        });
+    
+        if(!chapter){
+            res.json({
+                msg:"No existe la unidad"
+            })
+        }else{
+            const topic = new Topic({number_topic,title_topic,description_topic,link_video_topic,recurso,chapterId:chapter.id});
+            await topic.save();
+            res.json({topic});
+        }
+    }
+
+}
+
+const GetCourse = async(req,res=response)=>{
+
+    const {title} = req.params;
+
+    const curso = await Course.findOne({
+        where:{title}
+    })
+
+    const chapter = await Chapter.findAll({
+        where:{courseId:curso.id},
+        // include:[{model:Course}]
+
+    })
+
+    res.json({curso,chapter});
+}
+
 module.exports={
-    getCursos,
-    SolicitudCurso
+    getCursosMoodle,
+    PostCourse,
+    PostChapter,
+    PostTopic,
+    GetCourse
 }
