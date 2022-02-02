@@ -90,7 +90,7 @@ const getCursosMoodle = async(req, res=response)=>{
     
 const PostCourse = async(req,res=response)=>{
 
-    const  {title,description,objectives,image_course,link_presentation,mode,price,name_subcategory} =req.body;
+    const  {title,description,objectives,image_course,link_presentation,mode,price} =req.body;
     const {id} = req.usuario;
 
     // const usuario = await User.findByPk(id);
@@ -98,18 +98,18 @@ const PostCourse = async(req,res=response)=>{
     const state = "pendiente";
     const userId = id;
 
-    const subcategory = await Subcategory.findOne({
-        where: {name_subcategory}  
-    });
+    // const subcategory = await Subcategory.findOne({
+    //     where: {name_subcategory}  
+    // });
 
 
-    const course = new Course({title,description,objectives ,image_course,link_presentation,mode,state,price,userId,subcategoryId:subcategory.id});
+    const course = new Course({title,description,objectives ,image_course,link_presentation,mode,state,price,userId});
 
     await course.save();
 
 
     const requC = await Course.findOne({
-        where: {title},
+        where: {id: course.id},
         include: [
             {
                 model: User,
@@ -128,7 +128,8 @@ const PostCourse = async(req,res=response)=>{
 const PostChapter = async (req,res=response)=>{
 
     const {number_chapter,title_chapter,title} = req.body;
-
+    
+    
     const course = await Course.findOne({
         where: {title}
     });
@@ -187,7 +188,7 @@ const GetCourse = async(req,res=response)=>{
 
     const chapter = await Chapter.findAll({
         where:{courseId:curso.id},
-        // include:[{model:Course}]
+            // include:[{model:Course}]
 
     })
 
