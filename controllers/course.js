@@ -2,6 +2,8 @@ const { response } = require('express');
 require('dotenv').config();
 const { MoodleClient } = require('node-moodle');
 
+const cloudinary = require('cloudinary').v2
+cloudinary.config(process.env.CLOUDINARY_URL);
 
 const db = require('../database/db')
 
