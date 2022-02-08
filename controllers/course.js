@@ -18,6 +18,7 @@ const Ubication = db.Ubication;
 const UserDetails = db.userDetails;
 const Type = db.UserType;
 const Course = db.course;
+const Category = db.category;
 const Subcategory = db.subcategory;
 const Chapter = db.chapter;
 const Topic = db.topic;
@@ -263,7 +264,18 @@ const GetCourseid = async(req,res=response)=>{
     const {id} = req.params;
 
     const curso = await Course.findOne({
-        where:{id}
+        where:{id},
+        include:[
+            {
+                model : Subcategory,
+                include:[
+                    {
+                        model:Category
+                    }
+                ]
+
+            }
+        ]
     })
 
     // const chapter = await Chapter.findAll({
@@ -272,7 +284,11 @@ const GetCourseid = async(req,res=response)=>{
 
     // })
 
+
+
     res.json({curso});
+
+
 }
 
 
