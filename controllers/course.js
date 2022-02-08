@@ -124,6 +124,64 @@ const PostCourse = async(req,res=response)=>{
 
 }
 
+const PutCourse = async(req,res=response)=>{
+
+    const  {title,description,objectives,link_presentation,mode,price,subcategoryId} =req.body;
+    const {id} = req.usuario;
+
+    // const usuario = await User.findByPk(id);
+
+    const state = "proceso";
+    const userId = id;
+    const {idc} = req.params;
+    // const subcategory = await Subcategory.findOne({
+    //     where: {name_subcategory}  
+    // });
+
+
+    // const course = new Course({title,description,objectives ,image_course,link_presentation,mode,state,price,userId});
+
+    // await course.save();
+
+    let image_course = '';
+
+
+
+
+    const curso = await Course.findOne({
+        where:{id:idc}
+    })
+
+
+
+    if (!req.files || Object.keys(req.files).length === 0 || !req.files.image) {
+        image_course = curso.image_course;
+
+
+    }else{
+        //borrar antigua foto
+        const nombreArr=curso.image_course.split('/');
+        const nombre = nombreArr[nombreArr.length -1];
+        const [public_id]=nombre.split('.');
+        cloudinary.uploader.destroy(public_id);
+        
+        // image = await subirArchivo(req.files,undefined,'publicacion');
+        const{tempFilePath}=req.files.image;
+        const {secure_url} = await cloudinary.uploader.upload(tempFilePath)
+        image_course= secure_url;
+    }
+
+
+    await curso.update({title,description,objectives ,image_course,link_presentation,mode,state,price,userId,subcategoryId});
+
+
+    res.json({
+        curso
+    })
+
+}
+
+
 
 const PostChapter = async (req,res=response)=>{
 
@@ -227,6 +285,9 @@ const myrequtesCourse = async(req, res = response)=>{
     res.json({curso});
 }
 
+
+
+
 module.exports={
     getCursosMoodle,
     PostCourse,
@@ -234,5 +295,6 @@ module.exports={
     PostTopic,
     GetCourse,
     myrequtesCourse,
-    GetCourseid
+    GetCourseid,
+    PutCourse
 }
