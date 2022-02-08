@@ -91,7 +91,7 @@ const db = {};
       db.enroll_course.belongsTo(db.user);
       db.user.hasOne(db.enroll_course);
 
-      // db.subcategory.belongsTo(db.category);
+      db.subcategory.belongsTo(db.category);
       db.category.hasMany(db.subcategory,{ onDelete: 'cascade',hooks: true, });
 
       db.course.belongsTo(db.subcategory);

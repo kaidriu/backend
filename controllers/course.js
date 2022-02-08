@@ -268,9 +268,11 @@ const GetCourseid = async(req,res=response)=>{
         include:[
             {
                 model : Subcategory,
+                attributes: {exclude: ['createdAt','updatedAt','categoryId','id'] },
                 include:[
                     {
-                        model:Category
+                        model:Category,
+                        attributes: {exclude: ['createdAt','updatedAt','id'] }
                     }
                 ]
 
