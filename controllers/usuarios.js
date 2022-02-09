@@ -344,7 +344,61 @@ const instructorAllGet = async(req,res=response)=>{
 
 } 
 
+const administradorAllGet = async(req,res=response)=>{
+    
+    const desde = Number(req.query.desde) || 0;
 
+    // const {id} = req.usuario;
+    // const {id} = req.params;
+    const [administrador, total] = await  Promise.all([
+
+        Profile.findAll({
+            offset: desde, limit: 5,
+                order: [['id', 'ASC']],
+            attributes: {exclude: ['createdAt','updatedAt','ubicationId','userTypeId','userDetailId'] },
+            include: [
+                {
+                    model: User,
+                    attributes: {exclude: ['password','createdAt','updatedAt','id'] },
+                },
+                {
+                    model: Ubication,
+                    attributes: {exclude: ['createdAt','updatedAt','id'] },
+                },
+                {
+                    model: UserDetails,
+                    attributes: {exclude: ['createdAt','updatedAt','id'] },
+                },
+                {
+                    model:Type,
+                    where:{
+                        nametype:'administrador'
+                    },
+                    attributes: {exclude: ['createdAt','updatedAt','id'] },
+                }
+            ],
+            
+            
+           }),
+           
+           Profile.count({
+               include:[
+                {
+                    model:Type,
+                    where:{
+                        nametype:'administrador'
+                    },
+                }
+               ]
+           })
+
+    ])
+
+     res.json({
+        administrador,total
+     })
+
+} 
 
 const usuariosPut = async(req,res=response)=>{
     
@@ -413,6 +467,69 @@ const usuariosPut = async(req,res=response)=>{
 
 
 }
+
+const usuariosPutTypes = async(req,res=response)=>{
+    
+    try {
+
+        const  {userTypeId} =req.body;
+        const {id} = req.usuario;
+        const  {idp} =req.params;
+        const perfil = await Profile.findOne({
+            where:{id},
+            attributes: {exclude: ['createdAt','updatedAt','ubicationId','userTypeId','userDetailId'] },
+            include: [
+                {
+                    model:Type,
+                    attributes: {exclude: ['createdAt','updatedAt','id'] },
+                }
+            ],
+                 
+           });
+             
+    
+        if(perfil.userType.nametype=='administrador'){
+
+            const updateperfil = await Profile.findOne({
+                where:{id:idp},
+                attributes: {exclude: ['createdAt','updatedAt','ubicationId','userTypeId','userDetailId'] },
+                include: [
+                    {
+                        model:Type,
+                        attributes: {exclude: ['createdAt','updatedAt','id'] },
+                    }
+                ],   
+               });
+              
+            
+
+            await updateperfil.update({userTypeId})
+            
+    
+       res.json({
+        updateperfil
+       })
+          
+       }else{
+           return res.status(400).json({
+               msg:`Usuario Denegado`
+           })
+       }
+       
+        
+    } catch (error) {   
+        console.log(error);
+        res.status(500).json({
+            msg: `Hable con el administrador`
+        })
+        
+    }
+
+
+
+}
+
+
 
 const usuariosPutInstructor = async(req,res=response)=>{
     
@@ -510,7 +627,9 @@ module.exports={
     usuariosPassword,
     usuariosAllGet,
     instructorAllGet,
+    administradorAllGet,
     usuariosGetId,
     usuariosPutInstructor,
+    usuariosPutTypes,
     video
 }   

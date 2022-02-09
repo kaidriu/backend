@@ -29,7 +29,8 @@ class Server{
             Request      : '/api/request',
             curso        : '/api/curso',
             busqueda     : '/api/total',
-            category     : '/api/category'
+            category     : '/api/category',
+            payments     : '/api/payments'
         }
 
 
@@ -89,6 +90,7 @@ class Server{
         this.app.use(this.paths.curso,require('../routes/course'));
         this.app.use(this.paths.busqueda,require('../routes/search'));
         this.app.use(this.paths.category,require('../routes/category'));
+        this.app.use(this.paths.payments,require('../routes/payments'));
 
     }
 

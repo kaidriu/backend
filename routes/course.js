@@ -22,4 +22,7 @@ router.get('/mycurso/:id',[validarJWT,validarCampos],GetCourseid);
 
 router.get('/getmerequets',[validarJWT,validarCampos],myrequtesCourse);
 
+
+
+
 module.exports=router;      
