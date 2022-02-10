@@ -161,7 +161,8 @@ const PutCourse = async(req,res=response)=>{
 
     await curso.update({title,description,objectives ,image_course,link_presentation,mode,state,price,userId,subcategoryId,languaje,learning});
 
-
+    console.log('hola');
+    console.log(re.body);
     res.json({
         curso
     })
