@@ -9,6 +9,9 @@ module.exports = (sequelize, Sequelize) => {
       objectives: {
         type: Sequelize.ARRAY(Sequelize.TEXT)
       },
+      learning: {
+        type: Sequelize.ARRAY(Sequelize.TEXT)
+      },
       image_course: {
         type: Sequelize.STRING
       },
@@ -23,6 +26,9 @@ module.exports = (sequelize, Sequelize) => {
       },
       price:{
         type: Sequelize.DOUBLE
+      },
+      languaje:{
+        type: Sequelize.STRING
       }
     });
     return Course;

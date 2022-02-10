@@ -129,37 +129,21 @@ const PostCourse = async(req,res=response)=>{
 
 const PutCourse = async(req,res=response)=>{
 
-    const  {title,description,objectives,link_presentation,mode,price,subcategoryId} =req.body;
+    const  {title,description,objectives,link_presentation,mode,price,subcategoryId,languaje,learning} =req.body;
     const {id} = req.usuario;
-
-    // const usuario = await User.findByPk(id);
 
     const state = "proceso";
     const userId = id;
     const {idc} = req.params;
-    // const subcategory = await Subcategory.findOne({
-    //     where: {name_subcategory}  
-    // });
-
-
-    // const course = new Course({title,description,objectives ,image_course,link_presentation,mode,state,price,userId});
-
-    // await course.save();
 
     let image_course = '';
-
-
-
 
     const curso = await Course.findOne({
         where:{id:idc}
     })
 
-
-
     if (!req.files || Object.keys(req.files).length === 0 || !req.files.image) {
         image_course = curso.image_course;
-
 
     }else{
         //borrar antigua foto
@@ -175,7 +159,7 @@ const PutCourse = async(req,res=response)=>{
     }
 
 
-    await curso.update({title,description,objectives ,image_course,link_presentation,mode,state,price,userId,subcategoryId});
+    await curso.update({title,description,objectives ,image_course,link_presentation,mode,state,price,userId,subcategoryId,languaje,learning});
 
 
     res.json({

@@ -16,5 +16,5 @@ router.get('/getcategories',[validarJWT,validarCampos],GetCategory);
 router.put('/putcategories',[validarJWT,validarCampos],PutCategory);
 router.put('/putsubcategories',[validarJWT,validarCampos],PutSubcategory);
 
-
+    
 module.exports=router;  

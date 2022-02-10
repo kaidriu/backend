@@ -33,32 +33,13 @@ const CreateOrder = async (req, res = response) => {
                 {
                     amount: {
                         currency_code: "USD",
-                        value: "100.00",
+                        value: "20.00",
                         breakdown: {
-                            item_total: {value: '100.00', currency_code: 'USD'}
+                            item_total: {value: '20.00', currency_code: 'USD'}
                         }
                     }, 
                     description: "pago de curso deunaaprende",
-                    items:[
-                        {
-                            name:'teclado',
-                            description : 'fuerte',
-                            unit_amount: {
-                                currency_code: "USD",
-                                value: "50.00"
-                            },
-                            quantity: "1"
-                        },
-                        {
-                            name:'teclado',
-                            description : 'fuerte',
-                            unit_amount: {
-                                currency_code: "USD",
-                                value: "50.00"
-                            },
-                            quantity: "1"
-                        }
-                    ]
+                    items: req.body
                 }
                
             ],
@@ -99,11 +80,10 @@ const CreateOrder = async (req, res = response) => {
             order,
             {
                 headers: {
-                    Authorization: `Bearer A21AAJ2bRtdmksrD6flg0DQJgi8s5qiR1exD7IHK3YrVc0Zu4NFEy4hnPo5n3Tra6As6j7rh6iXFBDT6C6P5e_PZBXyBZ8jXA`,
+                    Authorization: `Bearer  ${access_token}`,
                 },
             }
         );
-
 
 
         res.json(response.data);
