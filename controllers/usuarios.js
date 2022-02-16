@@ -1,7 +1,7 @@
 const {response}= require('express');
 const bcrypts=require('bcryptjs');
 const db = require('../database/db');
-
+const request = require("request");
 const cloudinary = require('cloudinary').v2
 cloudinary.config(process.env.CLOUDINARY_URL);
 
@@ -14,8 +14,7 @@ const Ubication = db.Ubication;
 const UserDetails = db.userDetails;
 
 const Type = db.UserType;
-
-const {Router} = require('express');
+const {Router}=require('express');
 const router = Router();
 
 
@@ -27,61 +26,25 @@ const video = async(req,res=response)=>{
         const{tempFilePath}=req.files.archivo;
 
         let file_name = tempFilePath;
+        console.log('object1');
+        //  const video = await vimeo(file_name);
 
-        client.upload(  
-            file_name,
-            {
-                'name': 'Untitledd',
-                'description': 'The description goes here.'
-            },
-            function (uri) {
+        vimeo(file_name).then( (resp)=>{
+            console.log(resp);
+            console.log('2222');
+        } )
 
-                client.request(uri + '?fields=link', function (error, body, _statusCode, _headers) {
-                    if (error) {
-                        console.log('There was an error making the request.');
-                        console.log('Server reported: ' + error);
-                        return;
-                    }
+        // const video = await vimeo(file_name);
 
-                    console.log('Your video link is: ' + body.link);
-                });
-                console.log('Your video URI is: ' + uri);
-
-                client.request({
-                    method: 'POST',
-                    path: '/me/projects',
-                    query: {
-                        'name': 'finish2'
-                      }
-                  }, function (error, body, status_code, headers,location) {
-                    console.log(headers.location);
-                    client.request({
-                        method: 'PUT',
-                        path: headers.location+uri,
-                      }, function (error, body, status_code, headers) {
-                        console.log(body);
-                        console.log(uri + ' will now require a password to be viewed on Vimeo.')
-                      })
-                  })
-            },
-            function (bytes_uploaded, bytes_total) {
-                var percentage = (bytes_uploaded / bytes_total * 100).toFixed(2);
-                console.log(bytes_uploaded, bytes_total, percentage + '%');
-            },
-            function (error) {
-                console.log('Failed because: ' + error);
-            }
-            
-        );
-
-            
-
-        res.json({
-            msg:'hola'
-        })
-            
-       
+        //  if(!video){
+        //     console.log(video);
+        //     console.log('1');
+        //  }else{
+ 
+        // }
+        //  res.json({hols});
         
+
     } catch (error) {   
         console.log(error);
         res.status(500).json({
@@ -92,6 +55,70 @@ const video = async(req,res=response)=>{
 
 
 
+}
+
+
+
+
+const vimeo = function vimeo(file_name){
+    return new Promise((resolve)=>{
+        setTimeout(() => {
+            let video;
+            client.upload(  
+                file_name,
+                {
+                    'name': 'Untitledd',
+                    'description': 'The description goes here.'
+                },
+                function (uri) {
+        
+                    client.request(uri + '?fields=link', function (error, body, _statusCode, _headers) {
+                        if (error) {
+                            console.log('There was an error making the request.');
+                            console.log('Server reported: ' + error);
+                            return;
+                        }
+        
+                        console.log('Your video link is: ' + body.link);
+                        video= body.link;
+                        // resolve(video);
+                    });
+                    console.log('Your video URI is: ' + uri);
+        
+                    client.request({
+                        method: 'POST',
+                        path: '/me/projects',
+                        query: {
+                            'name': 'finish'
+                          }
+                      }, function (error, body, status_code, headers,location) {
+                        console.log(headers.location);
+                        client.request({
+                            method: 'PUT',
+                            path: headers.location+uri,
+                          }, function (error, body, status_code, headers) {
+                            console.log(body);
+                            console.log(uri + ' will now require a password to be viewed on Vimeo.')
+                            resolve(`esto es el uri ${uri} y el link es ${video}` );
+                          })
+                      })
+        
+                     
+                        
+                },
+                function (bytes_uploaded, bytes_total) {
+                    var percentage = (bytes_uploaded / bytes_total * 100).toFixed(2);
+                    console.log(bytes_uploaded, bytes_total, percentage + '%');
+                },
+                function (error) {
+                    console.log('Failed because: ' + error);
+                }
+                
+            );
+        }, 1000);
+    })
+   ;
+    
 }
 
 

@@ -29,6 +29,9 @@ module.exports = (sequelize, Sequelize) => {
       },
       languaje:{
         type: Sequelize.STRING
+      },
+      uri_folder:{
+        type: Sequelize.STRING
       }
     });
     return Course;

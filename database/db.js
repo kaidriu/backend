@@ -51,6 +51,9 @@ const db = {};
       db.subcategory = require("../models/subcategory")(sequelize,Sequelize);
 
 
+      db.choppingcar = require("../models/shoppingcar")(sequelize,Sequelize);
+
+
 
       db.user.belongsTo(db.profile);
       db.profile.hasOne(db.user);
@@ -97,6 +100,10 @@ const db = {};
       db.course.belongsTo(db.subcategory);
       db.subcategory.hasOne(db.course);
 
+      db.choppingcar.belongsTo(db.user);
+      db.user.hasOne(db.choppingcar);
 
+      db.choppingcar.belongsTo(db.course);
+      db.course.hasOne(db.choppingcar);
 
 module.exports = db;

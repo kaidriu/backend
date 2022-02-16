@@ -2,9 +2,10 @@ const { response } = require('express');
 const axios = require('axios');
 
 
+
 const db = require('../database/db')
 
-const { Op, where } = require("sequelize");
+const { Op, where, HostNotReachableError } = require("sequelize");
 
 
 const Request = db.requestI;
@@ -27,19 +28,21 @@ const CreateOrder = async (req, res = response) => {
 
     try {
 
+        const{items,total}=req.body;
+
         const order = {
             intent: 'CAPTURE',
             purchase_units: [
                 {
                     amount: {
                         currency_code: "USD",
-                        value: "20.00",
+                        value: total,
                         breakdown: {
-                            item_total: {value: '20.00', currency_code: 'USD'}
+                            item_total: {value: total, currency_code: 'USD'}
                         }
                     }, 
                     description: "pago de curso deunaaprende",
-                    items: req.body
+                    items: items
                 }
                
             ],
@@ -48,10 +51,8 @@ const CreateOrder = async (req, res = response) => {
                 landing_page: 'NO_PREFERENCE', // Default, para mas informacion https://developer.paypal.com/docs/api/orders/v2/#definition-order_application_context
                 user_action: 'PAY_NOW', // Accion para que en paypal muestre el monto del pago
                 return_url: `http://localhost:8080/api/payments/capture-order`, // Url despues de realizar el pago
-                cancel_url: `http://localhost:3000/cancel-payment` // Url despues de realizar el pago
+                cancel_url: `http://localhost:8080/api/payments/cancel-order` // Url despues de realizar el pago
             }
-
-
         }
         // format the body
         const params = new URLSearchParams();
@@ -72,10 +73,6 @@ const CreateOrder = async (req, res = response) => {
                 },
             }
         );
-
-        console.log(access_token);
-
-
         const response = await axios.post(`${process.env.PAYPAL_API}/v2/checkout/orders`,
             order,
             {
@@ -85,8 +82,10 @@ const CreateOrder = async (req, res = response) => {
             }
         );
 
-
-        res.json(response.data);
+        const link = response.data.links[1].href
+        
+        res.json({link});
+        // res.json(req.body);
 
     } catch (error) {
         console.log(error.message);
@@ -106,7 +105,7 @@ const CaptureOrder = async (req, res = response) => {
             auth: {
                 username: process.env.PAYPAL_CLIENT,
                 password: process.env.PAYPAL_SECRET,
-            },
+            },  
         }
     )
 
@@ -118,8 +117,8 @@ const CaptureOrder = async (req, res = response) => {
 
 const CancelOrder = async (req, res = response) => {
 
-
-    res.json(msg = 'hola');
+    hola='hola';
+    res.json({hola});
 
 }
 

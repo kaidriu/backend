@@ -39,4 +39,4 @@ router.put('/perfil-instructor',[validarJWT,validarCampos],usuariosPutInstructor
 
 router.put('/password',[validarJWT,validarCampos],usuariosPassword);
 
-module.exports=router;
+module.exports=router;  

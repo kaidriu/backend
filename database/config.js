@@ -7,10 +7,10 @@ module.exports = {
     DB: "odcwqpiy",
 
     // // BD LOCAL
-    // HOST: "localhost",
-    // USER: "postgres",
-    // PASSWORD: "solsito28",
-    // DB: "cursos",
+      // HOST: "localhost",
+      // USER: "postgres",
+      // PASSWORD: "solsito28",
+      // DB: "cursos",
     dialect: "postgres",
     pool: {
       max: 5, 
