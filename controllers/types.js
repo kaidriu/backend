@@ -25,6 +25,15 @@ const typesPost = async(req,res=response)=>{
 
 }
 
+
+const getRoles = async (req,res=response)=>{
+
+    const types = await Type.findAll();
+
+    res.json(types);
+}
+
 module.exports={
-    typesPost
+    typesPost,
+    getRoles
 }

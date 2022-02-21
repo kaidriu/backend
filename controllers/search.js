@@ -100,4 +100,4 @@ const busquedaT = async(req,res=response)=>{
 }
 module.exports={    
     busquedaT
-}   
+}

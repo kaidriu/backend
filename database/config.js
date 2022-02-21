@@ -6,16 +6,16 @@ module.exports = {
     PASSWORD: "vvlJcM_48UQPvkBi_d6RxnkQllhR8FeQ",
     DB: "odcwqpiy",
 
-    // BD LOCAL
-    // HOST: "localhost",
-    // USER: "postgres",
-    // PASSWORD: "solsito28",
-    // DB: "cursos",
+    // // BD LOCAL
+      // HOST: "localhost",
+      // USER: "postgres",
+      // PASSWORD: "solsito28",
+      // DB: "cursos",
     dialect: "postgres",
     pool: {
-      max: 5,
+      max: 5, 
       min: 0,
-      acquire: 30000,
+      acquire: 30000, 
       idle: 10000
     }
   };

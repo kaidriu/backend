@@ -141,36 +141,7 @@ const getSolicitudInstructor = async(req,res=response)=>{
 }
 
 
-const SolicitudCurso = async(req,res=response)=>{
 
-    const  {name,linkYt,category,info,certificate,startDate,finishDate,price} =req.body;
-    const {id} = req.usuario;
-
-    const usuario = await User.findByPk(id);
-
-    const state = "pendiente";
-    const profileId = id;
-
-
-    const requestC = new RequestC({name,linkYt,category,info,certificate,startDate,finishDate,price,state,profileId});
-
-    await requestC.save();
-
-    const requC = await RequestC.findOne({
-        where: {name},
-        include: [
-            {
-                model: Profile,
-            }
-        ],
-      
-    });
-
-    res.json({
-        requC
-    })
-
-}
 
 const getSolicitudCurso = async(req,res=response)=>{
 
@@ -210,7 +181,8 @@ const getSolicitudCurso = async(req,res=response)=>{
 
 const aceptarSolicitudInstructor = async (req,res=response)=>{
     
-    const {id} = req.params;
+    const {id,ProfileId} = req.params;
+
 
     const request = await Request.findOne({
 
@@ -243,8 +215,14 @@ const aceptarSolicitudInstructor = async (req,res=response)=>{
     });
 
     const state = 'aceptado';
-
-    await request.update({state})
+    
+    const profile = await Profile.findOne({
+        where:{id:ProfileId}
+    })
+    const userTypeId = 3;
+    
+    await profile.update({userTypeId})
+    await request.update({state});
 
 
     res.json({
@@ -319,7 +297,6 @@ const cantidadSolicitudesInstructor = async(req,res=response)=>{
 
 module.exports={
     SolicitudInstructor,
-    SolicitudCurso,
     getSolicitudInstructor,
     getSolicitudCurso,
     aceptarSolicitudInstructor,
