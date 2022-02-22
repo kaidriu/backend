@@ -11,8 +11,9 @@ const db = require('../database/db')
 const { Op } = require("sequelize");
 
 const { deleteFolder, createFolder, createVideo, modifyFolder } = require('../helpers/vimeo');
+const chapter = require('../models/chapter');
 
-
+const sequelize = require("sequelize");
 const Request = db.requestI;
 const RequestC = db.requestC;
 const User = db.user;
@@ -162,37 +163,39 @@ const PutCourse = async (req, res = response) => {
 
         // image = await subirArchivo(req.files,undefined,'publicacion');
         const { tempFilePath } = req.files.image;
-        const { secure_url } = await cloudinary.uploader.upload(tempFilePath)
+        const { secure_url } = await cloudinary.uploader.upload(tempFilePath,{width: 825, height: 500, crop: "scale"});
+        
+        // secure_url= `https://res.cloudinary.com/dvwve4ocp/image/upload/${c_scale,h_490,w_825}/v1645053971/okekuswfckbacohbq2is.jpg´
+        
         image_course = secure_url;
     }
 
     let uri_folder = curso.uri_folder;
 
-    if (curso.title != title) {
+    if (!curso.uri_folder) {
+        createFolder(title).then((resp) => {
+            // console.log(resp);
+            uri_folder = resp;
+            curso.update({ title, description, objectives, image_course, link_presentation, mode, state, price, userId, subcategoryId, languaje, learning, uri_folder });
+            return res.json({
+                curso
+            })
+        })
+
+    } else if (curso.title != title) {
 
         modifyFolder(uri_folder, title).then((resp) => {
             console.log(resp);
             uri_folder = curso.uri_folder;
             curso.update({ title, description, objectives, image_course, link_presentation, mode, state, price, userId, subcategoryId, languaje, learning, uri_folder });
-            res.json({
+            return res.json({
                 curso
             })
         })
-
-    } else if (!curso.uri_folder) {
-        createFolder(title).then((resp) => {
-            // console.log(resp);
-            uri_folder = resp;
-            curso.update({ title, description, objectives, image_course, link_presentation, mode, state, price, userId, subcategoryId, languaje, learning, uri_folder });
-            res.json({
-                curso
-            })
-        })
-
     }
     else {
         curso.update({ title, description, objectives, image_course, link_presentation, mode, state, price, userId, subcategoryId, languaje, learning, uri_folder });
-        res.json({
+        return res.json({
             curso
         })
         // }
@@ -347,6 +350,43 @@ const GetCourse = async (req, res = response) => {
     res.json({ curso, chapter });
 }
 
+
+const GeAllCourse = async (req, res = response) => {
+
+
+
+    const curso = await Course.findAll({
+        where: { state: "publicado" },
+        attributes: { exclude: ['updatedAt', 'createdAt','subcategoryId'] },
+        include: [
+            {
+                model: User,
+                attributes: { exclude: ['id', 'password', 'updatedAt', 'createdAt', 'email', 'is_active', 'google', 'profileId'] },
+                include: {
+                    model: Profile,
+                    attributes: { exclude: ['id', 'updatedAt', 'createdAt', 'userTypeId', 'ubicationId', 'userDetailId', 'education', 'phone', 'aboutMe', 'profession', 'gender', 'edad'] },
+                }
+            },
+            {
+                model: Subcategory,
+                attributes: { exclude: [ 'updatedAt', 'createdAt','categoryId','name_subcategory'] },
+                include: {
+                    model: Category,
+                    attributes: { exclude: [ 'id','updatedAt', 'createdAt'] },
+                }
+            }
+        ]
+    })
+
+    // const chapter = await Chapter.findAll({
+    //     where: { courseId: curso.id },
+    //     // include:[{model:Course}]
+
+    // })
+
+    res.json({ curso });
+}
+
 const GetCourseid = async (req, res = response) => {
 
     const { id } = req.params;
@@ -387,11 +427,80 @@ const myrequtesCourse = async (req, res = response) => {
     const { id } = req.usuario;
 
     const curso = await Course.findAll({
-        where: { [Op.and]: [{ userId: id }, { state: 'proceso' }] }
+        where: { userId: id }
     })
 
     res.json({ curso });
 }
+
+
+const getAllCourseID = async(req,res=response)=>{
+
+    const{id}= req.params;
+
+
+    const curso = await Course.findOne({
+        where: { id },
+        attributes: { exclude: ['createdAt', 'updatedAt'] },
+        include:[
+            {
+                model: User,
+                attributes: {
+                    include: [[
+                        sequelize.literal(`(SELECT COUNT(*) FROM  courses WHERE courses."userId"="user".id AND courses."state"='publicado')`), 'cursos_totales'
+                    ]]
+                    ,
+                    exclude: ["createdAt", "updatedAt", "google", "is_active"]
+
+                },
+                include:[{
+                    model:Profile,
+                    attributes: { exclude: ['createdAt', 'updatedAt'] },
+                },
+               
+                
+            ]
+            },
+            {
+                model:Subcategory,
+                attributes: { exclude: ['createdAt', 'updatedAt'] },
+                include:{
+                    model:Category,
+                    attributes: { exclude: ['createdAt', 'updatedAt'] },
+                }
+            }
+        ]
+        // attributes: {
+        //     include: [[
+        //         sequelize.literal(`(SELECT COUNT(*) FROM  courses WHERE courses."userId"="user".id AND courses."state"='publicado')`), 'cursos_totales'
+        //     ]]
+        //     ,
+        //     exclude: ["createdAt", "updatedAt", "google", "is_active"]
+
+        // },
+    })
+
+    const chapter = await Chapter.findAll({
+        where: { courseId: curso.id },
+        attributes: {
+            include: [[
+                sequelize.literal(`(SELECT COUNT(*) FROM  topics where chapter."id" = "topics"."chapterId")`), 'temas_totales'
+            ]]
+            ,
+            exclude: ["createdAt", "updatedAt"]
+
+        },
+        
+    })
+
+
+
+    res.json({curso,chapter})
+}   
+
+
+
+
 
 module.exports = {
     getCursosMoodle,
@@ -404,5 +513,7 @@ module.exports = {
     PutCourse,
     GetChapter,
     GetTopic,
-    SendCourse
+    SendCourse,
+    GeAllCourse,
+    getAllCourseID
 }

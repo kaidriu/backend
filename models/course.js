@@ -4,7 +4,7 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING
       },
       description: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING(5000),
       },
       objectives: {
         type: Sequelize.ARRAY(Sequelize.TEXT)
@@ -32,6 +32,12 @@ module.exports = (sequelize, Sequelize) => {
       },
       uri_folder:{
         type: Sequelize.STRING
+      },
+      state_cart:{
+        type: Sequelize.BOOLEAN
+      },
+      valoration:{
+        type: Sequelize.INTEGER
       }
     });
     return Course;

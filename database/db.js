@@ -52,7 +52,17 @@ const db = {};
 
 
       db.choppingcar = require("../models/shoppingcar")(sequelize,Sequelize);
+      db.country = require("../models/country")(sequelize,Sequelize);
+      db.payment_method = require("../models/payment_metods")(sequelize,Sequelize);
+      db.payment_method_country = require("../models/payment_method_country")(sequelize,Sequelize);
+      db.order = require("../models/order")(sequelize,Sequelize);
+      
+      db.order_details = require("../models/order_details")(sequelize,Sequelize);
 
+      db.quiz = require("../models/quiz")(sequelize,Sequelize);
+      db.question = require("../models/question")(sequelize,Sequelize);
+      db.option = require("../models/options")(sequelize,Sequelize);
+      db.task = require("../models/task")(sequelize,Sequelize);
 
 
       db.user.belongsTo(db.profile);
@@ -80,7 +90,7 @@ const db = {};
       db.profile.hasOne(db.requestC);
 
       db.course.belongsTo(db.user);
-      db.user.hasOne(db.course);
+      db.user.hasMany(db.course);
 
       db.chapter.belongsTo(db.course);
       db.course.hasOne(db.chapter);
@@ -105,5 +115,36 @@ const db = {};
 
       db.choppingcar.belongsTo(db.course);
       db.course.hasOne(db.choppingcar);
+
+      db.payment_method_country.belongsTo(db.country);
+      db.country.hasOne(db.payment_method_country);
+
+      db.payment_method_country.belongsTo(db.payment_method);
+      db.payment_method.hasOne(db.payment_method_country);
+
+      db.order.belongsTo(db.user);
+      db.user.hasOne(db.order);
+
+      db.order.belongsTo(db.payment_method);
+      db.payment_method.hasOne(db.order);
+
+      db.order_details.belongsTo(db.order);
+      db.order.hasOne(db.order_details);
+
+      db.order_details.belongsTo(db.course);
+      db.course.hasOne(db.order_details);
+
+
+      db.quiz.belongsTo(db.topic);
+      db.topic.hasOne(db.quiz);
+
+      db.question.belongsTo(db.quiz);
+      db.quiz.hasOne(db.question);
+
+      db.option.belongsTo(db.question);
+      db.question.hasMany(db.option);
+
+      db.task.belongsTo(db.topic);
+      db.topic.hasMany(db.task);    
 
 module.exports = db;
