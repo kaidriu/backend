@@ -3,7 +3,7 @@ const { check } = require('express-validator');
 const { validarEmail } = require('../helpers/db-validator');
 const {validarCampos} = require('../middlewares/validar-campos');
 const {validarJWT} = require('../middlewares/validar-JWT');
-const {instructorAllGet,usuariosPost, usuariosGet, usuariosPut, usuariosPassword,usuariosAllGet, usuariosGetId, usuariosPutInstructor, video, usuariosPutTypes, administradorAllGet}=require('../controllers/usuarios');
+const {instructorAllGet,usuariosPost, usuariosGet, usuariosPut, usuariosPassword,usuariosAllGet, usuariosGetId, usuariosPutInstructor, video, usuariosPutTypes, administradorAllGet, GetAllInstructor, GetOneInstructor, getcoursysId}=require('../controllers/usuarios');
 
 
 
@@ -22,11 +22,23 @@ router.post('/registrar',
 ,usuariosPost);
 
 router.get('/',[validarJWT,validarCampos],usuariosGet);
+
 router.get('/get/:id',[validarJWT,validarCampos],usuariosGetId);
 
 router.get('/all',[validarJWT,validarCampos],usuariosAllGet);
 
 router.get('/instructor-all',[validarJWT,validarCampos],instructorAllGet);
+
+
+router.get('/getinstructor-course',GetAllInstructor);
+
+
+router.get('/getinstructorid/:idp',GetOneInstructor);
+
+
+router.get('/getcourseid/:idp',getcoursysId);   
+
+
 router.get('/administrador-all',[validarJWT,validarCampos],administradorAllGet);
 
 

@@ -4,6 +4,8 @@ const db = require('../database/db');
 
 const Type = db.UserType;
 
+const Country = db.country;
+
 
 const typesPost = async(req,res=response)=>{
 
@@ -33,7 +35,18 @@ const getRoles = async (req,res=response)=>{
     res.json(types);
 }
 
+const postCountry = async (req,res=response)=>{
+
+    const{name_country}= req.body;
+
+    const country = new Country({name_country});
+    await country.save();
+
+    res.json(country);
+}
+
 module.exports={
     typesPost,
-    getRoles
+    getRoles,
+    postCountry
 }
