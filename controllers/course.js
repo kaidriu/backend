@@ -100,7 +100,7 @@ const moodle = new MoodleClient({
 
 const PostCourse = async (req, res = response) => {
 
-    const { title, description, objectives, link_presentation, mode, price } = req.body;
+    const { title, description, objectives, link_presentation, mode, price} = req.body;
     const { id } = req.usuario;
 
     // const usuario = await User.findByPk(id);
@@ -113,7 +113,7 @@ const PostCourse = async (req, res = response) => {
     // });
 
 
-    const course = new Course({ title, description, objectives, image_course, link_presentation, mode, state, price, userId });
+    const course = new Course({ title, description, objectives, image_course, link_presentation, mode, state, price, userId});
 
     await course.save();
 
@@ -136,9 +136,10 @@ const PostCourse = async (req, res = response) => {
 
 const PutCourse = async (req, res = response) => {
 
-    const { title, description, objectivess, link_presentation, mode, precio, subcategoryId, learnings, languaje, description_large } = req.body;
+    const { title, description, objectivess, link_presentation, mode, precio, subcategoryId, learnings, languaje, description_large, labeles } = req.body;
     let learning;
     let objectives;
+    let labels;
 
     if (learnings) {
         learning = learnings.split(",");
@@ -147,6 +148,12 @@ const PutCourse = async (req, res = response) => {
     if (objectivess) {
         objectives = objectivess.split(",");
     }
+    if (labeles) {
+        labels = labeles.split(",");
+    }
+
+    console.log("----------------labels-------------");
+        console.log(labels);
 
     let price = parseFloat(precio);
 
@@ -190,7 +197,9 @@ const PutCourse = async (req, res = response) => {
         createFolder(title).then((resp) => {
             // console.log(resp);
             uri_folder = resp;
-            curso.update({ title, description, objectives, image_course, link_presentation, mode, state, price, userId, subcategoryId, languaje, learning, uri_folder, description_large });
+            curso.update({ title, description, objectives, image_course, link_presentation, mode, state, price, userId, subcategoryId, languaje, learning, uri_folder, labels, description_large});
+            console.log("----------------curso1-------------");
+        console.log(curso);
             return res.json({
                 curso
             })
@@ -201,14 +210,18 @@ const PutCourse = async (req, res = response) => {
         modifyFolder(uri_folder, title).then((resp) => {
             console.log(resp);
             uri_folder = curso.uri_folder;
-            curso.update({ description_large, title, description, objectives, image_course, link_presentation, mode, state, price, userId, subcategoryId, languaje, learning, uri_folder });
+            curso.update({ description_large, title, description, objectives, image_course, link_presentation, mode, state, price, userId, subcategoryId, languaje, learning, uri_folder, labels});
+            console.log("----------------curso2-------------");
+            console.log(curso);
             return res.json({
                 curso
             })
         })
     }
     else {
-        curso.update({ description_large, title, description, objectives, image_course, link_presentation, mode, state, price, userId, subcategoryId, languaje, learning, uri_folder });
+        curso.update({ description_large, title, description, objectives, image_course, link_presentation, mode, state, price, userId, subcategoryId, languaje, learning, uri_folder, labels});
+        console.log("----------------curso3-------------");
+        console.log(curso);
         return res.json({
             curso
         })
