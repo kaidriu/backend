@@ -30,7 +30,8 @@ class Server{
             curso        : '/api/curso',
             busqueda     : '/api/total',
             category     : '/api/category',
-            payments     : '/api/payments'
+            payments     : '/api/payments',
+            questions    : '/api/questions'
         }
 
 
@@ -60,7 +61,7 @@ class Server{
     middlewares(){
 
         //CORS
-        this.app.use(cors({ origin: true, credentials: true  }));
+        this.app.use(cors({ origin: '*' , credentials: true  , optionSuccessStatus:200,}));
         // this.app.use(cors());
 
         // Parseo y Lectura del body
@@ -91,6 +92,7 @@ class Server{
         this.app.use(this.paths.busqueda,require('../routes/search'));
         this.app.use(this.paths.category,require('../routes/category'));
         this.app.use(this.paths.payments,require('../routes/payments'));
+        this.app.use(this.paths.questions,require('../routes/questions'));
 
     }
 

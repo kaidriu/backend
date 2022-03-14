@@ -1,6 +1,6 @@
 const {Router}=require('express');
 const { validarCampos } = require('../middlewares/validar-campos');
-const { SolicitudInstructor, getSolicitudInstructor, getSolicitudCurso, aceptarSolicitudInstructor, denegarSolicitudInstructor, cantidadSolicitudesInstructor } = require('../controllers/requets');
+const { SolicitudInstructor, getSolicitudInstructor, getSolicitudCurso, aceptarSolicitudInstructor, denegarSolicitudInstructor, cantidadSolicitudesInstructor, aceptarSolicitudCurso, denegarSolicitudCurso } = require('../controllers/requets');
 const { validarJWT } = require('../middlewares/validar-JWT');
 
 const router = Router();
@@ -12,6 +12,12 @@ router.get('/getcurso',[validarJWT,validarCampos],getSolicitudCurso);
 router.get('/aceptarInstructor/:id/:ProfileId',[validarJWT,validarCampos],aceptarSolicitudInstructor);
 router.get('/cantidadInstructores',[validarJWT,validarCampos],cantidadSolicitudesInstructor);
 router.delete('/eliminarSolicitudInstructor/:id',[validarJWT,validarCampos],denegarSolicitudInstructor);
+
+
+
+router.put('/aceptarcourse/:idc',[validarJWT,validarCampos],aceptarSolicitudCurso);
+
+router.put('/denegarcourse/:idc',[validarJWT,validarCampos],denegarSolicitudCurso);
 
 
 module.exports=router;  

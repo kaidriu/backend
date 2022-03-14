@@ -25,13 +25,13 @@ const createFolder = function create(name) {
 
 }
 
-const deleteFolder = function create(path) {
+const deleteFolder = function create(path,deleteclips) {
     return new Promise((resolve) => {
         setTimeout(() => {
 
             client.request({
                 method: 'DELETE',
-                path: path
+                path: path+'?should_delete_clips=true',              
             }, function (error, body, status_code, headers, location) {
                 resolve('borrado')
             })
@@ -102,9 +102,34 @@ const modifyFolder = function create(path,name) {
 }
 
 
+
+const deleteVideo = function create(path) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+
+            client.request({
+                method: 'DELETE',
+                path: path,
+            }, function (error, body, status_code, headers, location) {
+                resolve('borrado')
+            })
+        }, 1000);
+    })
+        ;
+
+}
+
+
+
+
+
+
+
+
 module.exports={
     createFolder,
     deleteFolder,
     createVideo,
-    modifyFolder
+    modifyFolder,
+    deleteVideo
 }

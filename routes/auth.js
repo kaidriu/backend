@@ -1,6 +1,6 @@
 const {Router} = require('express');
 const { check } = require('express-validator');
-const { login, renewToken, GoogleSingIn, loginadministrador } = require('../controllers/auth');
+const { login, renewToken, GoogleSingIn, loginadministrador, PasswordRecovery } = require('../controllers/auth');
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJWT } = require('../middlewares/validar-JWT');
 const router = Router();
@@ -32,5 +32,8 @@ router.get( '/renew',
     validarJWT,
     renewToken
 );
+
+
+router.put('/changepassword',PasswordRecovery);
 
 module.exports=router;

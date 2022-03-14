@@ -21,15 +21,16 @@ const recoverPassword = async(req,res=response)=>{
     const{name} = Usuario;
 
     const transporter = nodemailer.createTransport({
-        host: 'smtp-mail.outlook.com',
+        // host: 'smtp-mail.outlook.com',
+        service: 'gmail',
         secureConnection: false,
-        port: 587,
+        // port: 587,
         tls: {
             ciphers:'SSLv3'
          },
         auth: {
-            user: 'supermixpc@outlook.com',
-            pass: 'Solsito2528*'
+            user: 'deunaaprende@gmail.com',
+            pass: 'Solsito28*'
         }
     });
     
@@ -162,7 +163,7 @@ const recoverPassword = async(req,res=response)=>{
                 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
                     <tr>
                         <td bgcolor="#ffffff" align="center" valign="top" style="padding: 40px 20px 20px 20px; border-radius: 4px 4px 0px 0px; color: #111111; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 48px; font-weight: 400; letter-spacing: 4px; line-height: 48px;">
-                           <h2> Hola, ${name} </h2> <img src=" https://tlr.stripocdn.email/content/guids/CABINET_dd354a98a803b60e2f0411e893c82f56/images/23891556799905703.png" width="125" height="120" style="display: block; border: 0px;" />
+                           <h2> Hola, ${name} </h2> <img src=" https://res.cloudinary.com/dvwve4ocp/image/upload/v1641599573/hj09xtdatusyijjvkyhc.png" width="125" height="120" style="display: block; border: 0px;" />
                         </td>
                     </tr>
                 </table>
@@ -183,7 +184,7 @@ const recoverPassword = async(req,res=response)=>{
                                     <td bgcolor="#ffffff" align="center" style="padding: 20px 30px 60px 30px;">
                                         <table border="0" cellspacing="0" cellpadding="0">
                                             <tr>
-                                                <td align="center" style="border-radius: 3px;" bgcolor="#2C2D3F"><a href="#" target="_blank" style="font-size: 20px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; color: #ffffff; text-decoration: none; padding: 15px 25px; border-radius: 2px; border: 1px solid #2C2D3F; display: inline-block;">Reactivate Account</a></td>
+                                                <td align="center" style="border-radius: 3px;" bgcolor="#2C2D3F"><a href="http://localhost:4200/changepassword/${name}/${email}" target="_blank" style="font-size: 20px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; color: #ffffff; text-decoration: none; padding: 15px 25px; border-radius: 2px; border: 1px solid #2C2D3F; display: inline-block;">Recuperar Contraseña</a></td>
                                             </tr>
                                         </table>
                                     </td>
@@ -236,7 +237,7 @@ const recoverPassword = async(req,res=response)=>{
 
 
     let mailOptions ={
-        from:"supermixpc@outlook.com",
+        from:"deunaaprende@gmail.com",
         to:email,
         subject:`Cambio de contraseña ${name}`,
         html:Correo

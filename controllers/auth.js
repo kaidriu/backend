@@ -262,10 +262,48 @@ const GoogleSingIn = async( req,res=response) =>{
 }
 
 
+const PasswordRecovery = async (req,res=response)=>{
+    
+    try {
+        // userId=usuario.id;
+
+        const { email, password } = req.body;
+
+        const Usuario = await User.findOne({
+            where:{
+                email
+            }
+        });
+
+
+        //encriptar contraseña
+        const salt = bcrypts.genSaltSync();
+        encriptada = await bcrypts.hash(password, salt);
+
+
+
+        // console.log(encriptada);
+      
+        await Usuario.update({ password:encriptada});
+
+      
+        res.json(Usuario)
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            msg: `Hable con el administrador`
+        })
+
+    }
+}
+
+
 
 module.exports={
     login,
     renewToken,
     GoogleSingIn,
-    loginadministrador
+    loginadministrador,
+    PasswordRecovery
 }
