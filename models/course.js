@@ -6,6 +6,9 @@ module.exports = (sequelize, Sequelize) => {
       description: {
         type: Sequelize.STRING(5000),
       },
+      description_large: {
+        type: Sequelize.STRING(10000),
+      },
       objectives: {
         type: Sequelize.ARRAY(Sequelize.TEXT)
       },
@@ -38,7 +41,10 @@ module.exports = (sequelize, Sequelize) => {
       },
       valoration:{
         type: Sequelize.INTEGER
-      }
+      },
+      labels: {
+        type: Sequelize.ARRAY(Sequelize.TEXT)
+      },
     });
     return Course;
   };

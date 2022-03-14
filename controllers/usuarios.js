@@ -15,7 +15,7 @@ const Profile = db.profile;
 const Ubication = db.Ubication;
 const UserDetails = db.userDetails;
 const Course = db.course;
-
+const Request=db.requestI;
 const Type = db.UserType;
 const { Router } = require('express');
 const router = Router();
@@ -462,6 +462,10 @@ const GetOneInstructor = async(req,res=response)=>{
                     model: UserDetails,
                     attributes: { exclude: ['createdAt', 'updatedAt', 'id'] },
                 },
+                {
+                    model: Request,
+                    attributes: { exclude: ['createdAt', 'updatedAt', 'id','aboutMe','category','fecha','state'] },
+                }
             ]
         })
 

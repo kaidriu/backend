@@ -12,6 +12,15 @@ module.exports = (sequelize, Sequelize) => {
       buyer_phone: {
         type: Sequelize.STRING
       },
+      buyer_countre:{
+        type: Sequelize.STRING
+      },
+      buyer_state:{
+        type: Sequelize.STRING
+      },
+      buyer_postcode:{
+        type: Sequelize.STRING
+      },
       payment_status: {
         type: Sequelize.STRING
       },

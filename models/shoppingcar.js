@@ -1,7 +1,7 @@
 module.exports = (sequelize, Sequelize) => {
-    const Chopping_car = sequelize.define("chopping_car", {
+    const Shopping_car = sequelize.define("shopping_car", {
       
     });
-    return Chopping_car;
+    return Shopping_car;
   };
 

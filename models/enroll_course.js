@@ -8,6 +8,9 @@ module.exports = (sequelize, Sequelize) => {
       },
       enroll_finish_date: {
         type: Sequelize.STRING
+      },
+      avg_score:{
+        type: Sequelize.INTEGER
       }
 
     });

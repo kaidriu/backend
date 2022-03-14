@@ -10,14 +10,11 @@ module.exports = (sequelize, Sequelize) => {
       description_topic: { 
         type: Sequelize.STRING
       },
-      link_video_topic: { 
-        type: Sequelize.STRING
-      },
       recurso: { 
         type: Sequelize.STRING
       },
-      option:{
-        type: Sequelize.STRING
+      demo:{
+        type: Sequelize.BOOLEAN
       },
       uri_video:{
         type: Sequelize.STRING

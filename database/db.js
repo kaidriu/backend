@@ -11,7 +11,7 @@ const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
   // port: 17398,
 
 // 
-  pool: {
+  pool: {   
     max: dbConfig.pool.max,
     min: dbConfig.pool.min,
     acquire: dbConfig.pool.acquire,
@@ -45,6 +45,7 @@ const db = {};
       db.course = require("../models/course")(sequelize,Sequelize);
       db.chapter = require("../models/chapter")(sequelize,Sequelize);
       db.topic = require("../models/topic")(sequelize,Sequelize);
+      db.question_course = require("../models/question_course")(sequelize,Sequelize);
       db.enroll_course = require("../models/enroll_course")(sequelize,Sequelize);
 
       db.category = require("../models/category")(sequelize,Sequelize);
@@ -63,6 +64,8 @@ const db = {};
       db.question = require("../models/question")(sequelize,Sequelize);
       db.option = require("../models/options")(sequelize,Sequelize);
       db.task = require("../models/task")(sequelize,Sequelize);
+      db.favorite = require("../models/favorite")(sequelize,Sequelize);
+      db.content_tracking = require("../models/content_tracker")(sequelize,Sequelize);
 
 
       db.user.belongsTo(db.profile);
@@ -93,13 +96,17 @@ const db = {};
       db.user.hasMany(db.course);
 
       db.chapter.belongsTo(db.course);
-      db.course.hasOne(db.chapter);
+      db.course.hasMany(db.chapter,{ onDelete: 'cascade',hooks: true, });
 
       db.topic.belongsTo(db.chapter);
-      db.chapter.hasOne(db.topic);
+      db.chapter.hasMany(db.topic,{ onDelete: 'cascade',hooks: true, });
 
       db.enroll_course.belongsTo(db.course);
       db.course.hasOne(db.enroll_course);
+
+      db.question_course.belongsTo(db.course);
+      db.course.hasMany(db.question_course,{ onDelete: 'cascade',hooks: true, });
+
 
       db.enroll_course.belongsTo(db.user);
       db.user.hasOne(db.enroll_course);
@@ -116,6 +123,14 @@ const db = {};
       db.choppingcar.belongsTo(db.course);
       db.course.hasOne(db.choppingcar);
 
+
+      db.favorite.belongsTo(db.user);
+      db.user.hasOne(db.favorite);
+
+      db.favorite.belongsTo(db.course);
+      db.course.hasOne(db.favorite);
+
+
       db.payment_method_country.belongsTo(db.country);
       db.country.hasOne(db.payment_method_country);
 
@@ -129,14 +144,14 @@ const db = {};
       db.payment_method.hasOne(db.order);
 
       db.order_details.belongsTo(db.order);
-      db.order.hasOne(db.order_details);
+      db.order.hasOne(db.order_details,{ onDelete: 'cascade',hooks: true, });
 
       db.order_details.belongsTo(db.course);
       db.course.hasOne(db.order_details);
 
 
       db.quiz.belongsTo(db.topic);
-      db.topic.hasOne(db.quiz);
+      db.topic.hasOne(db.quiz,{ onDelete: 'cascade',hooks: true, });
 
       db.question.belongsTo(db.quiz);
       db.quiz.hasOne(db.question);
@@ -147,4 +162,12 @@ const db = {};
       db.task.belongsTo(db.topic);
       db.topic.hasMany(db.task);    
 
+      db.content_tracking.belongsTo(db.topic);
+      db.topic.hasOne(db.content_tracking); 
+
+      db.content_tracking.belongsTo(db.enroll_course);
+      db.enroll_course.hasOne(db.content_tracking); 
+
+
 module.exports = db;
+
