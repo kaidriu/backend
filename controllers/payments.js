@@ -332,27 +332,34 @@ const getFav = async (req, res = response) => {
         where: { userId: id },
         attributes: { exclude: ['updatedAt', 'createdAt'] },
         include: [
-            {
-                model: User,
-                attributes: { exclude: ['id', 'password', 'updatedAt', 'createdAt', 'email', 'is_active', 'google', 'profileId'] },
-                include: {
-                    model: Profile,
-                    attributes: { exclude: ['id', 'updatedAt', 'createdAt', 'userTypeId', 'ubicationId', 'userDetailId', 'education', 'phone', 'aboutMe', 'profession', 'gender', 'edad'] },
-                }
-            },
+            // {
+            //     model: User,
+            //     attributes: { exclude: ['id', 'password', 'updatedAt', 'createdAt', 'email', 'is_active', 'google', 'profileId'] },
+            //     include: {
+            //         model: Profile,
+            //         attributes: { exclude: ['id', 'updatedAt', 'createdAt', 'userTypeId', 'ubicationId', 'userDetailId', 'education', 'phone', 'aboutMe', 'profession', 'gender', 'edad'] },
+            //     }
+            // },
             {
                 model: Course,
-                attributes: { exclude: ['id', 'uri_folder', 'createdAt', 'updatedAt', 'objectives', 'learning', 'link_presentation', 'mode', 'state', 'subcategoryId', 'userId', 'description', 'languaje'] },
-                include: {
+                attributes: { exclude: ['id', 'uri_folder', 'createdAt', 'updatedAt', 'objectives', 'learning', 'link_presentation', 'state', 'subcategoryId', 'userId', 'description', 'languaje'] },
+                include: [{
                     model: User,
                     attributes: { exclude: ['id', 'password', 'updatedAt', 'createdAt', 'email', 'is_active', 'google', 'profileId'] },
-                    include: {
-                        model: Profile,
-                        attributes: { exclude: ['id', 'updatedAt', 'createdAt', 'userTypeId', 'ubicationId', 'userDetailId', 'education', 'phone', 'aboutMe', 'profession', 'gender', 'edad'] },
+                    // include: {
+                    //     model: Profile,
+                    //     attributes: { exclude: ['id', 'updatedAt', 'createdAt', 'userTypeId', 'ubicationId', 'userDetailId', 'education', 'phone', 'aboutMe', 'profession', 'gender', 'edad'] },
+                    // }
+                },
+                {
+                    model:Subcategory,
+                    include:{
+                        model: Category
                     }
                 }
+            ]
             }
-        ]
+        ]   
     })
 
 
@@ -361,7 +368,20 @@ const getFav = async (req, res = response) => {
 
 
 const deleteFav = async (req, res = response) => {
+    const { idch } = req.params;
+    const { id } = req.usuario;
+    console.log(idch);
+    console.log(id);
+    const favorite = await Favorite.destroy({
+        where: {
+            [Op.and]: [
+                { userId: id },
+                { courseId: idch }
+            ]
+        }
+    });
 
+    res.json(favorite);
 }
 
 
