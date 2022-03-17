@@ -2,7 +2,7 @@ const dbConfig = require("./config.js");
 
 const Sequelize = require("sequelize");
 
-const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
+/* const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
   host: dbConfig.HOST,
   dialect: dbConfig.dialect,
   operatorsAliases: false,
@@ -17,11 +17,13 @@ const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
     acquire: dbConfig.pool.acquire,
     idle: dbConfig.pool.idle
   }
-});
+}); */
 
-// const sequelize = new Sequelize('postgres://ryhcrxjegaemes:640051b0e5d29a45fe85d77395cf07b6b38e10e204b7d63e666cf394f845f69c@ec2-54-162-211-113.compute-1.amazonaws.com:5432/d4hjoafh59htip');
+const sequelize = new Sequelize(process.env.DATABASE_URL);
+
 
 const db = {};
+
 
 
 //relaciones
