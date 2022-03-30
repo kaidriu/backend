@@ -237,15 +237,28 @@ const addCar = async (req, res = response) => {
 
     const { idc } = req.body;
     const { id } = req.usuario;
-    const Carshopping = new Car({ userId: id, courseId: idc });
-    await Carshopping.save();
 
-    // const course = await Course.findOne({
-    //     where: { id: idc }
-    // })
-    // await course.update({ state_cart: true })
+    const busqueda = await Car.findOne({
+        where:{courseId:idc}
+    })
 
-    res.json(Carshopping);
+    if(busqueda){
+
+        res.json({msg:"ya existe"})
+
+    }else{
+        const Carshopping = new Car({ userId: id, courseId: idc });
+        await Carshopping.save();
+    
+        // const course = await Course.findOne({
+        //     where: { id: idc }
+        // })       
+        // await course.update({ state_cart: true })
+    
+        res.json(Carshopping);
+    }
+
+   
 }
 
 

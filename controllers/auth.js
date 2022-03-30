@@ -11,129 +11,134 @@ const Type = db.UserType;
 const UserDetails = db.userDetails;
 const Ubication = db.Ubication;
 
+const jwt = require('jsonwebtoken');
 
-const login=async (req,res=response)=>{
+const login = async (req, res = response) => {
 
-    const{email,password}=req.body;
+    const { email, password } = req.body;
 
     try {
         //verificar si existe el email
 
         const usuario = await User.findOne({
-            where: {email}  
+            where: { email },
+            include:{
+                model:Profile,
+                attributes: { exclude: ['createdAt', 'updatedAt', 'ubicationId', 'userTypeId', 'userDetailId'] },
+            }
         });
-        
-        if(!usuario){
+
+        if (!usuario) {
             return res.status(400).json({
-                msg:`No existe un usuario con ese email : ${email}`
+                msg: `No existe un usuario con ese email : ${email}`
             })
         }
 
         //si existe el usuario
         //verificar la contraseña
 
-        const validarPassword = bcrypts.compareSync(password,usuario.password);
+        const validarPassword = bcrypts.compareSync(password, usuario.password);
 
-        if(!validarPassword){
+        if (!validarPassword) {
             return res.status(400).json({
-                msg:`El passsword esta mal : ${password}`
+                msg: `El passsword esta mal : ${password}`
             })
         }
-     
+
         //Generar JWT
         const token = await generarJWT(usuario.id);
-     
+
         res.json({
             usuario,
             token
         })
-        
+
     } catch (error) {
         console.log(error);
         return res.status(500).json({
-            msg:'Hable con el administrador'
+            msg: 'Hable con el administrador'
         })
-    }   
-
+    }
+    
 }
 
-const loginadministrador=async (req,res=response)=>{
+const loginadministrador = async (req, res = response) => {
 
-    const{email,password}=req.body;
+    const { email, password } = req.body;
 
     try {
         //verificar si existe el email
 
         const usuario = await User.findOne({
-            where: {email}  
+            where: { email }
         });
-        
-        if(!usuario){
+
+        if (!usuario) {
             return res.status(400).json({
-                msg:`No existe un usuario con ese email : ${email}`
+                msg: `No existe un usuario con ese email : ${email}`
             })
         }
 
         //si existe el usuario
         //verificar la contraseña
 
-        const validarPassword = bcrypts.compareSync(password,usuario.password);
+        const validarPassword = bcrypts.compareSync(password, usuario.password);
 
-        if(!validarPassword){
+        if (!validarPassword) {
             return res.status(400).json({
-                msg:`El passsword esta mal : ${password}`
+                msg: `El passsword esta mal : ${password}`
             })
         }
         const id = usuario.id;
         // const {id} = req.params;
-    
+
         const perfil = await Profile.findOne({
-            where:{id},
-            attributes: {exclude: ['createdAt','updatedAt','ubicationId','userTypeId','userDetailId'] },
+            where: { id },
+            attributes: { exclude: ['createdAt', 'updatedAt', 'ubicationId', 'userTypeId', 'userDetailId'] },
             include: [
                 {
-                    model:Type,
-                    attributes: {exclude: ['createdAt','updatedAt','id'] },
+                    model: Type,
+                    attributes: { exclude: ['createdAt', 'updatedAt', 'id'] },
                 }
             ],
-            
-            
-           });
-    
+
+
+        });
+
         // console.log(perfil.userType.nametype);
 
-        if(perfil.userType.nametype=='administrador'){
-             //Generar JWT
-        const token = await generarJWT(usuario.id);
-     
-        res.json({
-            usuario,
-            token
-        })
-           
-        }else{
+        if (perfil.userType.nametype == 'administrador') {
+            //Generar JWT
+            const token = await generarJWT(usuario.id);
+
+            res.json({
+                usuario,
+                token
+            })
+
+        } else {
             return res.status(400).json({
-                msg:`Usuario Denegado`
+                msg: `Usuario Denegado`
             })
         }
-     
-       
-        
+
+
+
     } catch (error) {
         console.log(error);
         return res.status(500).json({
-            msg:'Hable con el administrador'
+            msg: 'Hable con el administrador'
         })
-    }   
+    }
 
 }
 
-const renewToken = async(req, res = response) => {
+const   renewToken = async (req, res = response) => {
 
     const id = req.usuario.id;
 
     // Generar el TOKEN - JWT
-    const token = await generarJWT( id );
+    const token = await generarJWT(id);
 
     // console.log(email);
 
@@ -148,30 +153,30 @@ const renewToken = async(req, res = response) => {
     // let perfil = await Profile.findByPk(usuario.id);
 
     const perfil = await Profile.findOne({
-        
-        where:{id},
-        attributes: {exclude: ['createdAt','updatedAt','ubicationId','userTypeId','userDetailId'] },
+
+        where: { id },
+        attributes: { exclude: ['createdAt', 'updatedAt', 'ubicationId', 'userTypeId', 'userDetailId'] },
         include: [
             {
                 model: User,
-                attributes: {exclude: ['password','createdAt','updatedAt','id'] },
+                attributes: { exclude: ['password', 'createdAt', 'updatedAt', 'id'] },
             },
             {
                 model: Ubication,
-                attributes: {exclude: ['createdAt','updatedAt','id'] },
+                attributes: { exclude: ['createdAt', 'updatedAt', 'id'] },
             },
             {
                 model: UserDetails,
-                attributes: {exclude: ['createdAt','updatedAt','id'] },
+                attributes: { exclude: ['createdAt', 'updatedAt', 'id'] },
             },
             {
-                model:Type,
-                attributes: {exclude: ['createdAt','updatedAt','id'] },
+                model: Type,
+                attributes: { exclude: ['createdAt', 'updatedAt', 'id'] },
             }
         ],
-        
-        
-       });
+
+
+    });
 
 
     res.json({
@@ -184,74 +189,74 @@ const renewToken = async(req, res = response) => {
 }
 
 
-const GoogleSingIn = async( req,res=response) =>{
+const GoogleSingIn = async (req, res = response) => {
 
 
     const googleToken = req.body.token;
 
     try {
 
-        const {name, email, picture} = await googleVerify(googleToken);
-       console.log(email);
+        const { name, email, picture } = await googleVerify(googleToken);
+        console.log(email);
 
-        const  usuarioDB = await  User.findOne({where:{email}});
-         let usuario;
+        const usuarioDB = await User.findOne({ where: { email } });
+        let usuario;
 
-        if(!usuarioDB){
+        if (!usuarioDB) {
 
             console.log('nuevo');
 
             usuario = new User({
                 name,
-                email,password :'xxx',
-                google : true
+                email, password: 'xxx',
+                google: true
             })
 
             await usuario.save();
 
-            userId=usuario.id;
+            userId = usuario.id;
 
-            image_perfil=picture;
+            image_perfil = picture;
 
 
             const details = new UserDetails();
             await details.save();
 
 
-            const profile = new Profile({image_perfil,userTypeId:1});
+            const profile = new Profile({ image_perfil, userTypeId: 1 });
             await profile.save();
-    
+
             const ubication = new Ubication()
             await ubication.save();
-    
-            
-    
-            await usuario.update({profileId:usuario.id});
-
-             await profile.update({ubicationId:usuario.id,userDetailId:usuario.id});
 
 
-        }else {
+
+            await usuario.update({ profileId: usuario.id });
+
+            await profile.update({ ubicationId: usuario.id, userDetailId: usuario.id });
+
+
+        } else {
             console.log('viejo');
             usuario = usuarioDB;
             usuario.password = 'xxx';
         }
-        
 
-         const token = await generarJWT(usuario.id);
+
+        const token = await generarJWT(usuario.id);
 
         res.json(
             {
-                ok:true,
+                ok: true,
                 token
             }
-        )   
-        
+        )
+
     } catch (error) {
         res.status(401).json(
             {
-                ok:false,
-                msg:'token no es correcto 2 ' + error
+                ok: false,
+                msg: 'token no es correcto 2 ' + error
             }
         )
     }
@@ -262,15 +267,15 @@ const GoogleSingIn = async( req,res=response) =>{
 }
 
 
-const PasswordRecovery = async (req,res=response)=>{
-    
+const PasswordRecovery = async (req, res = response) => {
+
     try {
         // userId=usuario.id;
 
         const { email, password } = req.body;
 
         const Usuario = await User.findOne({
-            where:{
+            where: {
                 email
             }
         });
@@ -283,10 +288,10 @@ const PasswordRecovery = async (req,res=response)=>{
 
 
         // console.log(encriptada);
-      
-        await Usuario.update({ password:encriptada});
 
-      
+        await Usuario.update({ password: encriptada });
+
+
         res.json(Usuario)
 
     } catch (error) {
@@ -298,12 +303,43 @@ const PasswordRecovery = async (req,res=response)=>{
     }
 }
 
+const ValidarUsuarioConectado = async (req, res = response) => {
+
+    try {
+
+        const token = req.header('x-token');
+
+        if (!token) {
+            res.json({ msg: false })
+        }else{
+            const { uid } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
+
+            const usuario = await User.findByPk(uid);
+    
+    
+    
+            req.usuario = usuario;
+    
+            res.json({ msg: true })
+        }
 
 
-module.exports={
+
+    } catch (error) {
+        console.log(error);
+        res.status(401).json({
+            msg: 'Token no valido'
+        })
+    }
+
+
+}
+
+module.exports = {
     login,
     renewToken,
     GoogleSingIn,
     loginadministrador,
-    PasswordRecovery
+    PasswordRecovery,
+    ValidarUsuarioConectado
 }

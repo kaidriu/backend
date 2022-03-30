@@ -15,6 +15,7 @@ const chapter = require('../models/chapter');
 
 const sequelize = require("sequelize");
 const { topic } = require('../database/db');
+const { createFolderDrive, updateTitleFile } = require('../helpers/drive');
 
 const Request = db.requestI;
 const RequestC = db.requestC;
@@ -31,6 +32,10 @@ const Topic = db.topic;
 const Question_Course = db.question_course;
 
 const enroll_course = db.enroll_course;
+
+const quizzes = db.quiz;
+const questions = db.question;
+const options = db.option;
 
 const moodle = new MoodleClient({
     baseUrl: process.env.WWWROOT, //<-- Put your Moodle URL here
@@ -104,7 +109,7 @@ const PostCourse = async (req, res = response) => {
     const { id } = req.usuario;
 
     // const usuario = await User.findByPk(id);
-    const image_course = "https://res.cloudinary.com/dvwve4ocp/image/upload/v1641599573/hj09xtdatusyijjvkyhc.png";
+    const image_course = "https://res.cloudinary.com/dvwve4ocp/image/upload/v1647996109/logo_final2_skubul.png";
     const state = "proceso";
     const userId = id;
 
@@ -113,24 +118,45 @@ const PostCourse = async (req, res = response) => {
     // });
 
 
-    const course = new Course({ title, description, objectives, image_course, link_presentation, mode, state, price, userId });
 
-    await course.save();
+    createFolder(title).then(async (resp) => {
+        // console.log(resp);
+        uri_folder = resp;
+
+        createFolderDrive(title).then(async (resp) => {
 
 
-    const requC = await Course.findOne({
-        where: { id: course.id },
-        include: [
-            {
-                model: User,
-            }
-        ],
+            const course = new Course({ title, description, objectives, image_course, link_presentation, mode, state, userId, uri_folder, id_drive: resp });
 
-    });
+            await course.save();
 
-    res.json({
-        requC
+
+            const requC = await Course.findOne({
+                where: { id: course.id },
+                include: [
+                    {
+                        model: User,
+                    }
+                ],
+
+            });
+
+            res.json({
+                requC
+            })
+        })
+
+
+        // curso.update({ title, description, objectives, image_course, link_presentation, mode, state, price, userId, subcategoryId, languaje, learning, uri_folder, description_large });
+        // return res.json({
+        //     curso
+        // })
     })
+
+
+
+
+
 
 }
 
@@ -186,25 +212,21 @@ const PutCourse = async (req, res = response) => {
 
     let uri_folder = curso.uri_folder;
 
-    if (!curso.uri_folder) {
-        createFolder(title).then((resp) => {
-            // console.log(resp);
-            uri_folder = resp;
-            curso.update({ title, description, objectives, image_course, link_presentation, mode, state, price, userId, subcategoryId, languaje, learning, uri_folder, description_large });
-            return res.json({
-                curso
-            })
-        })
+    if (curso.title != title) {
 
-    } else if (curso.title != title) {
+        modifyFolder(uri_folder, title).then(() => {
 
-        modifyFolder(uri_folder, title).then((resp) => {
-            console.log(resp);
-            uri_folder = curso.uri_folder;
-            curso.update({ description_large, title, description, objectives, image_course, link_presentation, mode, state, price, userId, subcategoryId, languaje, learning, uri_folder });
-            return res.json({
-                curso
+            updateTitleFile(curso.id_drive, title).then(() => {
+                console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
+                // console.log(resp);
+                uri_folder = curso.uri_folder;
+                curso.update({ description_large, title, description, objectives, image_course, link_presentation, mode, state, price, userId, subcategoryId, languaje, learning, uri_folder });
+                return res.json({
+                    curso
+                })
             })
+
+
         })
     }
     else {
@@ -334,32 +356,32 @@ const PutChatper = async (req, res = response) => {
 
 }
 
-const DeleteChapter = async(req,res=response)=>{
+const DeleteChapter = async (req, res = response) => {
 
-    const {idch}=req.params;
+    const { idch } = req.params;
 
     const chapter = await Chapter.findOne({
-        where:{id:idch},
-        include:{
-            model:Topic
+        where: { id: idch },
+        include: {
+            model: Topic
         }
     });
 
-    const {topics} = chapter;
+    const { topics } = chapter;
 
 
     console.log('--------------------------------');
 
-    topics.map(async (resp)=>{
-        if(resp.uri_video!=null){
+    topics.map(async (resp) => {
+        if (resp.uri_video != null) {
             await deleteVideo(resp.uri_video);
         }
-        
+
         console.log(resp.uri_video);
     })
     await chapter.destroy();
-    res.json({chapter})
-    
+    res.json({ chapter })
+
 
 }
 
@@ -488,6 +510,7 @@ const GetTopic = async (req, res = response) => {
             order: [['number_topic', 'ASC']],
             attributes: { exclude: ['createdAt', 'updatedAt'] },
             required: true
+
         }]
     })
 
@@ -644,9 +667,9 @@ const GeAllCourse = async (req, res = response) => {
 const getMyPurchasedcourses = async (req, res = response) => {
 
 
-    const{id} = req.usuario;
+    const { id } = req.usuario;
 
-    
+
     const curso = await Course.findAll({
         where: { state: "publicado" },
         attributes: { exclude: ['updatedAt', 'createdAt', 'subcategoryId'] },
@@ -669,13 +692,13 @@ const getMyPurchasedcourses = async (req, res = response) => {
             },
             {
                 model: enroll_course,
-                where:{userId:id},
+                where: { userId: id },
                 attributes: { exclude: ['createdAt', 'updatedAt'] },
                 required: true
             }
         ]
     })
-    res.json({ curso });    
+    res.json({ curso });
 }
 
 const GetCourseid = async (req, res = response) => {
@@ -1068,61 +1091,59 @@ const puttopic = async (req, res = response) => {
 
 
 
-const PostTask = async (req,res=response)=>{
-
-}
 
 
 
-const PostQuestion = async(req,res=response)=>{
 
-    const{idc}=req.params;
-    const{question_course,answer_course}=req.body;
+const PostQuestion = async (req, res = response) => {
 
-    const question = new Question_Course({question_course,answer_course,courseId:idc});
+    const { idc } = req.params;
+    const { question_course, answer_course } = req.body;
+
+    const question = new Question_Course({ question_course, answer_course, courseId: idc });
     await question.save();
 
-    res.json({question});
+    res.json({ question });
 }
 
-const PutQuestion = async(req,res=response)=>{
+const PutQuestion = async (req, res = response) => {
 
-    const{question_course,answer_course}=req.body;
-    
-    const{idq}=req.params;
-  
+    const { question_course, answer_course } = req.body;
+
+    const { idq } = req.params;
+
 
     const question = await Question_Course.findOne({
-        where:{id:idq}
+        where: { id: idq }
     });
 
-    await question.update({question_course,answer_course});
+    await question.update({ question_course, answer_course });
 
     res.json(question);
 
 }
 
-const DeleteQuestion = async(req,res=response)=>{
+const DeleteQuestion = async (req, res = response) => {
 
-    const{idq}=req.params;
-  
+    const { idq } = req.params;
+
 
     const question = await Question_Course.findOne({
-        where:{id:idq}
+        where: { id: idq }
     });
 
     await question.destroy();
 
     res.json(question);
-    
+
 }
 
-const GetQuestion = async(req,res=response)=>{
+const GetQuestion = async (req, res = response) => {
 
-    const{idc}=req.params;
-    
+    const { idc } = req.params;
+
     const question = await Question_Course.findAll({
-        where:{courseId:idc}
+        where: { courseId: idc }
     });
 
     res.json(question);
@@ -1130,7 +1151,7 @@ const GetQuestion = async(req,res=response)=>{
 }
 
 
- 
+
 
 module.exports = {
     PostCourse,
@@ -1151,7 +1172,7 @@ module.exports = {
     PutChatper,
     deleteCourse,
     getMyPurchasedcourses,
-    PostTask,
+
     DeleteChapter,
     PostQuestion,
     PutQuestion,

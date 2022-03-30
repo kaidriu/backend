@@ -12,7 +12,7 @@ module.exports = (sequelize, Sequelize) => {
       buyer_phone: {
         type: Sequelize.STRING
       },
-      buyer_countre:{
+      buyer_country:{
         type: Sequelize.STRING
       },
       buyer_state:{

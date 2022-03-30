@@ -45,6 +45,9 @@ module.exports = (sequelize, Sequelize) => {
       labels: {
         type: Sequelize.ARRAY(Sequelize.TEXT)
       },
+      id_drive:{
+        type: Sequelize.STRING
+      }
     });
     return Course;
   };
