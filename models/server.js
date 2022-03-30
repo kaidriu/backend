@@ -62,7 +62,7 @@ class Server{
     middlewares(){
 
         //CORS
-        this.app.use(cors({ origin: '*' , credentials: true  , optionSuccessStatus:200,}));
+        this.app.use(cors());
         // this.app.use(cors());
 
         // Parseo y Lectura del body
