@@ -47,6 +47,9 @@ module.exports = (sequelize, Sequelize) => {
       },
       id_drive:{
         type: Sequelize.STRING
+      },
+      remark:{
+        type: Sequelize.ARRAY(Sequelize.TEXT)
       }
     });
     return Course;

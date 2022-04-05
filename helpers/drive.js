@@ -135,7 +135,6 @@ const generatePublicUrl = function (id) {
 
 auth.getClient().then(
     (resp) => {
-      
         google.options({ auth: resp });
     });
 
