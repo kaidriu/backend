@@ -28,7 +28,7 @@ class Server{
             type         : '/api/type',
             Request      : '/api/request',
             curso        : '/api/curso',
-            busqueda     : '/api/total',
+            admin        : '/api/admin',
             category     : '/api/category',
             payments     : '/api/payments',
             questions    : '/api/questions',
@@ -90,7 +90,7 @@ class Server{
         this.app.use(this.paths.type,require('../routes/types'));
         this.app.use(this.paths.Request,require('../routes/request'));
         this.app.use(this.paths.curso,require('../routes/course'));
-        this.app.use(this.paths.busqueda,require('../routes/search'));
+        this.app.use(this.paths.admin,require('../routes/admin'));
         this.app.use(this.paths.category,require('../routes/category'));
         this.app.use(this.paths.payments,require('../routes/payments'));
         this.app.use(this.paths.questions,require('../routes/questions'));
@@ -100,8 +100,8 @@ class Server{
 
 
     bd(){
-        // db.sequelize.sync();
-        db.sequelize.sync({ alter: true }).then(() => {
+      //  db.sequelize.sync();
+      db.sequelize.sync({ alter: true }).then(() => {
         console.log("Elimina y reinicia la db.");
         });
     }

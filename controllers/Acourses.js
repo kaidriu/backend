@@ -155,75 +155,11 @@ const busquedaT = async (req, res = response) => {
 
 }
 
-const busquedaCurso = async (req, res = response) => {
-
-    let bus = req.query.busqueda;
-
-
-    // const usuario = await Curso.findAll({
-    //     where:{
-    // title: {
-    //     [Op.iRegexp]: bus
-    //   }
-    //     },
-
-
-    // });
-
-    const desde = Number(req.query.desde) || 0;
-    if (bus) {
-        const [cursos, total] = await Promise.all([
-
+const cursosRevision = async (req, res = response) => {
+        
+    const [cursos, total] = await Promise.all([
             Curso.findAll({
-                offset: desde, limit: 5,
-                order: [['id', 'ASC']],
-                where: {
-                    [Op.and]: [
-                        { state: "revisión" },
-                        {
-                            title: {
-                                [Op.iRegexp]: bus
-                            }
-                        }]
-                },
-                include: [{
-                    model: User
-                }, {
-                    model: Subcategory,
-                    include: {
-                        model: Category
-                    }
-                }
-
-                ]
-
-            }),
-
-            Curso.count({
-                where: {
-                    [Op.and]: [
-                        { state: "revisión" },
-                        {
-                            title: {
-                                [Op.iRegexp]: bus
-                            }
-                        }]
-                },
-                include: {
-                    model: User
-                }
-            })
-        ])
-
-        res.json({
-            cursos, total
-        })
-    } else {
-        const [cursos, total] = await Promise.all([
-
-            Curso.findAll({
-                offset: desde, limit: 5,
-                order: [['id', 'ASC']],
+                order: [['id', 'DESC']],
                 where: { state: "revisión" },
                 include: [{
                     model: User
@@ -249,89 +185,14 @@ const busquedaCurso = async (req, res = response) => {
         res.json({
             cursos, total
         })
-    }
-
-
-
 }
 
-
-const busquedaCursoFinal = async (req, res = response) => {
-
-    let bus = req.query.busqueda;
-
-
-    // const usuario = await Curso.findAll({
-    //     where:{
-    // title: {
-    //     [Op.iRegexp]: bus
-    //   }
-    //     },
-
-    // });
-
-    const desde = Number(req.query.desde) || 0;
-
-
-    if (bus) {
-        const [cursos, total] = await Promise.all([
-
+const cursosPublicados = async (req, res = response) => {
+    const [cursos] = await Promise.all([
             Curso.findAll({
-                offset: desde, limit: 5,
-                order: [['id', 'ASC']],
-
-                where: {
-                    [Op.and]: [
-                        { state: "publicado" },
-                        {
-                            title: {
-                                [Op.iRegexp]: bus
-                            }
-                        }]
-                },
-                include: [{
-                    model: User
-                }, {
-                    model: Subcategory,
-                    include: {
-                        model: Category
-                    }
-                }
-
-                ]
-
-            }),
-
-            Curso.count({
-                where: {
-                    [Op.and]: [
-                        { state: "publicado" },
-                        {
-                            title: {
-                                [Op.iRegexp]: bus
-                            }
-                        }]
-                },
-                include: {
-                    model: User
-                }
-            })
-
-        ])
-        res.json({
-            cursos, total
-        })
-    } else {
-        const [cursos, total] = await Promise.all([
-
-            Curso.findAll({
-                offset: desde, limit: 5,
-                order: [['id', 'ASC']],
-
+                order: [['id', 'DESC']],
                 where:
-
                     { state: "publicado" }
-
                 ,
                 include: [{
                     model: User
@@ -341,35 +202,42 @@ const busquedaCursoFinal = async (req, res = response) => {
                         model: Category
                     }
                 }
-
                 ]
-
             }),
-
-            Curso.count({
-                where:
-
-                    { state: "publicado" },
-
-                include: {
-                    model: User
-                }
-            })
-
         ])
         res.json({
-            cursos, total
+            cursos
         })
+}
+
+const sendRemark = async (req, res = response) => {
+    console.log('hola');
+
+    const { idc, remarks } = req.body;
+
+    let remark;
+
+    if (remarks) {
+        remark = remarks.split(",");
     }
 
+    const curso = await Course.findOne({
+        where: { id: idc }
+    })
+
+    curso.update({ remark });
+
+    res.json({
+        curso
+    })
 
 }
 
 
 
-
 module.exports = {
     busquedaT,
-    busquedaCurso,
-    busquedaCursoFinal
+    cursosRevision,
+    cursosPublicados,
+    sendRemark
 }

@@ -11,7 +11,6 @@ const router = Router();
 
 
 router.post('/registrar', 
-
 [
     check('name','El nombre debe ser obligatorio').not().isEmpty(),
     check('password','El password debe contener mas de 6 caracteres,letra mayuscula, minuscula y numeros').isLength({min:6}).matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z\d@$.!%*#?&]/),

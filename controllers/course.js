@@ -1,6 +1,5 @@
 const { response } = require('express');
 require('dotenv').config();
-const { MoodleClient } = require('node-moodle');
 
 const cloudinary = require('cloudinary').v2
 cloudinary.config(process.env.CLOUDINARY_URL);
@@ -37,70 +36,6 @@ const quizzes = db.quiz;
 const questions = db.question;
 const options = db.option;
 
-const moodle = new MoodleClient({
-    baseUrl: process.env.WWWROOT, //<-- Put your Moodle URL here
-    token: process.env.TOKEN,//<-- Put your token here
-});
-
-
-// const getCursosMoodle = async (req, res = response) => {
-
-
-//     try {
-
-
-//         let datos = [];
-
-
-//         let resP = await moodle.core.course.getCourses();
-
-
-//         // const requ = {
-//         //     courseid:2
-
-//         //     };
-
-
-//         // let resW = await moodle.core.course.getContents(requ);
-
-//         for (let x in resP) {
-
-//             if (resP[x].categoryid == '0') {
-
-//             } else {
-
-//                 let categoria = resP[x].categoryid;
-
-//                 const req = {
-//                     criteria: [
-//                         {
-//                             key: "id",
-//                             value: categoria
-//                         }
-//                     ]
-//                 };
-//                 let resY = await moodle.core.course.getCategories(req);
-
-//                 datos.push({
-//                     "id": resP[x].id,
-//                     "fullname": resP[x].fullname,
-//                     "category": resY[0].name
-//                 });
-
-//             }
-//         }
-
-
-//         res.json({ datos });
-
-
-//     } catch (error) {
-//         console.log(error);
-//         res.status(500).json({
-//             msg: `Hable con el administrador`
-//         })
-//     }
-// }
 
 
 const PostCourse = async (req, res = response) => {
@@ -130,7 +65,6 @@ const PostCourse = async (req, res = response) => {
 
             await course.save();
 
-
             const requC = await Course.findOne({
                 where: { id: course.id },
                 include: [
@@ -145,19 +79,11 @@ const PostCourse = async (req, res = response) => {
                 requC
             })
         })
-
-
         // curso.update({ title, description, objectives, image_course, link_presentation, mode, state, price, userId, subcategoryId, languaje, learning, uri_folder, description_large });
         // return res.json({
         //     curso
         // })
     })
-
-
-
-
-
-
 }
 
 const PutCourse = async (req, res = response) => {
@@ -165,6 +91,7 @@ const PutCourse = async (req, res = response) => {
     const { title, description, objectivess, link_presentation, mode, precio, subcategoryId, learnings, languaje, description_large } = req.body;
     let learning;
     let objectives;
+    let
 
     if (learnings) {
         learning = learnings.split(",");
@@ -488,8 +415,6 @@ const PostTopic = async (req, res = response) => {
 
 
 }
-
-
 
 const GetTopic = async (req, res = response) => {
 
@@ -1089,12 +1014,6 @@ const puttopic = async (req, res = response) => {
 }
 
 
-
-
-
-
-
-
 const PostQuestion = async (req, res = response) => {
 
     const { idc } = req.params;
@@ -1149,8 +1068,6 @@ const GetQuestion = async (req, res = response) => {
     res.json(question);
 
 }
-
-
 
 
 module.exports = {
