@@ -180,12 +180,14 @@ db.enroll_course.hasOne(db.content_tracking);
 
 db.header_chat.belongsTo(db.user, { as: 'from' });
 db.header_chat.belongsTo(db.user, { as: 'to' });
-// db.user.hasMany(db.header_chat);
+db.user.hasMany(db.header_chat, { as: 'from' });  
 
 
 db.message.belongsTo(db.header_chat);
 db.header_chat.hasOne(db.message);
 
+db.message.belongsTo(db.user);
+db.user.hasMany(db.message);
 
 module.exports = db;
 

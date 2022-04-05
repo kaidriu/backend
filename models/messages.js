@@ -5,6 +5,7 @@ module.exports = (sequelize, Sequelize) => {
             primaryKey: true,
             autoIncrement: true // Automatically gets converted to SERIAL for postgres
         },
+        // emissor_chat:
         messaje_chat: {
             type: Sequelize.TEXT
         },

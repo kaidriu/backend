@@ -320,7 +320,7 @@ const denegarSolicitudCurso = async (req, res = response) => {
 
     await Curso.update({ state: 'proceso' })
 
-    res.json({ Curso })
+    res.json({ Curso }) 
 
 }
 

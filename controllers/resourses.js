@@ -57,22 +57,43 @@ const PostQuizz = async (req, res = response) => {
         })
 
     } else {
-        const Quizzes = new quizzes({ time, topicId: idt })
-        await Quizzes.save();
+        if(time==''){
+            const Quizzes = new quizzes({ topicId: idt })
+            await Quizzes.save();
+    
+    
+            const Questions = new questions({ question: question, type_answer: answerStuden, quizId: Quizzes.id })
+            await Questions.save();
+            //     if (resp.answerStuden == false) {
+            //         resp.options.map(async (resp2) => {
+            //             const Options = new options({ options: resp2.option, answer: resp2.answer, questionId: Questions.id })
+            //             await Options.save();
+            //         })
+            //     }
+    
+            res.json({
+                Questions
+            })
 
-
-        const Questions = new questions({ question: question, type_answer: answerStuden, quizId: Quizzes.id })
-        await Questions.save();
-        //     if (resp.answerStuden == false) {
-        //         resp.options.map(async (resp2) => {
-        //             const Options = new options({ options: resp2.option, answer: resp2.answer, questionId: Questions.id })
-        //             await Options.save();
-        //         })
-        //     }
-
-        res.json({
-            Questions
-        })
+        }else{
+            const Quizzes = new quizzes({ time, topicId: idt })
+            await Quizzes.save();
+    
+    
+            const Questions = new questions({ question: question, type_answer: answerStuden, quizId: Quizzes.id })
+            await Questions.save();
+            //     if (resp.answerStuden == false) {
+            //         resp.options.map(async (resp2) => {
+            //             const Options = new options({ options: resp2.option, answer: resp2.answer, questionId: Questions.id })
+            //             await Options.save();
+            //         })
+            //     }
+    
+            res.json({
+                Questions
+            })
+        }
+       
     }
 
 }
@@ -160,6 +181,7 @@ const GetQuizz = async (req, res = response) => {
 
     const Quizzes = await quizzes.findOne({
         where: { topicId: idt },
+        order: [['id', 'ASC']],
         attributes: { exclude: ['createdAt', 'updatedAt'] },
 
     })
@@ -169,10 +191,10 @@ const GetQuizz = async (req, res = response) => {
             where: { quizId: Quizzes.id },
             attributes: { exclude: ['createdAt', 'updatedAt'] },
             // attributes: { exclude: ['createdAt', 'updatedAt', 'number_chapter', 'title_chapter', 'courseId', 'id'] },
-            // order: [['number_chapter', 'ASC']],
+            order: [['id', 'ASC']],
             include: [{
                 model: options,
-                // order: [['number_topic', 'ASC']],
+                order: [['id', 'DESC']], 
                 attributes: { exclude: ['createdAt', 'updatedAt'] },
                 // required: true
             }]
