@@ -9,134 +9,84 @@ const Ubication = db.Ubication;
 const UserDetails = db.userDetails;
 const Type = db.UserType;
 
-const busquedaT = async (req, res = response) => {
 
-    const usuario = await User.findAll({
-        where: {
-            name: {
-                [Op.iRegexp]: bus
-            }
-        },
+const getInstructors = async (req, res = response) => {
 
-
-    });
-
-    const desde = Number(req.query.desde) || 0;
-
-
-    if (bus) {
-        const [usuarios, total] = await Promise.all([
-
-            Profile.findAll({
-                offset: desde, limit: 5,
-                order: [['id', 'ASC']],
-                attributes: { exclude: ['createdAt', 'updatedAt', 'ubicationId', 'userTypeId', 'userDetailId'] },
-                include: [
-                    {
-                        model: User,
-                        where: {
-                            name: {
-                                [Op.iRegexp]: bus
-                            }
-                        },
-                        attributes: { exclude: ['password', 'createdAt', 'updatedAt', 'id'] },
+    const [instructores] = await Promise.all([
+        Profile.findAll({
+            order: [['id', 'ASC']],
+            attributes: { exclude: ['createdAt', 'updatedAt', 'ubicationId', 'userTypeId', 'userDetailId'] },
+            include: [
+                {
+                    model: User,
+                    attributes: { exclude: ['password', 'createdAt', 'updatedAt', 'id'] },
+                },
+                {
+                    model: Ubication,
+                    attributes: { exclude: ['createdAt', 'updatedAt', 'id'] },
+                },
+                {
+                    model: UserDetails,
+                    attributes: { exclude: ['createdAt', 'updatedAt', 'id'] },
+                },
+                {
+                    model: Type,
+                    where: {
+                        nametype: 'instructor'
                     },
-                    {
-                        model: Ubication,
-                        attributes: { exclude: ['createdAt', 'updatedAt', 'id'] },
-                    },
-                    {
-                        model: UserDetails,
-                        attributes: { exclude: ['createdAt', 'updatedAt', 'id'] },
-                    },
-                    {
-                        model: Type,
-                        where: {
-                            nametype: 'usuario'
-                        },
-                        attributes: { exclude: ['createdAt', 'updatedAt', 'id'] },
-                    }
-                ],
-
-
-            }),
-
-            Profile.count({
-                include: [
-                    {
-                        model: Type,
-                        where: {
-                            nametype: 'usuario'
-                        },
-                    },
-                    {
-                        model: User,
-                        where: {
-                            name: {
-                                [Op.iRegexp]: bus
-                            }
-                        },
-                    }
-                ],
-
-            })
-
-        ])
-
-        res.json({
-            usuarios, total
+                    attributes: { exclude: ['createdAt', 'updatedAt', 'id'] },
+                }
+            ],
         })
-    } else {
-        const [usuarios, total] = await Promise.all([
+    ])
 
-            Profile.findAll({
-                offset: desde, limit: 5,
-                order: [['id', 'ASC']],
-                attributes: { exclude: ['createdAt', 'updatedAt', 'ubicationId', 'userTypeId', 'userDetailId'] },
-                include: [
-                    {
-                        model: User,
-                        attributes: { exclude: ['password', 'createdAt', 'updatedAt', 'id'] },
+    res.json({
+        instructores
+    })
+
+}
+
+const getUsers = async (req, res = response) => {
+
+    const [usuarios] = await Promise.all([
+        Profile.findAll({
+            order: [['id', 'ASC']],
+            attributes: { exclude: ['createdAt', 'updatedAt', 'ubicationId', 'userTypeId', 'userDetailId'] },
+            include: [
+                {
+                    model: User,
+                    attributes: { exclude: ['password', 'createdAt', 'updatedAt', 'id'] },
+                },
+                {
+                    model: Ubication,
+                    attributes: { exclude: ['createdAt', 'updatedAt', 'id'] },
+                },
+                {
+                    model: UserDetails,
+                    attributes: { exclude: ['createdAt', 'updatedAt', 'id'] },
+                },
+                {
+                    model: Type,
+                    where: {
+                        nametype: 'usuario'
                     },
-                    {
-                        model: Ubication,
-                        attributes: { exclude: ['createdAt', 'updatedAt', 'id'] },
-                    },
-                    {
-                        model: UserDetails,
-                        attributes: { exclude: ['createdAt', 'updatedAt', 'id'] },
-                    },
-                    {
-                        model: Type,
-                        where: {
-                            nametype: 'usuario'
-                        },
-                        attributes: { exclude: ['createdAt', 'updatedAt', 'id'] },
-                    }
-                ],
+                    attributes: { exclude: ['createdAt', 'updatedAt', 'id'] },
+                }
+            ],
 
-            }),
 
-            Profile.count({
-                include: [
-                    {
-                        model: Type,
-                        where: {
-                            nametype: 'usuario'
-                        },
-                    },
-                    {
-                        model: User,
-                    }
-                ],
+        }),
 
-            })
+    ])
 
-        ])
+    res.json({
+        usuarios
+    })
 
-        res.json({
-            usuarios, total
-        })
-    }
+}
 
+
+module.exports = {
+getUsers,
+getInstructors
 }

@@ -47,6 +47,7 @@ const PostCourse = async (req, res = response) => {
     const image_course = "https://res.cloudinary.com/dvwve4ocp/image/upload/v1647996109/logo_final2_skubul.png";
     const state = "proceso";
     const userId = id;
+    const remark = [];
 
     // const subcategory = await Subcategory.findOne({
     //     where: {name_subcategory}  
@@ -61,7 +62,7 @@ const PostCourse = async (req, res = response) => {
         createFolderDrive(title).then(async (resp) => {
 
 
-            const course = new Course({ title, description, objectives, image_course, link_presentation, mode, state, userId, uri_folder, id_drive: resp });
+            const course = new Course({ title, description, objectives, remark, image_course, link_presentation, mode, state, userId, uri_folder, id_drive: resp });
 
             await course.save();
 
