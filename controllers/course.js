@@ -88,10 +88,37 @@ const PostCourse = async (req, res = response) => {
 
 const PutCourse = async (req, res = response) => {
 
-    const { title, description, objectivess, link_presentation, mode, precio, subcategoryId, learnings, languaje, description_large } = req.body;
+    let { title, description, objectivess, link_presentation, mode, precio, subcategoryId, learnings, languaje, description_large,
+        enrollmentDataInitial,
+        enrollmentTimeInitial,
+        enrollmentDataFinal,
+        enrollmentTimeFinal,
+        courseDataInitial,
+        courseTimeInitial,
+        courseDataFinal,
+        courseTimeFinal,
+        linkCourse,
+        discountCode, percentageDiscount
+    } = req.body;
     let learning;
     let objectives;
-    let
+
+
+    console.log(req.body);
+
+    if (mode == "autoaprendizaje") {
+
+
+        enrollmentDataInitial = null;
+        enrollmentTimeInitial = null;
+        enrollmentDataFinal = null;
+        enrollmentTimeFinal = null;
+        courseDataInitial = null;
+        courseTimeInitial = null;
+        courseDataFinal = null;
+        courseTimeFinal = null;
+        linkCourse = null;
+    }
 
     if (learnings) {
         learning = learnings.split(",");
@@ -147,7 +174,17 @@ const PutCourse = async (req, res = response) => {
                 console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
                 // console.log(resp);
                 uri_folder = curso.uri_folder;
-                curso.update({ description_large, title, description, objectives, image_course, link_presentation, mode, state, price, userId, subcategoryId, languaje, learning, uri_folder });
+                curso.update({
+                    description_large, title, description, objectives, image_course, link_presentation, mode, state, price, userId, subcategoryId, languaje, learning, uri_folder, enrollmentDataInitial,
+                    enrollmentTimeInitial,
+                    enrollmentDataFinal,
+                    enrollmentTimeFinal,
+                    courseDataInitial,
+                    courseTimeInitial,
+                    courseDataFinal,
+                    courseTimeFinal,
+                    linkCourse, discountCode, percentageDiscount
+                });
                 return res.json({
                     curso
                 })
@@ -157,7 +194,17 @@ const PutCourse = async (req, res = response) => {
         })
     }
     else {
-        curso.update({ description_large, title, description, objectives, image_course, link_presentation, mode, state, price, userId, subcategoryId, languaje, learning, uri_folder });
+        curso.update({
+            description_large, title, description, objectives, image_course, link_presentation, mode, state, price, userId, subcategoryId, languaje, learning, uri_folder, enrollmentDataInitial,
+            enrollmentTimeInitial,
+            enrollmentDataFinal,
+            enrollmentTimeFinal,
+            courseDataInitial,
+            courseTimeInitial,
+            courseDataFinal,
+            courseTimeFinal,
+            linkCourse, discountCode, percentageDiscount
+        });
         return res.json({
             curso
         })

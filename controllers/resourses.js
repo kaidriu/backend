@@ -37,13 +37,13 @@ const PostQuizz = async (req, res = response) => {
     const { time, question, answerStuden } = req.body;
 
 
-    const busquedaquizz = await quizzes.findOne({ where: { topicId: idt } })
+    const Quizzes = await quizzes.findOne({ where: { topicId: idt } })
 
 
-    if (busquedaquizz) {
+    if (Quizzes) {
 
 
-        const Questions = new questions({ question: question, type_answer: answerStuden, quizId: busquedaquizz.id })
+        const Questions = new questions({ question: question, type_answer: answerStuden, quizId: Quizzes.id })
         await Questions.save();
         //     if (resp.answerStuden == false) {
         //         resp.options.map(async (resp2) => {
@@ -53,7 +53,7 @@ const PostQuizz = async (req, res = response) => {
         //     }
 
         res.json({
-            Questions
+            Questions,Quizzes
         })
 
     } else {
@@ -72,7 +72,7 @@ const PostQuizz = async (req, res = response) => {
             //     }
     
             res.json({
-                Questions
+                Questions,Quizzes
             })
 
         }else{
@@ -90,7 +90,7 @@ const PostQuizz = async (req, res = response) => {
             //     }
     
             res.json({
-                Questions
+                Questions,Quizzes
             })
         }
        
@@ -107,6 +107,19 @@ const CambioestadoQUizz = async (req, res = response) => {
     await Questions.update({ type_answer: answerStuden })
 
     res.json({ Questions })
+
+}
+
+
+const TimeQuizz = async (req, res = response) => {
+
+    const { id , time,timeActivate } = req.body;
+
+    const Quizzes = await quizzes.findOne({ where: { id } })
+
+    await Quizzes.update({ time ,timeActivate})
+
+    res.json({ Quizzes })
 
 }
 
@@ -214,6 +227,27 @@ const GetQuizz = async (req, res = response) => {
 
 
 }
+
+
+const DeleteQuizz = async (req, res = response) => {
+
+
+    const { idt } = req.params;
+
+    const Quizzes = await quizzes.findOne({
+        where: { id: idt },
+        
+
+    })
+
+   await Quizzes.destroy();
+
+   res.json(Quizzes);
+
+
+}
+
+
 
 const GetTask = async (req, res = response) => {
 
@@ -337,5 +371,7 @@ module.exports = {
     GetTask,
     PostArchive,
     GetArchive,
-    Deletearchive
+    Deletearchive,
+    DeleteQuizz,
+    TimeQuizz
 }

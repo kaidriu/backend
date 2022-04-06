@@ -28,24 +28,22 @@ const PostMessage = async (req, res = response) => {
     })
 
 
-
-    if(Heade_char){
-
+    if (Heade_char) {
         console.log('exites');
-        // const newMessage = new message({messaje_chat,userId:id,headerChatId:Heade_char.id});
-        // await newMessage.save();
+        const newMessage = new message({ messaje_chat, userId: id, headerChatId: Heade_char.id });
+        await newMessage.save();
 
-        // res.json(newMessage)
+        res.json(newMessage)
 
-    }else{
+    } else {
         console.log('no exites');
-        // const newHeader = new header_Chat({fromId:idt,toID:id});
-        // await newHeader.save();
+        const newHeader = new header_Chat({ fromId: idt, toId: id });
+        await newHeader.save();
 
-        // const newMessage = new message({messaje_chat,userId:id,headerChatId:newHeader.id});
-        // await newMessage.save();
+        const newMessage = new message({ messaje_chat, userId: id, headerChatId: newHeader.id });
+        await newMessage.save();
 
-        // res.json(newMessage)
+        res.json(newMessage)
 
     }
 
@@ -108,7 +106,7 @@ const GetMessageEmitter = async (req, res = response) => {
     // const { idt } = req.params;
 
     const Heade_char = await header_Chat.findAll({
-        attributes: { exclude: ['id', 'updatedAt', 'userId'] },
+        attributes: { exclude: ['updatedAt', 'userId'] },
         order: [['createdAt', 'ASC']],
         where: {
             toId: id
@@ -130,6 +128,8 @@ const GetMessageEmitter = async (req, res = response) => {
         include: [
             // {
             //     model: message,
+            //     order: [['createdAt', 'DESC']],
+            //     // limit: 1,
             //     attributes: { exclude: ['id', 'createdAt','updatedAt', 'headerChatId'] },             
             // },
             {
@@ -148,7 +148,42 @@ const GetMessageEmitter = async (req, res = response) => {
 
     })
 
-    res.json(Heade_char)
+
+    let ultimoMensaje = [];
+
+    Heade_char.map(async (resp) => {
+
+        // let Message = await message.findOne({
+        //     where: { headerChatId: resp.id },
+        //     order: [['createdAt', 'DESC']],
+        //     // limit:1
+        // })
+        // console.log(Message.userId);
+        // console.log(Message.messaje_chat);
+        // Message.map((resp2)=>{
+        ultimoMensaje.push(resp.id)
+        // })
+
+
+    })
+    
+
+    let Message = await message.findAll({
+        // where: { headerChatId: resp.id },
+        where: {
+            headerChatId: {
+                [Op.in]: ultimoMensaje
+            }
+        },
+        order: [['createdAt', 'ASC']],
+        // limit:1
+    })
+    // const Message = await message.findAll({
+    //     where:{headerChatId:Heade_char.id}
+    // })
+    console.log(ultimoMensaje);
+    res.json(Heade_char);
+
 
 
 }

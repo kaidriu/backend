@@ -1,6 +1,6 @@
 const {Router}=require('express');
 const {  PostChapter, PostTopic, PostCourse, GetCourse, myrequtesCourse, GetCourseid, PutCourse, GetChapter, GetTopic, SendCourse, GeAllCourse, getAllCourseID, GetCourseRevision, deleteTopic, puttopic, PutChatper, deleteCourse, getMyPurchasedcourses, DeleteChapter } = require('../controllers/course');
-const { PostQuizz, GetQuizz, CambioestadoQUizz, PostOptions, SeleccionarRespuesta, DeleteAnswer, DeleteQuizz, DeleteQuestion, PutTask, DeleteTask, PostTask, GetTask, PostArchive, GetArchive, Deletearchive } = require('../controllers/resourses');
+const { PostQuizz, GetQuizz, CambioestadoQUizz, PostOptions, SeleccionarRespuesta, DeleteAnswer, DeleteQuizz, DeleteQuestion, PutTask, DeleteTask, PostTask, GetTask, PostArchive, GetArchive, Deletearchive, TimeQuizz } = require('../controllers/resourses');
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJWT } = require('../middlewares/validar-JWT');
 
@@ -59,6 +59,8 @@ router.delete('/deleteoption/:ido',[validarJWT,validarCampos],DeleteAnswer)
 router.delete('/deletequestion/:idq',[validarJWT,validarCampos],DeleteQuestion)
 router.put('/changequizzes',[validarJWT,validarCampos],CambioestadoQUizz)
 router.get('/getquizzes/:idt',[validarJWT,validarCampos],GetQuizz)
+router.delete('/deletequizz/:idt',[validarJWT,validarCampos],DeleteQuizz)
+router.put('/puttimequizz',[validarJWT,validarCampos],TimeQuizz)
 
 
 
