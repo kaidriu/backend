@@ -109,7 +109,10 @@ const GetMessageEmitter = async (req, res = response) => {
         attributes: { exclude: ['updatedAt', 'userId'] },
         order: [['createdAt', 'ASC']],
         where: {
-            toId: id
+            [Op.or]: [
+                { toId: id },
+                { fromId: id }
+            ]
         },
         // where: {
         //     [Op.or]: [
@@ -150,6 +153,10 @@ const GetMessageEmitter = async (req, res = response) => {
 
 
     let ultimoMensaje = [];
+
+
+
+
 
 
 

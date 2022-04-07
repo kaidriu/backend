@@ -239,14 +239,25 @@ const addCar = async (req, res = response) => {
     const { id } = req.usuario;
 
     const busqueda = await Car.findOne({
-        where:{courseId:idc}
+        where:{
+
+            [Op.and]:[{
+                userId:id
+            },{
+                courseId:idc
+            }]
+            
+        
+        }
     })
 
     if(busqueda){
-
+        console.log('yyyyyyyyyy');
         res.json({msg:"ya existe"})
 
     }else{
+
+        console.log('xxxxxxxxxxxxx');
         const Carshopping = new Car({ userId: id, courseId: idc });
         await Carshopping.save();
     
