@@ -130,7 +130,7 @@ const PutCourse = async (req, res = response) => {
     }
 
     let price = parseFloat(precio);
-
+    percentageDiscount = parseFloat(percentageDiscount);
 
     const { id } = req.usuario;
 
