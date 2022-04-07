@@ -151,42 +151,81 @@ const GetMessageEmitter = async (req, res = response) => {
 
     let ultimoMensaje = [];
 
+
+
+
     Heade_char.map(async (resp) => {
 
-        // let Message = await message.findOne({
-        //     where: { headerChatId: resp.id },
-        //     order: [['createdAt', 'DESC']],
-        //     // limit:1
-        // })
+        let Message = await message.findOne({
+            where: { headerChatId: resp.id },
+            order: [['createdAt', 'DESC']],
+            // limit:1
+        })
         // console.log(Message.userId);
         // console.log(Message.messaje_chat);
         // Message.map((resp2)=>{
-        ultimoMensaje.push(resp.id)
+        ultimoMensaje.push({
+            "id": resp.id,
+            "createdAt": resp.createdAt,
+            "fromId": resp.fromId,
+            "toId": resp.toId,
+            "Mensaje": Message.messaje_chat,
+            "from": { 
+                "name": resp.from.name, 
+                "profile" : {
+                    "image_perfil" : resp.from.profile.image_perfil 
+                } 
+            }
+        })
+
+        // Heade_char.push({"Mensaje":Message.messaje_chat})
         // })
 
 
-    })
-    
 
-    let Message = await message.findAll({
-        // where: { headerChatId: resp.id },
-        where: {
-            headerChatId: {
-                [Op.in]: ultimoMensaje
-            }
-        },
-        order: [['createdAt', 'ASC']],
-        // limit:1
+        if (Heade_char.length == ultimoMensaje.length) {
+            // console.log(ultimoMensaje);
+            res.json(
+                
+                ultimoMensaje
+            )
+        }
+
     })
+
+    // await xxxxxxxx(Heade_char).then((resp)=>{
+    //     console.log(resp);
+    //     // console.log(ultimoMensaje);
+
+    // })
+
+
+
+    // ultimoMensaje2 =  await xxxxxxxx(Heade_char);
+    // let Message = await message.findAll({
+    //     // where: { headerChatId: resp.id },
+    //     where: {
+    //         headerChatId: {
+    //             [Op.in]: ultimoMensaje
+    //         }
+    //     },
+    //     order: [['createdAt', 'ASC']],
+    //     // limit:1
+    // })
     // const Message = await message.findAll({
     //     where:{headerChatId:Heade_char.id}
     // })
-    console.log(ultimoMensaje);
-    res.json(Heade_char);
 
+    // console.log(ultimoMensaje2);
 
 
 }
+
+
+
+
+
+
 const SearchToChat = async (req, res = response) => {
 
     const { id } = req.usuario;
