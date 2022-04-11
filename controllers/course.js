@@ -89,10 +89,37 @@ const PostCourse = async (req, res = response) => {
 
 const PutCourse = async (req, res = response) => {
 
-    const { title, description, objectivess, link_presentation, mode, precio, subcategoryId, learnings, languaje, description_large } = req.body;
+    let { title, description, objectivess, link_presentation, mode, precio, subcategoryId, learnings, languaje, description_large,
+        enrollmentDataInitial,
+        enrollmentTimeInitial,
+        enrollmentDataFinal,
+        enrollmentTimeFinal,
+        courseDataInitial,
+        courseTimeInitial,
+        courseDataFinal,
+        courseTimeFinal,
+        linkCourse,
+        discountCode, percentageDiscount
+    } = req.body;
     let learning;
     let objectives;
-    let
+
+
+    console.log(req.body);
+
+    if (mode == "autoaprendizaje") {
+
+
+        enrollmentDataInitial = null;
+        enrollmentTimeInitial = null;
+        enrollmentDataFinal = null;
+        enrollmentTimeFinal = null;
+        courseDataInitial = null;
+        courseTimeInitial = null;
+        courseDataFinal = null;
+        courseTimeFinal = null;
+        linkCourse = null;
+    }
 
     if (learnings) {
         learning = learnings.split(",");
@@ -103,7 +130,7 @@ const PutCourse = async (req, res = response) => {
     }
 
     let price = parseFloat(precio);
-
+    percentageDiscount = parseFloat(percentageDiscount);
 
     const { id } = req.usuario;
 
@@ -148,7 +175,17 @@ const PutCourse = async (req, res = response) => {
                 console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
                 // console.log(resp);
                 uri_folder = curso.uri_folder;
-                curso.update({ description_large, title, description, objectives, image_course, link_presentation, mode, state, price, userId, subcategoryId, languaje, learning, uri_folder });
+                curso.update({
+                    description_large, title, description, objectives, image_course, link_presentation, mode, state, price, userId, subcategoryId, languaje, learning, uri_folder, enrollmentDataInitial,
+                    enrollmentTimeInitial,
+                    enrollmentDataFinal,
+                    enrollmentTimeFinal,
+                    courseDataInitial,
+                    courseTimeInitial,
+                    courseDataFinal,
+                    courseTimeFinal,
+                    linkCourse, discountCode, percentageDiscount
+                });
                 return res.json({
                     curso
                 })
@@ -158,7 +195,17 @@ const PutCourse = async (req, res = response) => {
         })
     }
     else {
-        curso.update({ description_large, title, description, objectives, image_course, link_presentation, mode, state, price, userId, subcategoryId, languaje, learning, uri_folder });
+        curso.update({
+            description_large, title, description, objectives, image_course, link_presentation, mode, state, price, userId, subcategoryId, languaje, learning, uri_folder, enrollmentDataInitial,
+            enrollmentTimeInitial,
+            enrollmentDataFinal,
+            enrollmentTimeFinal,
+            courseDataInitial,
+            courseTimeInitial,
+            courseDataFinal,
+            courseTimeFinal,
+            linkCourse, discountCode, percentageDiscount
+        });
         return res.json({
             curso
         })
@@ -316,13 +363,17 @@ const DeleteChapter = async (req, res = response) => {
 
 const PostTopic = async (req, res = response) => {
 
-    const { number_topic, title_topic, description_topic, recurso, idc, num_chapter, demo } = req.body;
+    let { number_topic, title_topic, description_topic, recurso, idc, num_chapter, demo, duration_video } = req.body;
 
     let idcap = parseInt(num_chapter);
     // const {archivo}=req.files;
 
-    console.log('------------------------------------------------------');
+    console.log(duration_video);
+   
 
+    console.log('------------------------------------------------------');
+    duration_video = parseFloat(duration_video);
+    console.log(duration_video);
     const course = await Course.findOne({
         where: { id: idc }
     });
@@ -355,7 +406,7 @@ const PostTopic = async (req, res = response) => {
         createVideo(file_name, title_topic, description_topic, course.uri_folder).then(async (resp) => {
             const { uri } = resp;
 
-            const topicc = new Topic({ number_topic, title_topic, description_topic, demo, recurso, chapterId: chapter.id, uri_video: uri });
+            const topicc = new Topic({ number_topic, title_topic, description_topic, demo, recurso, chapterId: chapter.id, uri_video: uri, duration_video });
             // const topicc = new Topic({ title_topic })
 
             await topicc.save();
@@ -391,7 +442,7 @@ const PostTopic = async (req, res = response) => {
             })
         }
 
-        const topicc = new Topic({ number_topic, title_topic, description_topic, demo, recurso, chapterId: chapter.id });
+        const topicc = new Topic({ number_topic, title_topic, description_topic, demo, recurso, chapterId: chapter.id, duration_video });
         // const topicc = new Topic({ title_topic })
 
         await topicc.save();
@@ -800,11 +851,11 @@ const deleteTopic = async (req, res = response) => {
 
 const puttopic = async (req, res = response) => {
 
-    const { number_topic, title_topic, description_topic, recurso, idc, num_chapter, demo } = req.body;
+    let { number_topic, title_topic, description_topic, recurso, idc, num_chapter, demo, duration_video } = req.body;
 
     let idcap = parseInt(num_chapter);
     // const {archivo}=req.files;
-
+    duration_video = parseFloat(duration_video);
     const { idz } = req.params;
 
     if (req.files != null) {
@@ -853,7 +904,7 @@ const puttopic = async (req, res = response) => {
                 createVideo(file_name, title_topic, description_topic, course.uri_folder).then(async (resp) => {
                     const { uri } = resp;
 
-                    const topicc = new Topic({ number_topic, title_topic, description_topic, demo, recurso, chapterId: chapter.id, uri_video: uri });
+                    const topicc = new Topic({ number_topic, title_topic, description_topic, demo, recurso, chapterId: chapter.id, uri_video: uri, duration_video });
                     // const topicc = new Topic({ title_topic })
 
                     await topicc.save();
@@ -890,7 +941,7 @@ const puttopic = async (req, res = response) => {
                     where: { id: idz }
                 });
 
-                await topicc.update({ number_topic, title_topic, description_topic, demo, recurso, chapterId: chapter.id, uri_video: uri });
+                await topicc.update({ number_topic, title_topic, description_topic, demo, recurso, chapterId: chapter.id, uri_video: uri, duration_video });
                 // const topicc = new Topic({ title_topic })
 
                 // await topicc.save();
@@ -946,7 +997,7 @@ const puttopic = async (req, res = response) => {
             });
 
 
-            await topicc.update({ number_topic, title_topic, description_topic, demo, recurso, chapterId: chapter.id });
+            await topicc.update({ number_topic, title_topic, description_topic, demo, recurso, chapterId: chapter.id, duration_video });
 
             // const { uri } = resp;
 
@@ -989,7 +1040,7 @@ const puttopic = async (req, res = response) => {
             });
 
 
-            await topicc.update({ number_topic, title_topic, description_topic, demo, recurso, chapterId: chapter.id });
+            await topicc.update({ number_topic, title_topic, description_topic, demo, recurso, chapterId: chapter.id, duration_video });
 
             const topic = await Topic.findOne({
                 where:

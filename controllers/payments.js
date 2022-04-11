@@ -93,8 +93,8 @@ const CreateOrder = async (req, res = response) => {
                 brand_name: `MiTienda.com`,
                 landing_page: 'NO_PREFERENCE', // Default, para mas informacion https://developer.paypal.com/docs/api/orders/v2/#definition-order_application_context
                 user_action: 'PAY_NOW', // Accion para que en paypal muestre el monto del pago
-                return_url: `http://localhost:8080/api/payments/capture-order/${id}/${Order.id}`, // Url despues de realizar el pago
-                cancel_url: `http://localhost:8080/api/payments/cancel-order/${Order.id}` // Url despues de realizar el pago
+                return_url: `https://cursos-aprende.herokuapp.com/api/payments/capture-order/${id}/${Order.id}`, // Url despues de realizar el pago
+                cancel_url: `https://cursos-aprende.herokuapp.com/api/payments/cancel-order/${Order.id}` // Url despues de realizar el pago
             }
         }
         // format the body
@@ -239,14 +239,25 @@ const addCar = async (req, res = response) => {
     const { id } = req.usuario;
 
     const busqueda = await Car.findOne({
-        where:{courseId:idc}
+        where:{
+
+            [Op.and]:[{
+                userId:id
+            },{
+                courseId:idc
+            }]
+            
+        
+        }
     })
 
     if(busqueda){
-
+        console.log('yyyyyyyyyy');
         res.json({msg:"ya existe"})
 
     }else{
+
+        console.log('xxxxxxxxxxxxx');
         const Carshopping = new Car({ userId: id, courseId: idc });
         await Carshopping.save();
     
