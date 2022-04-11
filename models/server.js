@@ -104,15 +104,17 @@ class Server{
       /* db.sequelize.sync({ alter: true }).then(() => {
         console.log("Elimina y reinicia la db.");
         }); */
+
+        db.sequelize.sync({ force: true }).then(() => {
+            console.log("Elimina y reinicia la db.");
+            });
     }
 
 
     listen(){
-        
         this.server.listen(this.port,()=>{
             console.log('puerto en lanzado en ', this.port);
         });
-
     }
 
 }
