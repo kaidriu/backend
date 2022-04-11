@@ -18,6 +18,9 @@ module.exports = (sequelize, Sequelize) => {
       },
       uri_video:{
         type: Sequelize.STRING
+      },
+      duration_video:{
+        type: Sequelize.DOUBLE
       }
     });
     return Topic;
