@@ -16,9 +16,7 @@ const auth = new google.auth.GoogleAuth({
 
 const uploadFile = function (file, title, type, id_folder) {
 
-    console.log('xxxxxxxxxxxxxxxxxxx');
-    console.log(file);
-  
+
 
     return new Promise((resolve) => {
         drive.files.create({
@@ -75,6 +73,27 @@ const createFolderDrive = function (title) {
 }
 
 
+const createFolderDriveStudents = function (title) {
+    return new Promise((resolve) => {
+
+            drive.files.create({
+                requestBody: {
+                    name: title,
+                    mimeType: 'application/vnd.google-apps.folder',
+                    parents: ['1jdo5p53y9yNc2ayqx9hFdLALMLeuR9fC']
+                },
+            }, function (err, file) {
+                if (err) {
+                    // Handle error
+                    console.error(err);
+                } else {
+                    resolve(file.data.id)
+                }
+            });
+       
+    }
+    )
+}
 
 const deleteFile = function (id) {
     return new Promise((resolve) => {
@@ -144,5 +163,6 @@ module.exports = {
     createFolderDrive,
     deleteFile,
     uploadFile,
-    updateTitleFile
+    updateTitleFile,
+    createFolderDriveStudents
 }

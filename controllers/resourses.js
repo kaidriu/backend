@@ -25,6 +25,8 @@ const questions = db.question;
 const options = db.option;
 
 const task = db.task;
+
+const content_tracking = db.content_tracking;
 const archive = db.archive;
 
 const PostQuizz = async (req, res = response) => {
@@ -53,15 +55,15 @@ const PostQuizz = async (req, res = response) => {
         //     }
 
         res.json({
-            Questions,Quizzes
+            Questions, Quizzes
         })
 
     } else {
-        if(time==''){
+        if (time == '') {
             const Quizzes = new quizzes({ topicId: idt })
             await Quizzes.save();
-    
-    
+
+
             const Questions = new questions({ question: question, type_answer: answerStuden, quizId: Quizzes.id })
             await Questions.save();
             //     if (resp.answerStuden == false) {
@@ -70,16 +72,16 @@ const PostQuizz = async (req, res = response) => {
             //             await Options.save();
             //         })
             //     }
-    
+
             res.json({
-                Questions,Quizzes
+                Questions, Quizzes
             })
 
-        }else{
+        } else {
             const Quizzes = new quizzes({ time, topicId: idt })
             await Quizzes.save();
-    
-    
+
+
             const Questions = new questions({ question: question, type_answer: answerStuden, quizId: Quizzes.id })
             await Questions.save();
             //     if (resp.answerStuden == false) {
@@ -88,12 +90,12 @@ const PostQuizz = async (req, res = response) => {
             //             await Options.save();
             //         })
             //     }
-    
+
             res.json({
-                Questions,Quizzes
+                Questions, Quizzes
             })
         }
-       
+
     }
 
 }
@@ -113,11 +115,11 @@ const CambioestadoQUizz = async (req, res = response) => {
 
 const TimeQuizz = async (req, res = response) => {
 
-    const { id , time,timeActivate } = req.body;
+    const { id, time, timeActivate } = req.body;
 
     const Quizzes = await quizzes.findOne({ where: { id } })
 
-    await Quizzes.update({ time ,timeActivate})
+    await Quizzes.update({ time, timeActivate })
 
     res.json({ Quizzes })
 
@@ -207,7 +209,7 @@ const GetQuizz = async (req, res = response) => {
             order: [['id', 'ASC']],
             include: [{
                 model: options,
-                order: [['id', 'DESC']], 
+                order: [['id', 'DESC']],
                 attributes: { exclude: ['createdAt', 'updatedAt'] },
                 // required: true
             }]
@@ -236,13 +238,13 @@ const DeleteQuizz = async (req, res = response) => {
 
     const Quizzes = await quizzes.findOne({
         where: { id: idt },
-        
+
 
     })
 
-   await Quizzes.destroy();
+    await Quizzes.destroy();
 
-   res.json(Quizzes);
+    res.json(Quizzes);
 
 
 }
@@ -257,6 +259,101 @@ const GetTask = async (req, res = response) => {
 
     res.json({ Task })
 }
+
+const GetAllTask = async (req, res = response) => {
+
+    const { idC } = req.params;
+
+    const curso = await Course.findOne({
+        where: { id: idC }
+    })
+
+    const chapter = await Chapter.findAll({
+
+        where: { courseId: curso.id },
+        attributes: { exclude: ['createdAt', 'updatedAt', 'number_chapter', 'title_chapter', 'courseId', 'id'] },
+        order: [['number_chapter', 'ASC']],
+        include: [{
+            model: Topic,
+            order: [['number_topic', 'ASC']],
+            attributes: { exclude: ['createdAt', 'updatedAt'] },
+            // required: true
+            include: {
+                model: task,
+                required: true
+            }
+
+        }]
+    })
+
+    res.json(chapter)
+}
+
+const GetHomeTask = async (req, res = response) => {
+
+    const { idC, idT } = req.params;
+
+    const enroll = await enroll_course.findAll({
+        where: { courseId: idC },
+        attributes: { exclude: ["enroll_date", "status_enroll", "enroll_finish_date", "updatedAt", "courseId", "userId", "avg_score", "last_topic"] },
+        include: [
+            {
+                model: User,
+                attributes: { exclude: ['id', 'password', 'updatedAt', 'createdAt', 'is_active', 'google', 'profileId'] },
+                include: {
+                    model: Profile,
+                    attributes: { exclude: ['user_id_drive', 'id', 'updatedAt', 'createdAt', 'userTypeId', 'ubicationId', 'userDetailId', 'education', 'phone', 'aboutMe', 'profession', 'gender', 'edad'] },
+                }
+            },
+            {
+                model: content_tracking,
+                attributes: { exclude: [ "state_content_tacking", "score_ct", "last_min_video", "last_entre", "createdAt", "updatedAt", "topicId", "enrollCourseId"
+                , "task_name_student", "id_task_student"] },
+                include: {
+                    model: Topic,
+                    attributes: { exclude: ["number_topic", "title_topic", "description_topic", "recurso", "createdAt", "updatedAt", "chapterId", "uri_video", "demo", "duration_video"] },
+                    where: { id: idT }
+                }
+            }
+        ]
+    })
+
+    // const chapter = await Chapter.findAll({
+
+    //     where: { courseId: curso.id },
+    //     attributes: { exclude: ['createdAt', 'updatedAt', 'number_chapter', 'title_chapter', 'courseId', 'id'] },
+    //     order: [['number_chapter', 'ASC']],
+    //     include: [{
+    //         model: Topic,
+    //         order: [['number_topic', 'ASC']],
+    //         attributes: { exclude: ['createdAt', 'updatedAt'] },
+    //         // required: true
+    //         include:{
+    //             model:task,
+    //             required: true
+    //         }
+
+    //     }]
+    // })
+
+    res.json(enroll)
+}
+
+
+const PutHomeTask = async (req, res = response) => {
+
+    const { idH } = req.params; 
+    const {qualification_task,comment_task}=req.body;
+
+    const content = await content_tracking.findOne({
+        where:{id:idH}
+    })
+
+     content.update({qualification_task,comment_task});
+
+    res.json(content);
+}
+
 
 const PostTask = async (req, res = response) => {
 
@@ -299,29 +396,29 @@ const DeleteTask = async (req, res = response) => {
 const PostArchive = async (req, res = response) => {
 
     const { idc, idt } = req.body;
-    
-    const {archivo} = req.files ;
+
+    const { archivo } = req.files;
     console.log(archivo);
     // console.log(idc);
     // console.log(idt);
-    
+
     const { tempFilePath } = archivo;
-    const curso = await Course.findOne({where:{id:idc}});
+    const curso = await Course.findOne({ where: { id: idc } });
     let file_name = tempFilePath;
     // console.log(tempFilePath);
 
-    uploadFile(file_name ,archivo.name,archivo.mimetype,curso.id_drive).then((resp)=>{
+    uploadFile(file_name, archivo.name, archivo.mimetype, curso.id_drive).then((resp) => {
         // console.log('xxxxxxxxxxxxxxxxxxxxxxxxx');
         // console.log(resp);
 
-        generatePublicUrl(resp).then(async(xxx)=>{
+        generatePublicUrl(resp).then(async (xxx) => {
             // console.log('linkkkkkkkkkkkkkk');
             // console.log(xxx.webContentLink);
 
-            const Archive = new archive({name_archive:archivo.name,id_drive_archive:resp,link_archive_Drive:xxx.webContentLink,topicId:idt});
+            const Archive = new archive({ name_archive: archivo.name, id_drive_archive: resp, link_archive_Drive: xxx.webContentLink, topicId: idt });
 
             await Archive.save();
-            res.json({Archive})
+            res.json({ Archive })
         })
     })
 
@@ -329,8 +426,8 @@ const PostArchive = async (req, res = response) => {
 
 const GetArchive = async (req, res = response) => {
 
-    const {  idt } = req.params;
-    
+    const { idt } = req.params;
+
     const Archive = await archive.findAll({ where: { topicId: idt } })
 
     res.json({ Archive })
@@ -339,22 +436,39 @@ const GetArchive = async (req, res = response) => {
 
 const Deletearchive = async (req, res = response) => {
 
-    const {  ida } = req.params;
-    
+    const { ida } = req.params;
+
     const Archive = await archive.findOne({ where: { id: ida } })
 
 
 
-    deleteFile(Archive.id_drive_archive).then(async(resp)=>{
+    deleteFile(Archive.id_drive_archive).then(async (resp) => {
         await Archive.destroy();
         res.json({ Archive })
     })
-    
 
-  
+
+
 
 }
 
+const GetDateCourse = async (req, res = response) => {
+
+    const { ida } = req.params;
+
+    const Archive = await archive.findOne({ where: { id: ida } })
+
+
+
+    deleteFile(Archive.id_drive_archive).then(async (resp) => {
+        await Archive.destroy();
+        res.json({ Archive })
+    })
+
+
+
+
+}
 
 
 module.exports = {
@@ -373,5 +487,8 @@ module.exports = {
     GetArchive,
     Deletearchive,
     DeleteQuizz,
-    TimeQuizz
+    TimeQuizz,
+    GetAllTask,
+    GetHomeTask,
+    PutHomeTask
 }

@@ -71,7 +71,7 @@ const GetMessage = async (req, res = response) => {
     const { idt } = req.params;
 
     const Heade_char = await header_Chat.findOne({
-        attributes: { exclude:  ['updatedAt', 'userId'] },
+        attributes: { exclude: ['updatedAt', 'userId'] },
         // order: [['createdAt', 'ASC']],
         where: {
             [Op.or]: [
@@ -91,7 +91,7 @@ const GetMessage = async (req, res = response) => {
 
     })
 
-    if(Heade_char){
+    if (Heade_char) {
         const Mensaje = await message.findAll({
             where: {
                 headerChatId: Heade_char.id
@@ -108,10 +108,10 @@ const GetMessage = async (req, res = response) => {
                     attributes: { exclude: ['id', 'updatedAt', 'createdAt', 'userTypeId', 'ubicationId', 'userDetailId', 'education', 'phone', 'aboutMe', 'profession', 'gender', 'edad'] },
                 }
             }
-    
+
         })
         res.json(Mensaje)
-    }else{
+    } else {
         res.json()
     }
 
@@ -139,7 +139,7 @@ const GetMessageEmitter = async (req, res = response) => {
         include:
             [
                 {
-                    model: User,
+                    model: User,        
                     as: 'to',
                     include: {
                         model: Profile,
@@ -201,7 +201,7 @@ const GetMessageEmitter = async (req, res = response) => {
 
             ultimoMensaje.push({
                 "id": resp.id,
-                "createdAt": resp.createdAt,
+                "createdAt": Message.createdAt,
                 "emisor": resp.fromId,
                 // "toId": resp.toId,
                 "Mensaje": Message.messaje_chat,
@@ -223,7 +223,7 @@ const GetMessageEmitter = async (req, res = response) => {
 
             ultimoMensaje.push({
                 "id": resp.id,
-                "createdAt": resp.createdAt,
+                "createdAt": Message.createdAt,
                 // "fromId": resp.fromId,
                 "emisor": resp.toId,
                 "Mensaje": Message.messaje_chat,
@@ -330,7 +330,7 @@ const GetMessageEmitter = async (req, res = response) => {
     //             { fromId: id }
     //         ]
     //     },
-    //     // where: {
+    //     // where: {  
     //     //     [Op.or]: [
     //     //         {
     //     //             [Op.and]: [
@@ -455,54 +455,114 @@ const SearchToChat = async (req, res = response) => {
     const { id } = req.usuario;
 
     let bus = req.query.busqueda;
-
+    let valores = [];
+    let valores2 = [];
     // let Destino =[];
 
-    if (bus) {
-        const [Destino] = await Promise.all([
-
-            enroll_course.findAll({
-                where: { userId: id },
-                attributes: { exclude: ['id', 'userId', 'createdAt', 'updatedAt', 'enroll_date', 'status_enroll', 'enroll_finish_date', 'avg_score', 'courseId', 'userId  '] },
-                // required: true,
-
-                include: [
-
-                    {
-                        model: Course,
-                        attributes: { exclude: ['updatedAt', 'createdAt', 'subcategoryId', 'title', 'description', 'description_large', 'objectives', 'learning', 'image_course', 'link_presentation', 'mode', 'state', 'price', 'languaje', 'uri_folder', 'state_cart', 'valoration', 'labels', 'id_drive', 'userId'] },
-                        required: true,
-                        include: {
-                            model: User,
-                            attributes: { 
-                                exclude: ['password', 'updatedAt', 'createdAt', 'is_active', 'google', 'profileId'] 
-                            },
-                            where: {
-                                name: {
-                                    [Op.iRegexp]: bus
-                                }
-                            },
-                            include: {
-                                model: Profile,
-                                attributes: { exclude: ['id', 'updatedAt', 'createdAt', 'userTypeId', 'ubicationId', 'userDetailId', 'education', 'phone', 'aboutMe', 'profession', 'gender', 'edad'] },
-                            }
-                        }
-                    },
-                ]
-            })
-
-        ])
-
+    if(bus){
+        const Enroll_course = await enroll_course.findAll({
+            where: { userId: id },
+            attributes: { exclude: ['userId', 'createdAt', 'updatedAt', 'enroll_date', 'status_enroll', 'enroll_finish_date', 'avg_score', 'userId  '] },
+    
+        });
+        Enroll_course.map((resp) => {
+            console.log(resp);
+            valores.push(resp.courseId)
+    
+        })
+    
+        const course = await Course.findAll({
+            where: {
+                id: {
+                    [Op.in]: valores
+                }
+            },
+            attributes:
+                [sequelize.fn('DISTINCT', sequelize.col('userId')), 'userId']
+            ,
+    
+        })
+    
+        course.map((resp) => {
+            valores2.push(resp.userId)
+        })
+    
+        const user = await User.findAll({
+            where: {
+    
+                [Op.and]: [{
+                    id: {
+                        [Op.in]: valores2
+                    }
+                }, {
+                    name: {
+                        [Op.iRegexp]: bus
+                    }
+                }]
+            },
+            attributes: { exclude: ['password', 'updatedAt', 'createdAt', 'is_active', 'google', 'profileId'] },
+            include: {
+                model: Profile,
+                attributes: { exclude: ['id', 'updatedAt', 'createdAt', 'userTypeId', 'ubicationId', 'userDetailId', 'education', 'phone', 'aboutMe', 'profession', 'gender', 'edad'] },
+    
+            }
+        })
         res.json(
-            { Destino }
+            user
         )
-    } else {
-
-
+    }else{
         res.json(
-            Destino
-        )
+                    Destino
+                )
     }
+
+
+
+    // if (bus) {
+    //     const [Destino] = await Promise.all([
+
+    //         enroll_course.findAll({
+    //             where: { userId: id },
+    //             attributes: { exclude: ['id', 'userId', 'createdAt', 'updatedAt', 'enroll_date', 'status_enroll', 'enroll_finish_date', 'avg_score', 'courseId', 'userId  '] },
+    //             // required: true,
+
+    //             include: [
+
+    //                 {
+    //                     model: Course,
+    //                     attributes: { exclude: ['updatedAt', 'createdAt', 'subcategoryId', 'title', 'description', 'description_large', 'objectives', 'learning', 'image_course', 'link_presentation', 'mode', 'state', 'price', 'languaje', 'uri_folder', 'state_cart', 'valoration', 'labels', 'id_drive', 'userId'] },
+    //                     required: true,
+    //                     include: {
+    //                         model: User,
+    //                         attributes: { 
+    //                             exclude: ['password', 'updatedAt', 'createdAt', 'is_active', 'google', 'profileId'] 
+    //                         },
+    //                         where: {
+    //                             name: {
+    //                                 [Op.iRegexp]: bus
+    //                             }
+    //                         },
+    //                         include: {
+    //                             model: Profile,
+    //                             attributes: { exclude: ['id', 'updatedAt', 'createdAt', 'userTypeId', 'ubicationId', 'userDetailId', 'education', 'phone', 'aboutMe', 'profession', 'gender', 'edad'] },
+    //                         }
+    //                     }
+    //                 },
+    //             ]
+    //         })
+
+    //     ])
+
+    //     res.json(
+    //         { Destino }
+    //     )
+    // } else {
+
+
+    //     res.json(
+    //         Destino
+    //     )
+    // }
 
 }
 
@@ -579,10 +639,19 @@ const SearchToChatInstructor = async (req, res = response) => {
 
 }
 
+
+const DeleteMessages = async (req,res=response)=>{
+
+    
+}
+
+
+
 module.exports = {
     PostMessage,
     GetMessage,
     SearchToChat,
     SearchToChatInstructor,
-    GetMessageEmitter
+    GetMessageEmitter,
+    DeleteMessages
 }

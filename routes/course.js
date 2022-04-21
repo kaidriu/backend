@@ -1,6 +1,6 @@
 const {Router}=require('express');
-const {  PostChapter, PostTopic, PostCourse, GetCourse, myrequtesCourse, GetCourseid, PutCourse, GetChapter, GetTopic, SendCourse, GeAllCourse, getAllCourseID, GetCourseRevision, deleteTopic, puttopic, PutChatper, deleteCourse, getMyPurchasedcourses, DeleteChapter } = require('../controllers/course');
-const { PostQuizz, GetQuizz, CambioestadoQUizz, PostOptions, SeleccionarRespuesta, DeleteAnswer, DeleteQuizz, DeleteQuestion, PutTask, DeleteTask, PostTask, GetTask, PostArchive, GetArchive, Deletearchive, TimeQuizz } = require('../controllers/resourses');
+const {  PostChapter, PostTopic, PostCourse, GetCourse, myrequtesCourse, GetCourseid, PutCourse, GetChapter, GetTopic, SendCourse, GeAllCourse, getAllCourseID, GetCourseRevision, deleteTopic, puttopic, PutChatper, deleteCourse, getMyPurchasedcourses, DeleteChapter, Getenroll_course } = require('../controllers/course');
+const { PostQuizz, GetQuizz, CambioestadoQUizz, PostOptions, SeleccionarRespuesta, DeleteAnswer, DeleteQuizz, DeleteQuestion, PutTask, DeleteTask, PostTask, GetTask, PostArchive, GetArchive, Deletearchive, TimeQuizz, GetAllTask, GetHomeTask, PutHomeTask } = require('../controllers/resourses');
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJWT } = require('../middlewares/validar-JWT');
 
@@ -25,6 +25,14 @@ router.delete('/deletecourse/:idc',deleteCourse);
 
 
 router.get('/mypurchasedcourses',[validarJWT,validarCampos],getMyPurchasedcourses)
+
+
+
+router.get('/Getenroll_course/:idc',[validarJWT,validarCampos],Getenroll_course)
+
+
+
+
 
 // SOLICITUDES CAPITULOS
 
@@ -70,6 +78,10 @@ router.post('/posttask',[validarJWT,validarCampos],PostTask)
 router.get('/gettask/:idt',[validarJWT,validarCampos],GetTask)
 router.put('/puttask',[validarJWT,validarCampos],PutTask)
 router.delete('/deletetask/:idt',[validarJWT,validarCampos],DeleteTask)
+router.get('/getalltask/:idC',[validarJWT,validarCampos],GetAllTask)
+
+router.get('/gethometask/:idC/:idT',[validarJWT,validarCampos],GetHomeTask)
+router.put('/puthometask/:idH',[validarJWT,validarCampos],PutHomeTask)
 
 
 

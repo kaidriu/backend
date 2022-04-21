@@ -369,7 +369,7 @@ const PostTopic = async (req, res = response) => {
     // const {archivo}=req.files;
 
     console.log(duration_video);
-   
+
 
     console.log('------------------------------------------------------');
     duration_video = parseFloat(duration_video);
@@ -1122,6 +1122,19 @@ const GetQuestion = async (req, res = response) => {
 }
 
 
+const Getenroll_course = async (req, res = response) => {
+
+    const { idc } = req.params;
+    const { id } = req.usuario;
+
+    const Enroll_course = await enroll_course.findOne({
+        where: { [Op.and]:[{ courseId: idc },{userId:id}]}
+    });
+
+res.json(Enroll_course);
+
+}
+
 module.exports = {
     PostCourse,
     PostChapter,
@@ -1141,7 +1154,7 @@ module.exports = {
     PutChatper,
     deleteCourse,
     getMyPurchasedcourses,
-
+    Getenroll_course,
     DeleteChapter,
     PostQuestion,
     PutQuestion,
