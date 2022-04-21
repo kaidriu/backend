@@ -1,6 +1,6 @@
 const {Router}=require('express');
 const { busquedaT, cursosPublicados, cursosRevision, sendRemark, changeStateCourse } = require('../controllers/Acourses');
-const {getUsers} = require('../controllers/Ausers');
+const {getUsers, getInstructors} = require('../controllers/Ausers');
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJWT } = require('../middlewares/validar-JWT');
 
@@ -12,6 +12,7 @@ const router = Router();
 -------------------------------------*/
 
 router.get('/usuarios',[validarJWT,validarCampos],getUsers)
+router.get('/instructores',[validarJWT,validarCampos],getInstructors)
 
 
 /*-----------------------------------

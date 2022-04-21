@@ -1,5 +1,5 @@
 const {Router}=require('express');
-const {  PostChapter, PostTopic, PostCourse, GetCourse, myrequtesCourse, GetCourseid, PutCourse, GetChapter, GetTopic, SendCourse, GeAllCourse, getAllCourseID, GetCourseRevision, deleteTopic, puttopic, PutChatper, deleteCourse, getMyPurchasedcourses, DeleteChapter } = require('../controllers/course');
+const {  PostChapter, PostTopic, PostCourse, GetCourse, myrequtesCourse, GetCourseid, PutCourse, GetChapter, GetTopic, SendCourse, GeAllCourse, getAllCourseID,getCoursesByInstructorId, GetCourseRevision, deleteTopic, puttopic, PutChatper, deleteCourse, getMyPurchasedcourses, DeleteChapter } = require('../controllers/course');
 const { PostQuizz, GetQuizz, CambioestadoQUizz, PostOptions, SeleccionarRespuesta, DeleteAnswer, DeleteQuizz, DeleteQuestion, PutTask, DeleteTask, PostTask, GetTask, PostArchive, GetArchive, Deletearchive, TimeQuizz } = require('../controllers/resourses');
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJWT } = require('../middlewares/validar-JWT');
@@ -16,6 +16,7 @@ router.get('/curso/:title',[validarJWT,validarCampos],GetCourse);
 router.get('/allcursos',GeAllCourse);
 router.get('/mycurso/:id',[validarJWT,validarCampos],GetCourseid);
 router.get('/myallcourse/:id',getAllCourseID);
+router.get('/getcoursesbyinstructor/:id',getCoursesByInstructorId);
 
 router.get('/getrevisioncurso',[validarJWT,validarCampos],GetCourseRevision);
 router.get('/getmerequets',[validarJWT,validarCampos],myrequtesCourse);

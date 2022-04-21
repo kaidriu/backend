@@ -9,7 +9,7 @@ module.exports = {
   // // BD LOCAL
   HOST: "localhost",
   USER: "postgres",
-  PASSWORD: "solsito28",
+  PASSWORD: "admin",
   DB: "curso",
   dialect: "postgres",
   pool: {

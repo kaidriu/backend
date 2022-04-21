@@ -17,12 +17,18 @@ const UserDetails = db.userDetails;
 const Course = db.course;
 const Request=db.requestI;
 const Type = db.UserType;
+const enroll_course = db.enroll_course;
+
 const { Router } = require('express');
 const router = Router();
 
 
 const sequelize = require("sequelize");
 const profile = require('../models/profile');
+const user = require('../models/user');
+const { Sequelize } = require('../database/db');
+
+
 
 const video = async (req, res = response) => {
 
@@ -392,7 +398,6 @@ const GetAllInstructor = async (req, res = response) => {
                         ]]
                         ,
                         exclude: ["createdAt", "updatedAt", "google", "is_active"]
-
                     },
                 },
                 {
@@ -496,7 +501,6 @@ const getcoursysId = async(req,res=response)=>{
 }
 
 
-
 const administradorAllGet = async (req, res = response) => {
 
     const desde = Number(req.query.desde) || 0;
@@ -552,6 +556,115 @@ const administradorAllGet = async (req, res = response) => {
     })
 
 }
+
+
+const getMyStudents = async (req, res = response) => {
+    const { id } = req.usuario;
+   
+    
+
+/*     const mycourses = await Course.findAll({
+        where: { userId: 2 },
+        attributes: ['id']
+    })
+
+    
+    let jsmycourses = JSON.parse(JSON.stringify({mycourses}))
+    console.log((Object.entries(jsmycourses.mycourses))); */
+
+
+    //console.log(Object.entries(jsmycourses));
+
+/*     let ids = [];
+
+    const Enroll_course = await enroll_course.findAll({
+        where: { userId: uid },
+        attributes: { exclude: ['updatedAt', 'createdAt', 'id', 'enroll_date', 'status_enroll', 'enroll_finish_date', "userId", 'avg_score'] },
+    });
+
+    
+    Enroll_course.map((resp) => {
+        // console.log(resp.courseId);
+        ids.push(resp.courseId);
+
+    }) */
+
+/*     const students = await User.findAll({
+        attributes: { 
+            include: [sequelize.literal(`(select count(us.*) as cursos from users us, "enroll_courses" ec, courses co where us.id=ec."userId" and ec."courseId"=co.id and co."userId"=2 group by us.id)`), 'Cursos'],
+        }
+    }); */
+
+
+
+/*     
+    const mycourses = await enroll_course.findAll( {
+        attributes:{ 
+            include: [
+                [sequelize.literal(`(SELECT COUNT(*) AS "Cursos" FROM "enroll_courses" AS "enroll_course" WHERE "enroll_course"."courseId" IN (select "id" from courses where "userId"=${id}) GROUP BY "userId")`), 'Cursos']
+            ],
+            exclude:["id", "enroll_date", "status_enroll", "enroll_finish_date", "avg_score", "createdAt", "updatedAt", "courseId"]        
+        },
+        where: {
+            userId: {   [sequelize.Op.in]: sequelize.literal(`select "userId" from courses where "userId"=${id}`)   }
+        }, 
+        group: 'userId',
+    }); */
+
+
+     let idUser= [];
+
+    const students = await User.findAll({
+        where: {
+            id: { [sequelize.Op.in]: idUser}
+        }, 
+    }); 
+
+     /*
+    let students = {
+        [
+    {
+    nombre?: string;
+    photo?: string;
+    id: string;
+    date_of_subscription?: string;
+    email?: string;
+    enrrolled_courses?: string[];
+    },
+
+    ]
+    }
+    */
+
+    const [results, metadata] = await db.sequelize.query(`SELECT "userId", COUNT(*) as "cursos", MIN("createdAt") as "student_since" FROM "enroll_courses" WHERE "courseId" IN (select "id" from courses where "userId"=${id}) group by "userId";`);
+
+    //results.map()
+
+    
+    await Promise.all(
+        results.map(async (obj)=>{
+            const student = await User.findOne({
+                where: {
+                    id: obj.userId
+                },
+                attributes: { exclude: ['id', 'password', 'updatedAt', 'createdAt', 'is_active', 'google', 'profileId'] },
+                include: {
+                    model: Profile,
+                    attributes: { exclude: ['id', 'updatedAt', 'createdAt', 'userTypeId', 'ubicationId', 'userDetailId', 'education', 'phone', 'aboutMe', 'profession', 'gender', 'edad'] },
+                }
+            });
+            obj.user = student
+        })
+    )
+
+
+    res.json(
+        results
+    )
+    
+}
+
+
 
 const usuariosPut = async (req, res = response) => {
 
@@ -787,5 +900,6 @@ module.exports = {
     video,
     GetAllInstructor,
     GetOneInstructor,
-    getcoursysId
+    getcoursysId,
+    getMyStudents
 }   

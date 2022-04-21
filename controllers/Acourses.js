@@ -16,7 +16,6 @@ const Category = db.category;
 
 
 const cursosRevision = async (req, res = response) => {
-        
     const [cursos] = await Promise.all([
             Curso.findAll({
                 order: [['id', 'DESC']],
@@ -92,7 +91,6 @@ const changeStateCourse = async (req, res = response) => {
     curso.update({state});
 
     res.json("Cambio realizado!")
-
 }
 
 

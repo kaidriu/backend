@@ -529,8 +529,6 @@ const GeAllCourse = async (req, res = response) => {
             attributes: { exclude: ['updatedAt', 'createdAt', 'id', 'enroll_date', 'status_enroll', 'enroll_finish_date', "userId", 'avg_score'] },
         });
 
-
-
         let ids = [];
         Enroll_course.map((resp) => {
             // console.log(resp.courseId);
@@ -721,6 +719,32 @@ const myrequtesCourse = async (req, res = response) => {
         where: { userId: id }
     })
 
+    res.json({ curso });
+}
+
+const getCoursesByInstructorId = async (req, res = response) => {
+
+    const { id } = req.usuario;
+
+    const curso = await Course.findAll({
+        where: {
+            [Op.and]: [
+                { userId: id },
+                { [Op.or]: [
+                    { 
+                        state: {
+                            [Op.ne]: "proceso"
+                        }
+                    },
+                    { 
+                        state: {
+                            [Op.ne]: "revisión"
+                        }
+                    }
+                ] }
+            ]
+        }
+    })
     res.json({ curso });
 }
 
@@ -1141,7 +1165,7 @@ module.exports = {
     PutChatper,
     deleteCourse,
     getMyPurchasedcourses,
-
+    getCoursesByInstructorId,
     DeleteChapter,
     PostQuestion,
     PutQuestion,
