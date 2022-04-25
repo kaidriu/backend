@@ -369,7 +369,7 @@ const PostTopic = async (req, res = response) => {
     // const {archivo}=req.files;
 
     console.log(duration_video);
-   
+
 
     console.log('------------------------------------------------------');
     duration_video = parseFloat(duration_video);
@@ -510,6 +510,22 @@ const GetCourse = async (req, res = response) => {
     })
 
     res.json({ curso, chapter });
+}
+
+const getThisCourses = async (req, res = response) => {
+
+    const { idcourses } = req.params;
+
+    const cursos = await Course.findAll({
+        attributes: ['title'],
+        where: { 
+            id : {
+                [Op.in]: idcourses
+            } 
+        }
+    })
+
+    res.json({ cursos});
 }
 
 
@@ -716,11 +732,37 @@ const myrequtesCourse = async (req, res = response) => {
     const { id } = req.usuario;
 
     const curso = await Course.findAll({
+        attributes: ['id', 'title', 'updatedAt', 'state', 'remark'],
+        include: [{
+            model: Subcategory,
+            attributes: ['categoryId'],
+        }],
         where: { userId: id }
     })
 
     res.json({ curso });
 }
+
+const myCourseswithTasks = async (req, res = response) => {
+
+    const { id } = req.usuario;
+     
+
+        const curso = await Course.findAll({
+            attributes: [
+                'title', 'createdAt', 'id', 'image_course',
+                [sequelize.literal('(SELECT COUNT(*) from tasks where "topicId" in (Select id from topics where "chapterId" in (Select id from chapters where "courseId"= "course"."id")))'), 'tasks']
+            ],
+            where: { userId: id }
+        })
+
+
+    res.json({ curso });
+
+
+}
+
+
 
 const getCoursesByInstructorId = async (req, res = response) => {
 
@@ -1146,6 +1188,19 @@ const GetQuestion = async (req, res = response) => {
 }
 
 
+const Getenroll_course = async (req, res = response) => {
+
+    const { idc } = req.params;
+    const { id } = req.usuario;
+
+    const Enroll_course = await enroll_course.findOne({
+        where: { [Op.and]:[{ courseId: idc },{userId:id}]}
+    });
+
+res.json(Enroll_course);
+
+}
+
 module.exports = {
     PostCourse,
     PostChapter,
@@ -1166,9 +1221,12 @@ module.exports = {
     deleteCourse,
     getMyPurchasedcourses,
     getCoursesByInstructorId,
+    Getenroll_course,
     DeleteChapter,
     PostQuestion,
     PutQuestion,
     DeleteQuestion,
-    GetQuestion
+    GetQuestion,
+    getThisCourses,
+    myCourseswithTasks
 }

@@ -22,6 +22,9 @@ module.exports = (sequelize, Sequelize) => {
       },
       education:{
         type: Sequelize.STRING
+      },
+      user_id_drive:{
+        type: Sequelize.STRING
       }
       // userId: {
       //   allowNull: true,

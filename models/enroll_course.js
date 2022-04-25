@@ -11,8 +11,10 @@ module.exports = (sequelize, Sequelize) => {
       },
       avg_score:{
         type: Sequelize.INTEGER
+      },
+      last_topic:{
+        type: Sequelize.INTEGER
       }
-
     });
     return Enroll_course;
   };

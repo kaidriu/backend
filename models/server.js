@@ -30,7 +30,8 @@ class Server{
             category     : '/api/category',
             payments     : '/api/payments',
             questions    : '/api/questions',
-            messages     : '/api/messages'
+            messages     : '/api/messages',
+            tracking     : '/api/tracking'
         }
 
 
@@ -93,16 +94,17 @@ class Server{
         this.app.use(this.paths.payments,require('../routes/payments'));
         this.app.use(this.paths.questions,require('../routes/questions'));
         this.app.use(this.paths.messages,require('../routes/messages'));
+        this.app.use(this.paths.tracking,require('../routes/content_traking'));
 
     }
 
 
     bd(){
         //  db.sequelize.sync();
-        // db.sequelize.sync({ alter: true }).then(() => {
-        // console.log("Elimina y reinicia la db.");
-        // }); 
-    }
+            // db.sequelize.sync({ alter: true }).then(() => {
+            // console.log("Elimina y reinicia la db.");
+            // }); 
+    }   
 
 
     listen(){

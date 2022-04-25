@@ -188,7 +188,7 @@ db.header_chat.belongsTo(db.user, { as: 'to' });
 
 
 db.message.belongsTo(db.header_chat);
-db.header_chat.hasOne(db.message);
+db.header_chat.hasOne(db.message,{ onDelete: 'cascade', hooks: true, });
 
 db.message.belongsTo(db.user);
 db.user.hasMany(db.message);

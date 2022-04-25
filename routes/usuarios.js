@@ -34,6 +34,7 @@ router.get('/getinstructor-course',GetAllInstructor);
 
 router.get('/getinstructorid/:idp',GetOneInstructor);
 
+
 router.get('/getmystudents',[validarJWT,validarCampos],getMyStudents);
 
 

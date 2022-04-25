@@ -560,89 +560,39 @@ const administradorAllGet = async (req, res = response) => {
 
 const getMyStudents = async (req, res = response) => {
     const { id } = req.usuario;
-   
-    
-
-/*     const mycourses = await Course.findAll({
-        where: { userId: 2 },
-        attributes: ['id']
-    })
-
-    
-    let jsmycourses = JSON.parse(JSON.stringify({mycourses}))
-    console.log((Object.entries(jsmycourses.mycourses))); */
 
 
-    //console.log(Object.entries(jsmycourses));
-
-/*     let ids = [];
-
-    const Enroll_course = await enroll_course.findAll({
-        where: { userId: uid },
-        attributes: { exclude: ['updatedAt', 'createdAt', 'id', 'enroll_date', 'status_enroll', 'enroll_finish_date', "userId", 'avg_score'] },
-    });
-
-    
-    Enroll_course.map((resp) => {
-        // console.log(resp.courseId);
-        ids.push(resp.courseId);
-
-    }) */
-
-/*     const students = await User.findAll({
-        attributes: { 
-            include: [sequelize.literal(`(select count(us.*) as cursos from users us, "enroll_courses" ec, courses co where us.id=ec."userId" and ec."courseId"=co.id and co."userId"=2 group by us.id)`), 'Cursos'],
-        }
-    }); */
-
-
-
-/*     
-    const mycourses = await enroll_course.findAll( {
-        attributes:{ 
-            include: [
-                [sequelize.literal(`(SELECT COUNT(*) AS "Cursos" FROM "enroll_courses" AS "enroll_course" WHERE "enroll_course"."courseId" IN (select "id" from courses where "userId"=${id}) GROUP BY "userId")`), 'Cursos']
-            ],
-            exclude:["id", "enroll_date", "status_enroll", "enroll_finish_date", "avg_score", "createdAt", "updatedAt", "courseId"]        
+    const students = await enroll_course.findAll({
+        attributes: [
+            'userId',
+            [Sequelize.fn('array_agg', Sequelize.col('enroll_course.courseId')), 'cursos'],
+            [Sequelize.fn('min', Sequelize.col('enroll_course.createdAt')), 'student_since']
+        ],
+        where:{
+            courseId: {
+                [Sequelize.Op.in]:[Sequelize.literal(`Select "id" from courses where "userId"=${id}`)]
+            }
         },
-        where: {
-            userId: {   [sequelize.Op.in]: sequelize.literal(`select "userId" from courses where "userId"=${id}`)   }
-        }, 
-        group: 'userId',
-    }); */
+        include: [
+            {
+                model: User,
+                attributes:{
+                    exclude: ['id', 'password', 'is_active', 'google', 'createdAt', 'updatedAt', 'profileId']
+                },
+                include: {
+                    model: Profile,
+                    attributes: { exclude: ['id', 'updatedAt', 'createdAt', 'userTypeId', 'ubicationId', 'userDetailId', 'education', 'phone', 'aboutMe', 'profession', 'gender', 'edad', 'user_id_drive', ] },
+                }
+            }
+        ],
+        group: [Sequelize.col('enroll_course.userId'), Sequelize.col('user->profile.id'), Sequelize.col('user.id')]
+    });
+   
 
-
-     let idUser= [];
-
-    const students = await User.findAll({
-        where: {
-            id: { [sequelize.Op.in]: idUser}
-        }, 
-    }); 
-
-     /*
-    let students = {
-        [
-    {
-    nombre?: string;
-    photo?: string;
-    id: string;
-    date_of_subscription?: string;
-    email?: string;
-    enrrolled_courses?: string[];
-    },
-
-    ]
-    }
-    */
-
-    const [results, metadata] = await db.sequelize.query(`SELECT "userId", COUNT(*) as "cursos", MIN("createdAt") as "student_since" FROM "enroll_courses" WHERE "courseId" IN (select "id" from courses where "userId"=${id}) group by "userId";`);
-
-    //results.map()
-
+/* const [students, metadata] = await db.sequelize.query(`SELECT "userId", array_agg("courseId") as "cursos", MIN("createdAt") as "student_since" FROM "enroll_courses" WHERE "courseId" IN (select "id" from courses where "userId"=${id}) group by "userId";`);
     
     await Promise.all(
-        results.map(async (obj)=>{
+        students.map(async (obj)=>{
             const student = await User.findOne({
                 where: {
                     id: obj.userId
@@ -655,11 +605,11 @@ const getMyStudents = async (req, res = response) => {
             });
             obj.user = student
         })
-    )
+    ) */
 
 
     res.json(
-        results
+        {students}
     )
     
 }
