@@ -34,7 +34,11 @@ module.exports = (sequelize, Sequelize) => {
       },
       id_task_student:{
         type:Sequelize.STRING
+      },
+      test_student:{
+        type:Sequelize.JSONB
       }
+
 
 
     });

@@ -1,5 +1,5 @@
 const {Router}=require('express');
-const { PostTracking, GetEnroll, AggTask, GetTaskStudent, DeleteTaskStudent, GetTrackingEnroll } = require('../controllers/content_tranking');
+const { PostTracking, GetEnroll, AggTask, GetTaskStudent, DeleteTaskStudent, GetTrackingEnroll, PutState, getalltask } = require('../controllers/content_tranking');
 
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJWT } = require('../middlewares/validar-JWT');
@@ -15,6 +15,14 @@ router.delete('/deletetaskstuden/:idC/:idT',[validarJWT,validarCampos],DeleteTas
 
 
 router.get('/getTrackingCheck/:idC',[validarJWT,validarCampos],GetTrackingEnroll);
+
+
+router.get('/getalltask/:idC',[validarJWT,validarCampos],getalltask);
+
+
+router.put('/putstate',[validarJWT,validarCampos],PutState)
+
+
 
 
     

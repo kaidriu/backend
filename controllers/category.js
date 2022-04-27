@@ -93,9 +93,9 @@ const GetCategory = async(req,res=response)=>{
        { attributes: {exclude: ['createdAt','updatedAt'] }}
     );
 
-    res.json({
+    res.json(
         category
-    })
+    )
 }
 
 const PostSubCategory = async(req,res=response)=>{
