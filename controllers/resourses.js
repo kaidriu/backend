@@ -26,7 +26,7 @@ const options = db.option;
 
 const task = db.task;
 
-const content_tracking = db.content_tracking;
+const g = db.g;
 const archive = db.archive;
 
 const PostQuizz = async (req, res = response) => {
@@ -306,7 +306,7 @@ const GetHomeTask = async (req, res = response) => {
                 }
             },
             {
-                model: content_tracking,
+                model: g,
                 attributes: { exclude: [ "state_content_tacking", "score_ct", "last_min_video", "last_entre", "createdAt", "updatedAt", "topicId", "enrollCourseId"
                 , "task_name_student", "id_task_student"] },
                 include: {
@@ -345,7 +345,7 @@ const PutHomeTask = async (req, res = response) => {
     const { idH } = req.params; 
     const {qualification_task,comment_task}=req.body;
 
-    const content = await content_tracking.findOne({
+    const content = await g.findOne({
         where:{id:idH}
     })
 

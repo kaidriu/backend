@@ -31,7 +31,8 @@ class Server{
             payments     : '/api/payments',
             questions    : '/api/questions',
             messages     : '/api/messages',
-            tracking     : '/api/tracking'
+            tracking     : '/api/tracking',
+            enrollCourse : '/api/enrollcourse'
         }
 
 
@@ -95,7 +96,7 @@ class Server{
         this.app.use(this.paths.questions,require('../routes/questions'));
         this.app.use(this.paths.messages,require('../routes/messages'));
         this.app.use(this.paths.tracking,require('../routes/content_traking'));
-
+        this.app.use(this.paths.enrollCourse,require('../routes/enroll_courses'));
     }
 
 

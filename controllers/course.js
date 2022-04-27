@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 
 const db = require('../database/db')
 
-const { Op, BOOLEAN } = require("sequelize");
+const { Op } = require("sequelize");
 
 const { deleteFolder, createFolder, createVideo, modifyFolder, deleteVideo, putVideo } = require('../helpers/vimeo');
 const chapter = require('../models/chapter');
@@ -512,26 +512,31 @@ const GetCourse = async (req, res = response) => {
     res.json({ curso, chapter });
 }
 
-const getThisCourses = async (req, res = response) => {
+const getThisEnrollCourses = async (req, res = response) => {
 
-    const { idcourses } = req.params;
+    const { idenrollcourses } = req.query;
+    const ids= idenrollcourses.split(",");
 
-    const cursos = await Course.findAll({
-        attributes: ['title'],
+    let courses = await enroll_course.findAll({
+        attributes: ['id', 'courseId'],
         where: { 
             id : {
-                [Op.in]: idcourses
+                [Op.in]: ids
             } 
-        }
+        },
+        include:[
+            {
+                model: Course,
+                attributes: ['title'],
+            },
+        ]
     })
 
-    res.json({ cursos});
+    res.json({ courses});
 }
 
 
 const GeAllCourse = async (req, res = response) => {
-
-
 
     let token = req.query.token;
 
@@ -1227,6 +1232,6 @@ module.exports = {
     PutQuestion,
     DeleteQuestion,
     GetQuestion,
-    getThisCourses,
+    getThisEnrollCourses,
     myCourseswithTasks
 }

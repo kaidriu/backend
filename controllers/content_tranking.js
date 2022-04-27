@@ -9,6 +9,7 @@ const tracking = db.content_tracking;
 const profile = db.profile;
 const User = db.user;
 const Topic = db.topic;
+
 const PostTracking = async (req, res = response) => {
 
     const { idT, idC } = req.body;
