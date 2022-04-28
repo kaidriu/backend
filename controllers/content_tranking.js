@@ -9,8 +9,10 @@ const tracking = db.content_tracking;
 const profile = db.profile;
 const User = db.user;
 const Topic = db.topic;
+const Course = db.course;
 
 const Chapter = db.chapter;
+const Task = db.task;
 
 const PostTracking = async (req, res = response) => {
 
@@ -369,11 +371,10 @@ const getalltask = async (req,res=response)=>{
             "duration_video"] },
             // required: true
             include: {
-                model: task,
+                model: Task,
                 attributes: { exclude: ['createdAt', 'updatedAt','topicId','days_task','description_task'] },
                 required: true
-            }   
-
+            }
         }]
     })
 

@@ -565,7 +565,7 @@ const getMyStudents = async (req, res = response) => {
     const students = await enroll_course.findAll({
         attributes: [
             'userId',
-            [Sequelize.fn('array_agg', Sequelize.col('enroll_course.courseId')), 'cursos'],
+            [Sequelize.fn('array_agg', Sequelize.col('enroll_course.id')), 'enroll_courses'],
             [Sequelize.fn('min', Sequelize.col('enroll_course.createdAt')), 'student_since']
         ],
         where:{

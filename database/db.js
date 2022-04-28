@@ -173,7 +173,7 @@ db.option.belongsTo(db.question);
 db.question.hasMany(db.option, { onDelete: 'cascade', hooks: true, });
 
 db.task.belongsTo(db.topic);
-db.topic.hasMany(db.task);
+db.topic.hasOne(db.task, {onDelete: 'cascade', hooks: true,});
 
 db.content_tracking.belongsTo(db.topic);
 db.topic.hasOne(db.content_tracking);
