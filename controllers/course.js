@@ -10,10 +10,10 @@ const db = require('../database/db')
 const { Op } = require("sequelize");
 
 const { deleteFolder, createFolder, createVideo, modifyFolder, deleteVideo, putVideo } = require('../helpers/vimeo');
-const chapter = require('../models/chapter');
+
 
 const sequelize = require("sequelize");
-const { topic } = require('../database/db');
+
 const { createFolderDrive, updateTitleFile } = require('../helpers/drive');
 
 const Request = db.requestI;
@@ -735,6 +735,9 @@ const GetCourseid = async (req, res = response) => {
 const myrequtesCourse = async (req, res = response) => {
 
     const { id } = req.usuario;
+    
+    let x =[];
+    let y =[];
 
     const curso = await Course.findAll({
         attributes: ['id', 'title', 'updatedAt', 'state', 'remark'],
@@ -745,7 +748,39 @@ const myrequtesCourse = async (req, res = response) => {
         where: { userId: id }
     })
 
-    res.json({ curso });
+
+
+    curso.map((resp)=>{
+        if(resp.subcategory!=null){
+            x.push(resp.subcategory.categoryId)
+        }
+
+    });
+
+    const categor = await Category.findAll({
+        where: {
+            id: {
+                [Op.in]: x
+            }
+        },
+        attributes:
+            [sequelize.fn('DISTINCT', sequelize.col('id')), 'id']
+        ,
+    })
+
+    categor.map((resp) => {
+        y.push(resp.id)
+    })
+
+    const categories = await Category.findAll({
+        where: {
+            id: {
+                [Op.in]: y
+            }
+        },
+    })
+
+    res.json({ curso ,categories});
 }
 
 const myCourseswithTasks = async (req, res = response) => {

@@ -9,6 +9,10 @@ const tracking = db.content_tracking;
 const profile = db.profile;
 const User = db.user;
 const Topic = db.topic;
+const Course = db.course;
+
+const Chapter = db.chapter;
+const Task = db.task;
 
 const PostTracking = async (req, res = response) => {
 
@@ -331,11 +335,62 @@ const GetTrackingEnroll = async (req, res = response) => {
     res.json(validar);
 }
 
+const PutState = async (req,res=response)=>{
+
+    const {state_content_tacking,id}=req.body;
+
+
+    const conten = await tracking.findOne({
+        where:{id}
+    });
+
+    await conten.update({state_content_tacking});
+
+    res.json(conten)
+
+
+}
+
+
+const getalltask = async (req,res=response)=>{
+    const { idC } = req.params;
+
+    const curso = await Course.findOne({
+        where: { id: idC }
+    })
+
+    const chapter = await Chapter.findAll({
+
+        where: { courseId: curso.id },
+        attributes: { exclude: ['createdAt', 'updatedAt', 'number_chapter', 'title_chapter', 'courseId', 'id'] },
+        order: [['number_chapter', 'ASC']],
+        include: [{
+            model: Topic,
+            order: [['number_topic', 'ASC']],
+            attributes: { exclude: ["id", "title_topic", "description_topic", "recurso", "createdAt", "updatedAt", "chapterId", "uri_video", "demo", 
+            "duration_video"] },
+            // required: true
+            include: {
+                model: Task,
+                attributes: { exclude: ['createdAt', 'updatedAt','topicId','days_task','description_task'] },
+                required: true
+            }
+        }]
+    })
+
+    res.json(chapter)
+}
+
+
+
+
 module.exports = {
     PostTracking,
     GetEnroll,
     AggTask,
     GetTaskStudent,
     DeleteTaskStudent,
-    GetTrackingEnroll
+    GetTrackingEnroll,
+    PutState,
+    getalltask
 }
