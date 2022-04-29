@@ -475,7 +475,8 @@ const GetTopic = async (req, res = response) => {
 
     const curso = await Course.findOne({
         where: { id }
-    })
+    })  
+
 
     const chapter = await Chapter.findAll({
 

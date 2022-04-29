@@ -353,32 +353,36 @@ const PutState = async (req,res=response)=>{
 
 
 const getalltask = async (req,res=response)=>{
+
     const { idC } = req.params;
+    const { id } = req.usuario;
 
-    const curso = await Course.findOne({
-        where: { id: idC }
-    })
 
-    const chapter = await Chapter.findAll({
-
-        where: { courseId: curso.id },
-        attributes: { exclude: ['createdAt', 'updatedAt', 'number_chapter', 'title_chapter', 'courseId', 'id'] },
-        order: [['number_chapter', 'ASC']],
-        include: [{
-            model: Topic,
-            order: [['number_topic', 'ASC']],
-            attributes: { exclude: ["id", "title_topic", "description_topic", "recurso", "createdAt", "updatedAt", "chapterId", "uri_video", "demo", 
-            "duration_video"] },
-            // required: true
-            include: {
-                model: Task,
-                attributes: { exclude: ['createdAt', 'updatedAt','topicId','days_task','description_task'] },
-                required: true
+    const Enroll_course = await enroll_course.findOne({
+        where: {
+            [Op.and]: [{
+                userId: id
+            },
+            {
+                courseId: idC
             }
-        }]
+            ]
+        }
     })
 
-    res.json(chapter)
+    const validar = await tracking.findAll({
+        // order: [['topicId', 'ASC']],
+        attributes: { exclude: [ 'id_task_student','createdAt', 'updatedAt','id', 'score_ct', 'last_min_video', 'last_entre', 'enrollCourseId', 'qualification_task', 'date_finish_task', 'comment_task'] },
+        where: {
+            enrollCourseId: Enroll_course.id
+        }
+
+    })
+
+
+
+
+    res.json(validar)
 }
 
 

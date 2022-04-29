@@ -289,6 +289,91 @@ const GetAllTask = async (req, res = response) => {
     res.json(chapter)
 }
 
+
+const GetAllQuizz = async (req, res = response) => {
+
+    const { idC } = req.params;
+
+    const curso = await Course.findOne({
+        where: { id: idC }
+    })
+
+    const chapter = await Chapter.findAll({
+
+        where: { courseId: curso.id },
+        attributes: { exclude: ['createdAt', 'updatedAt', 'number_chapter', 'title_chapter', 'courseId', 'id'] },
+        order: [['number_chapter', 'ASC']],
+        include: [{
+            model: Topic,
+            order: [['number_topic', 'ASC']],
+            attributes: { exclude: ['createdAt', 'updatedAt','number_topic','title_topic','description_topic','recurso','demo','uri_video','duration_video','chapterId'] },
+            // required: true
+            include: {
+                model: quizzes,
+                attributes: { exclude: ['createdAt', 'updatedAt', 'time', 'timeActivate'] },
+                required: true
+            }
+
+        }]
+    })
+
+    res.json(chapter)
+}
+
+const GetAllArchives = async (req, res = response) => {
+
+    const { idC } = req.params;
+
+    const curso = await Course.findOne({
+        where: { id: idC }
+    })
+
+    let ids_archives =[];
+    
+    const chapter = await Chapter.findAll({
+
+        where: { courseId: curso.id },
+        attributes: { exclude: ['createdAt', 'updatedAt', 'number_chapter', 'title_chapter', 'courseId', 'id'] },
+        order: [['number_chapter', 'ASC']],
+        include: [{
+            model: Topic,
+            order: [['number_topic', 'ASC']],
+            attributes: { exclude: ['createdAt', 'updatedAt'] },
+            // required: true
+            include: {
+                model: archive,
+                required: true
+            }
+
+        }]
+    })
+
+
+    chapter.map((resp)=>{
+        // if(resp.Topic!=null){
+            resp.topics.map((resp2)=>{
+                // console.log(resp2.id);
+                ids_archives.push(resp2.id);
+            })
+            
+        // }
+        
+    })
+
+    const archives = await archive.findAll({
+        where: {
+            topicId: {
+                [Op.in]: ids_archives
+            }
+        },
+        attributes: { exclude: ['createdAt', 'updatedAt','id_drive_archive'] },
+    })
+
+
+    res.json(archives)
+}
+
+
 const GetHomeTask = async (req, res = response) => {
 
     const { idC, idT } = req.params;
@@ -490,5 +575,7 @@ module.exports = {
     TimeQuizz,
     GetAllTask,
     GetHomeTask,
-    PutHomeTask
+    PutHomeTask,
+    GetAllQuizz,
+    GetAllArchives
 }
