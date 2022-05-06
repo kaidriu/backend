@@ -78,6 +78,16 @@ db.message = require("../models/messages")(sequelize, Sequelize);
 db.header_chat = require("../models/header_chat")(sequelize, Sequelize);
 
 
+
+db.history_payment_inst = require("../models/instructor_payment_history")(sequelize, Sequelize);
+
+db.commission = require("../models/commission")(sequelize, Sequelize);
+
+
+
+
+
+
 db.user.belongsTo(db.profile);
 db.profile.hasOne(db.user);
 
@@ -192,6 +202,16 @@ db.header_chat.hasOne(db.message,{ onDelete: 'cascade', hooks: true, });
 
 db.message.belongsTo(db.user);
 db.user.hasMany(db.message);
+
+
+db.history_payment_inst.belongsTo(db.user);
+db.user.hasMany(db.history_payment_inst);
+
+
+
+db.order_details.belongsTo(db.commission);
+db.commission.hasOne(db.order_details);
+
 
 module.exports = db;
 

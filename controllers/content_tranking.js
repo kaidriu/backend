@@ -162,11 +162,12 @@ const AggTask = async (req, res = response) => {
                         //         id: idT
                         //     }
                         // });
-                        await validar.update({
+                        await validar.update({  
                             id_task_student: resp2,
                             date_finish_task: fecha,
-                            link_task: xxx.webContentLink,
-                            task_name_student: archivo.name
+                            link_task: xxx.webViewLink,
+                            task_name_student: archivo.name,
+                            link_task_download:xxx.webContentLink,
                         })
                         res.json(validar)
                     })
@@ -187,8 +188,9 @@ const AggTask = async (req, res = response) => {
                         await validar.update({
                             id_task_student: resp,
                             date_finish_task: fecha,
-                            link_task: xxx.webContentLink,
-                            task_name_student: archivo.name
+                            link_task: xxx.webViewLink,
+                            task_name_student: archivo.name,
+                            link_task_download:xxx.webContentLink,
                         })
 
                         res.json(validar)
@@ -196,7 +198,7 @@ const AggTask = async (req, res = response) => {
                 })
             } else {
                 deleteFile(validar.id_task_student).then(async (resp) => {
-                    await validar.update({ id_task_student: null, task_name_student: null, date_finish_task: null, link_task: null });
+                    await validar.update({ id_task_student: null, task_name_student: null, date_finish_task: null, link_task: null ,link_task_download: null });
                     uploadFile(file_name, archivo.name, archivo.mimetype, Profile.user_id_drive).then((resp) => {
                         generatePublicUrl(resp).then(async (xxx) => {
                             // const Tracking = await tracking.findOne({
@@ -205,10 +207,12 @@ const AggTask = async (req, res = response) => {
                             //     }
                             // });
                             await validar.update({
+
                                 id_task_student: resp,
                                 date_finish_task: fecha,
-                                link_task: xxx.webContentLink,
-                                task_name_student: archivo.name
+                                link_task: xxx.webViewLink,
+                                task_name_student: archivo.name,
+                                link_task_download:xxx.webContentLink,
                             })
 
                             res.json(validar)
@@ -299,7 +303,7 @@ const DeleteTaskStudent = async (req, res = response) => {
     })
 
     deleteFile(validar.id_task_student).then(async (resp) => {
-        await validar.update({ id_task_student: null, task_name_student: null, date_finish_task: null, link_task: null });
+        await validar.update({ id_task_student: null, task_name_student: null, date_finish_task: null, link_task: null,link_task_download: null });
         res.json(validar);
     })
 
@@ -337,14 +341,13 @@ const GetTrackingEnroll = async (req, res = response) => {
 
 const PutState = async (req,res=response)=>{
 
-    const {state_content_tacking,id}=req.body;
-
+    const {id}=req.body;
 
     const conten = await tracking.findOne({
         where:{id}
     });
 
-    await conten.update({state_content_tacking});
+    await conten.update({state_content_tacking:true});
 
     res.json(conten)
 
@@ -379,13 +382,31 @@ const getalltask = async (req,res=response)=>{
 
     })
 
-
-
-
     res.json(validar)
+    
 }
 
 
+
+const SaveTest = async (req,res=response)=>{
+
+    const {idt}=req.params;
+
+    const {data}=req.body;
+
+    console.log(data);
+
+
+    const conten = await tracking.findOne({
+        where:{id:idt}
+    });
+
+    await conten.update({test_student:data});
+
+    res.json(data)
+
+
+}
 
 
 module.exports = {
@@ -396,5 +417,6 @@ module.exports = {
     DeleteTaskStudent,
     GetTrackingEnroll,
     PutState,
-    getalltask
+    getalltask,
+    SaveTest
 }

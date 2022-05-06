@@ -1,5 +1,5 @@
 const {Router}=require('express');
-const {  PostChapter,getCoursesByInstructorId, PostTopic, PostCourse, GetCourse, myrequtesCourse, GetCourseid, PutCourse, GetChapter, GetTopic, SendCourse, GeAllCourse, getAllCourseID, GetCourseRevision, deleteTopic, puttopic, PutChatper, deleteCourse, getMyPurchasedcourses, DeleteChapter, Getenroll_course, getThisEnrollCourses, myCourseswithTasks } = require('../controllers/course');
+const {  PostChapter,getCoursesByInstructorId, PostTopic, PostCourse, GetCourse, myrequtesCourse, GetCourseid, PutCourse, GetChapter, GetTopic, SendCourse, GeAllCourse, getAllCourseID, GetCourseRevision, deleteTopic, puttopic, PutChatper, deleteCourse, getMyPurchasedcourses, DeleteChapter, Getenroll_course, getThisEnrollCourses, myCourseswithTasks, myCourseswithQuizz } = require('../controllers/course');
 const { PostQuizz, GetQuizz, CambioestadoQUizz, PostOptions, SeleccionarRespuesta, DeleteAnswer, DeleteQuizz, DeleteQuestion, PutTask, DeleteTask, PostTask, GetTask, PostArchive, GetArchive, Deletearchive, TimeQuizz, GetAllTask, GetHomeTask, PutHomeTask, GetAllQuizz, GetAllArchives } = require('../controllers/resourses');
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJWT } = require('../middlewares/validar-JWT');
@@ -23,6 +23,7 @@ router.get('/getrevisioncurso',[validarJWT,validarCampos],GetCourseRevision);
 router.get('/getmerequets',[validarJWT,validarCampos],myrequtesCourse);
 
 router.get('/getmycourseswithcounttasks',[validarJWT,validarCampos],myCourseswithTasks);
+router.get('/getmycourseswithcountquizz',[validarJWT,validarCampos],myCourseswithQuizz);
 
 
 
@@ -30,7 +31,7 @@ router.delete('/deletecourse/:idc',deleteCourse);
 
 
 router.get('/mypurchasedcourses',[validarJWT,validarCampos],getMyPurchasedcourses)
-
+    
 
 
 router.get('/Getenroll_course/:idc',[validarJWT,validarCampos],Getenroll_course)

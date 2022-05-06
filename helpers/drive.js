@@ -16,8 +16,6 @@ const auth = new google.auth.GoogleAuth({
 
 const uploadFile = function (file, title, type, id_folder) {
 
-
-
     return new Promise((resolve) => {
         drive.files.create({
 

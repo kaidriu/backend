@@ -20,6 +20,9 @@ module.exports = (sequelize, Sequelize) => {
       link_task:{
         type: Sequelize.STRING
       },
+      link_task_download:{
+        type: Sequelize.STRING
+      },
       qualification_task:{
         type: Sequelize.DOUBLE
       },

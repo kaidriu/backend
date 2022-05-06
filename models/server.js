@@ -32,7 +32,8 @@ class Server{
             questions    : '/api/questions',
             messages     : '/api/messages',
             tracking     : '/api/tracking',
-            enrollCourse : '/api/enrollcourse'
+            enrollCourse : '/api/enrollcourse',
+            instPaymentHistory : '/api/inspaymenthistory'
         }
 
 
@@ -97,14 +98,15 @@ class Server{
         this.app.use(this.paths.messages,require('../routes/messages'));
         this.app.use(this.paths.tracking,require('../routes/content_traking'));
         this.app.use(this.paths.enrollCourse,require('../routes/enroll_courses'));
+        this.app.use(this.paths.instPaymentHistory,require('../routes/inst_history_payment'));
     }
 
 
     bd(){
-        //  db.sequelize.sync();
-        //     db.sequelize.sync({ alter: true }).then(() => {
-        //     console.log("Elimina y reinicia la db.");
-        //     }); 
+            //  db.sequelize.sync();
+            //     db.sequelize.sync({ alter: true }).then(() => {
+            //     console.log("Elimina y reinicia la db.");
+            //     }); 
     }   
 
 

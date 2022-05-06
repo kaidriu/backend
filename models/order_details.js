@@ -3,8 +3,14 @@ module.exports = (sequelize, Sequelize) => {
       discount_order_details: { 
         type: Sequelize.DOUBLE
       },
+      discountCode_order_details: { 
+        type: Sequelize.STRING
+      },
+      discountPercentage_order_details: { 
+        type: Sequelize.DOUBLE
+      },
       total_order_details: {
-        type: Sequelize.STRING(5000),
+        type: Sequelize.DOUBLE,
       }
     });
     return Order_details;
