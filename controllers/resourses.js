@@ -124,7 +124,14 @@ const TimeQuizz = async (req, res = response) => {
     res.json({ Quizzes })
 
 }
+const Putquestionquizz = async (req, res = response) => {
 
+    const { id, question } = req.body;
+    const Question = await questions.findOne({ where: { id } })
+    await Question.update({ question })
+    res.json( Question )
+
+}
 
 const PostOptions = async (req, res = response) => {
 
@@ -139,7 +146,7 @@ const PostOptions = async (req, res = response) => {
 }
 
 
-const SeleccionarRespuesta = async (req, res = response) => {
+const   SeleccionarRespuesta = async (req, res = response) => {
 
     const { idq, ido } = req.body;
 
@@ -577,5 +584,6 @@ module.exports = {
     GetHomeTask,
     PutHomeTask,
     GetAllQuizz,
-    GetAllArchives
+    GetAllArchives,
+    Putquestionquizz
 }
