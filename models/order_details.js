@@ -10,7 +10,7 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.DOUBLE
       },
       total_order_details: {
-        type: Sequelize.DOUBLE,
+        type: Sequelize.DOUBLE
       }
     });
     return Order_details;
