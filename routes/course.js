@@ -1,6 +1,6 @@
 const {Router}=require('express');
 const {  PostChapter,getCoursesByInstructorId, PostTopic, PostCourse, GetCourse, myrequtesCourse, GetCourseid, PutCourse, GetChapter, GetTopic, SendCourse, GeAllCourse, getAllCourseID, GetCourseRevision, deleteTopic, puttopic, PutChatper, deleteCourse, getMyPurchasedcourses, DeleteChapter, Getenroll_course, getThisEnrollCourses, myCourseswithTasks, myCourseswithQuizz } = require('../controllers/course');
-const { PostQuizz, GetQuizz, CambioestadoQUizz, PostOptions, SeleccionarRespuesta, DeleteAnswer, DeleteQuizz, DeleteQuestion, PutTask, DeleteTask, PostTask, GetTask, PostArchive, GetArchive, Deletearchive, TimeQuizz, GetAllTask, GetHomeTask, PutHomeTask, GetAllQuizz, GetAllArchives, Putquestionquizz } = require('../controllers/resourses');
+const { PostQuizz, GetQuizz, CambioestadoQUizz, PostOptions, SeleccionarRespuesta, DeleteAnswer, DeleteQuizz, DeleteQuestion, PutTask, DeleteTask, PostTask, GetTask, PostArchive, GetArchive, Deletearchive, TimeQuizz, GetAllTask, GetHomeTask, PutHomeTask, GetAllQuizz, GetAllArchives, Putquestionquizz, PutQuizz } = require('../controllers/resourses');
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJWT } = require('../middlewares/validar-JWT');
 
@@ -66,7 +66,11 @@ router.post('/task',[validarJWT,validarCampos],PostTask)
 
 
 //SOLICITUD PRUEBAS
-router.post('/quizzes/:idt',[validarJWT,validarCampos],PostQuizz)
+router.post('/postquizz',[validarJWT,validarCampos],TimeQuizz)
+router.put('/putquizz',[validarJWT,validarCampos],PutQuizz)
+
+router.post('/postquestion/:idt',[validarJWT,validarCampos],PostQuizz)
+
 router.post('/options',[validarJWT,validarCampos],PostOptions)
 router.put('/selectedoptions',[validarJWT,validarCampos],SeleccionarRespuesta)
 router.delete('/deleteoption/:ido',[validarJWT,validarCampos],DeleteAnswer)
@@ -74,7 +78,6 @@ router.delete('/deletequestion/:idq',[validarJWT,validarCampos],DeleteQuestion)
 router.put('/changequizzes',[validarJWT,validarCampos],CambioestadoQUizz)
 router.get('/getquizzes/:idt',[validarJWT,validarCampos],GetQuizz)
 router.delete('/deletequizz/:idt',[validarJWT,validarCampos],DeleteQuizz)
-router.put('/puttimequizz',[validarJWT,validarCampos],TimeQuizz)
 router.put('/putquestion',[validarJWT,validarCampos],Putquestionquizz)
 
 

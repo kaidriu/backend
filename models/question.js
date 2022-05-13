@@ -8,6 +8,9 @@ module.exports = (sequelize, Sequelize) => {
         },
         answer_studen:{
           type: Sequelize.STRING
+        },
+        weighing:{
+          type: Sequelize.DOUBLE
         }
     });
     return Question;
