@@ -12,6 +12,7 @@ router.get('/graphichistorypayments/:from/:to/:idC',[validarJWT,validarCampos],G
 router.get('/gethistoryintructor',[validarJWT,validarCampos],getHistoryInstructor);
 
 router.get('/historypaymentsdetails/:idC/:valor',[validarJWT,validarCampos],HistoryPaymentsdetails);
+
 router.get('/graphichistorypaymentsdetails/:idC',[validarJWT,validarCampos],GraphicHistoryPaymentsdetails);
 
 

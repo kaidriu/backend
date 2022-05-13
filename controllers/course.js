@@ -1207,7 +1207,7 @@ const PutQuestion = async (req, res = response) => {
 
     const { idq } = req.params;
 
-
+    console.log('object');
     const question = await Question_Course.findOne({
         where: { id: idq }
     });
