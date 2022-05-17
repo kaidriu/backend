@@ -4,7 +4,7 @@ module.exports = (sequelize , Sequelize) =>{
             type : Sequelize.STRING
         },
         description_task : {
-            type : Sequelize.STRING
+            type : Sequelize.STRING(5000)
         },
        file_task :{
             type : Sequelize.STRING

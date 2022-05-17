@@ -5,7 +5,7 @@ const Sequelize = require("sequelize");
  const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
   host: dbConfig.HOST,
   dialect: dbConfig.dialect,
-  //port: 5432,
+  port: 5649,
   pool: {
     max: dbConfig.pool.max,
     min: dbConfig.pool.min,
@@ -76,6 +76,16 @@ db.content_tracking = require("../models/content_tracker")(sequelize, Sequelize)
 db.archive = require("../models/archives")(sequelize, Sequelize);
 db.message = require("../models/messages")(sequelize, Sequelize);
 db.header_chat = require("../models/header_chat")(sequelize, Sequelize);
+
+
+
+db.history_payment_inst = require("../models/instructor_payment_history")(sequelize, Sequelize);
+
+db.commission = require("../models/commission")(sequelize, Sequelize);
+
+
+
+
 
 
 db.user.belongsTo(db.profile);
@@ -192,6 +202,16 @@ db.header_chat.hasOne(db.message,{ onDelete: 'cascade', hooks: true, });
 
 db.message.belongsTo(db.user);
 db.user.hasMany(db.message);
+
+
+db.history_payment_inst.belongsTo(db.user);
+db.user.hasMany(db.history_payment_inst);
+
+
+
+db.order_details.belongsTo(db.commission);
+db.commission.hasOne(db.order_details);
+
 
 module.exports = db;
 

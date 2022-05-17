@@ -1,16 +1,23 @@
 module.exports = {
 
-  //BD EN ELEPHANT
+  // BD EN ELEPHANT
   //  HOST: "castor.db.elephantsql.com",
   // USER: "odcwqpiy",
   // PASSWORD: "vvlJcM_48UQPvkBi_d6RxnkQllhR8FeQ",
   // DB: "odcwqpiy", 
 
-  // // BD LOCAL
-  HOST: "localhost",
+
+
+  HOST: "containers-us-west-59.railway.app",
   USER: "postgres",
-  PASSWORD: "admin",
-  DB: "curso",
+  PASSWORD: "nE7N9STUzqMBzhKCJp6o",
+  DB: "railway", 
+
+  // // BD LOCAL
+  // HOST: "localhost",
+  // USER: "postgres",
+  // PASSWORD: "solsito28",
+  // DB: "cursos",
   dialect: "postgres",
   pool: {
     max: 5,

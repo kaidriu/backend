@@ -803,7 +803,24 @@ const myCourseswithTasks = async (req, res = response) => {
 
 }
 
+const myCourseswithQuizz = async (req, res = response) => {
 
+    const { id } = req.usuario;
+     
+
+        const curso = await Course.findAll({
+            attributes: [
+                'title', 'createdAt', 'id', 'image_course',
+                [sequelize.literal('(SELECT COUNT(*) from quizzes where "topicId" in (Select id from topics where "chapterId" in (Select id from chapters where "courseId"= "course"."id")))'), 'quizzes']
+            ],
+            where: { userId: id }
+        })
+
+
+    res.json({ curso });
+
+
+}
 
 const getCoursesByInstructorId = async (req, res = response) => {
 
@@ -1190,7 +1207,7 @@ const PutQuestion = async (req, res = response) => {
 
     const { idq } = req.params;
 
-
+    console.log('object');
     const question = await Question_Course.findOne({
         where: { id: idq }
     });
@@ -1269,5 +1286,6 @@ module.exports = {
     DeleteQuestion,
     GetQuestion,
     getThisEnrollCourses,
-    myCourseswithTasks
+    myCourseswithTasks,
+    myCourseswithQuizz
 }

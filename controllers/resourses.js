@@ -36,7 +36,7 @@ const PostQuizz = async (req, res = response) => {
     console.log(req.body);
 
 
-    const { time, question, answerStuden } = req.body;
+    const { time, question, answerStuden ,weighing} = req.body;
 
 
     const Quizzes = await quizzes.findOne({ where: { topicId: idt } })
@@ -45,7 +45,7 @@ const PostQuizz = async (req, res = response) => {
     if (Quizzes) {
 
 
-        const Questions = new questions({ question: question, type_answer: answerStuden, quizId: Quizzes.id })
+        const Questions = new questions({ question: question, type_answer: answerStuden, quizId: Quizzes.id ,weighing})
         await Questions.save();
         //     if (resp.answerStuden == false) {
         //         resp.options.map(async (resp2) => {
@@ -58,45 +58,46 @@ const PostQuizz = async (req, res = response) => {
             Questions, Quizzes
         })
 
-    } else {
-        if (time == '') {
-            const Quizzes = new quizzes({ topicId: idt })
-            await Quizzes.save();
+    } 
+    // else {
+    //     if (time == '') {
+    //         const Quizzes = new quizzes({ topicId: idt })
+    //         await Quizzes.save();
 
 
-            const Questions = new questions({ question: question, type_answer: answerStuden, quizId: Quizzes.id })
-            await Questions.save();
-            //     if (resp.answerStuden == false) {
-            //         resp.options.map(async (resp2) => {
-            //             const Options = new options({ options: resp2.option, answer: resp2.answer, questionId: Questions.id })
-            //             await Options.save();
-            //         })
-            //     }
+    //         const Questions = new questions({ question: question, type_answer: answerStuden, quizId: Quizzes.id })
+    //         await Questions.save();
+    //         //     if (resp.answerStuden == false) {
+    //         //         resp.options.map(async (resp2) => {
+    //         //             const Options = new options({ options: resp2.option, answer: resp2.answer, questionId: Questions.id })
+    //         //             await Options.save();
+    //         //         })
+    //         //     }
 
-            res.json({
-                Questions, Quizzes
-            })
+    //         res.json({
+    //             Questions, Quizzes
+    //         })
 
-        } else {
-            const Quizzes = new quizzes({ time, topicId: idt })
-            await Quizzes.save();
+    //     } else {
+    //         const Quizzes = new quizzes({ time, topicId: idt })
+    //         await Quizzes.save();
 
 
-            const Questions = new questions({ question: question, type_answer: answerStuden, quizId: Quizzes.id })
-            await Questions.save();
-            //     if (resp.answerStuden == false) {
-            //         resp.options.map(async (resp2) => {
-            //             const Options = new options({ options: resp2.option, answer: resp2.answer, questionId: Questions.id })
-            //             await Options.save();
-            //         })
-            //     }
+    //         const Questions = new questions({ question: question, type_answer: answerStuden, quizId: Quizzes.id })
+    //         await Questions.save();
+    //         //     if (resp.answerStuden == false) {
+    //         //         resp.options.map(async (resp2) => {
+    //         //             const Options = new options({ options: resp2.option, answer: resp2.answer, questionId: Questions.id })
+    //         //             await Options.save();
+    //         //         })
+    //         //     }
 
-            res.json({
-                Questions, Quizzes
-            })
-        }
+    //         res.json({
+    //             Questions, Quizzes
+    //         })
+    //     }
 
-    }
+    // }
 
 }
 
@@ -115,16 +116,42 @@ const CambioestadoQUizz = async (req, res = response) => {
 
 const TimeQuizz = async (req, res = response) => {
 
-    const { id, time, timeActivate } = req.body;
+    const { time, timeActivate, idt, tittle_quizz } = req.body;
 
-    const Quizzes = await quizzes.findOne({ where: { id } })
+    const Quizzes = new quizzes({ time, timeActivate, topicId: idt, tittle_quizz })
 
-    await Quizzes.update({ time, timeActivate })
+
+    await Quizzes.save();
+    // const Quizzes = await quizzes.findOne({ where: { id } })
+
+    // await Quizzes.update({ time, timeActivate })
 
     res.json({ Quizzes })
 
 }
 
+const PutQuizz = async (req, res = response) => {
+
+    const {  idq, time, timeActivate, tittle_quizz } = req.body;
+
+
+    const Quizzes = await quizzes.findOne({where:{id:idq}});
+
+    await Quizzes.update({ time, timeActivate, tittle_quizz });
+
+    res.json({ Quizzes })
+
+}
+
+
+const Putquestionquizz = async (req, res = response) => {
+
+    const { id, question } = req.body;
+    const Question = await questions.findOne({ where: { id } })
+    await Question.update({ question })
+    res.json(Question)
+
+}
 
 const PostOptions = async (req, res = response) => {
 
@@ -237,7 +264,7 @@ const DeleteQuizz = async (req, res = response) => {
     const { idt } = req.params;
 
     const Quizzes = await quizzes.findOne({
-        where: { id: idt },
+        where: { topicId: idt },
 
 
     })
@@ -306,7 +333,7 @@ const GetAllQuizz = async (req, res = response) => {
         include: [{
             model: Topic,
             order: [['number_topic', 'ASC']],
-            attributes: { exclude: ['createdAt', 'updatedAt','number_topic','title_topic','description_topic','recurso','demo','uri_video','duration_video','chapterId'] },
+            attributes: { exclude: ['createdAt', 'updatedAt', 'number_topic', 'title_topic', 'description_topic', 'recurso', 'demo', 'uri_video', 'duration_video', 'chapterId'] },
             // required: true
             include: {
                 model: quizzes,
@@ -328,8 +355,8 @@ const GetAllArchives = async (req, res = response) => {
         where: { id: idC }
     })
 
-    let ids_archives =[];
-    
+    let ids_archives = [];
+
     const chapter = await Chapter.findAll({
 
         where: { courseId: curso.id },
@@ -349,15 +376,15 @@ const GetAllArchives = async (req, res = response) => {
     })
 
 
-    chapter.map((resp)=>{
+    chapter.map((resp) => {
         // if(resp.Topic!=null){
-            resp.topics.map((resp2)=>{
-                // console.log(resp2.id);
-                ids_archives.push(resp2.id);
-            })
-            
+        resp.topics.map((resp2) => {
+            // console.log(resp2.id);
+            ids_archives.push(resp2.id);
+        })
+
         // }
-        
+
     })
 
     const archives = await archive.findAll({
@@ -366,7 +393,7 @@ const GetAllArchives = async (req, res = response) => {
                 [Op.in]: ids_archives
             }
         },
-        attributes: { exclude: ['createdAt', 'updatedAt','id_drive_archive'] },
+        attributes: { exclude: ['createdAt', 'updatedAt', 'id_drive_archive'] },
     })
 
 
@@ -392,8 +419,10 @@ const GetHomeTask = async (req, res = response) => {
             },
             {
                 model: content_tracking,
-                attributes: { exclude: [ "state_content_tacking", "score_ct", "last_min_video", "last_entre", "createdAt", "updatedAt", "topicId", "enrollCourseId"
-                , "task_name_student", "id_task_student"] },
+                attributes: {
+                    exclude: ["state_content_tacking", "score_ct", "last_min_video", "last_entre", "createdAt", "updatedAt", "topicId", "enrollCourseId"
+                        , "task_name_student", "id_task_student"]
+                },
                 include: {
                     model: Topic,
                     attributes: { exclude: ["number_topic", "title_topic", "description_topic", "recurso", "createdAt", "updatedAt", "chapterId", "uri_video", "demo", "duration_video"] },
@@ -427,14 +456,14 @@ const GetHomeTask = async (req, res = response) => {
 
 const PutHomeTask = async (req, res = response) => {
 
-    const { idH } = req.params; 
-    const {qualification_task,comment_task}=req.body;
+    const { idH } = req.params;
+    const { qualification_task, comment_task } = req.body;
 
     const content = await content_tracking.findOne({
-        where:{id:idH}
+        where: { id: idH }
     })
 
-     content.update({qualification_task,comment_task});
+    content.update({ qualification_task, comment_task });
 
     res.json(content);
 }
@@ -577,5 +606,7 @@ module.exports = {
     GetHomeTask,
     PutHomeTask,
     GetAllQuizz,
-    GetAllArchives
+    GetAllArchives,
+    Putquestionquizz,
+    PutQuizz
 }
