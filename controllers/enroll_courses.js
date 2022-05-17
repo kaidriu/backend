@@ -18,7 +18,7 @@ const getEnrollCourse = async (req, res = response) => {
     const { id } = req.params;
 
     const enroll_course = await Enroll_course.findOne({
-        attributes: ['id','courseId', 'userId', 'enroll_date'],
+        attributes: ['id','courseId', 'userId', 'createdAt'],
         where: { 
             id: id
         },
@@ -39,13 +39,18 @@ const getEnrollCourse = async (req, res = response) => {
     })
 
     const chapters = await Chapter.findAll({
-        attributes: ['id', 'number_chapter','title_chapter'],
+        attributes: [
+            'id', 'number_chapter','title_chapter',
+            [Sequelize.fn('count', 'id'), 'student_since']
+        ],
         where : {
             courseId: enroll_course.courseId
         },
         include: {
             model: Topic,
-            attributes: ['id', 'number_topic', 'title_topic'],
+            attributes: [
+                'id', 'number_topic', 'title_topic',
+            ],
             order: ['number_topic'],
             include: [
                 {
@@ -57,12 +62,14 @@ const getEnrollCourse = async (req, res = response) => {
                     where: {
                         enrollCourseId: enroll_course.id
                     },
-                    attributes: ['id','score_ct', 'qualification_task'],
+                    attributes: ['id', 'state_content_tacking','score_ct','qualification_task'],
                 }
             ],
         },
         order: ['number_chapter', sequelize.col('topics.number_topic')]
-    }) 
+    })
+
+    console.log(chapters);
 
     res.json({enroll_course, chapters});
 }

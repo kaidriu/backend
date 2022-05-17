@@ -560,9 +560,11 @@ const administradorAllGet = async (req, res = response) => {
 
 const getMyStudents = async (req, res = response) => {
     const { id } = req.usuario;
-
-
-    const students = await enroll_course.findAll({
+    let idc = req.query.idc;
+    let students = null;
+    
+    if(!idc){
+    students = await enroll_course.findAll({
         attributes: [
             'userId',
             [Sequelize.fn('array_agg', Sequelize.col('enroll_course.id')), 'enroll_courses'],
@@ -587,27 +589,34 @@ const getMyStudents = async (req, res = response) => {
         ],
         group: [Sequelize.col('enroll_course.userId'), Sequelize.col('user->profile.id'), Sequelize.col('user.id')]
     });
-   
-
-/* const [students, metadata] = await db.sequelize.query(`SELECT "userId", array_agg("courseId") as "cursos", MIN("createdAt") as "student_since" FROM "enroll_courses" WHERE "courseId" IN (select "id" from courses where "userId"=${id}) group by "userId";`);
-    
-    await Promise.all(
-        students.map(async (obj)=>{
-            const student = await User.findOne({
-                where: {
-                    id: obj.userId
-                },
-                attributes: { exclude: ['id', 'password', 'updatedAt', 'createdAt', 'is_active', 'google', 'profileId'] },
-                include: {
-                    model: Profile,
-                    attributes: { exclude: ['id', 'updatedAt', 'createdAt', 'userTypeId', 'ubicationId', 'userDetailId', 'education', 'phone', 'aboutMe', 'profession', 'gender', 'edad'] },
+    } else {
+        idcourse = String(idc);
+        console.log(idcourse);
+        students = await enroll_course.findAll({
+            attributes: [
+                'userId',
+                [Sequelize.fn('array_agg', Sequelize.col('enroll_course.id')), 'enroll_courses'],
+                [Sequelize.fn('min', Sequelize.col('enroll_course.createdAt')), 'student_since']
+            ],
+            where:{
+                courseId: idcourse
+            },
+            include: [
+                {
+                    model: User,
+                    attributes:{
+                        exclude: ['id', 'password', 'is_active', 'google', 'createdAt', 'updatedAt', 'profileId']
+                    },
+                    include: {
+                        model: Profile,
+                        attributes: { exclude: ['id', 'updatedAt', 'createdAt', 'userTypeId', 'ubicationId', 'userDetailId', 'education', 'phone', 'aboutMe', 'profession', 'gender', 'edad', 'user_id_drive', ] },
+                    }
                 }
-            });
-            obj.user = student
-        })
-    ) */
-
-
+            ],
+            group: [Sequelize.col('enroll_course.userId'), Sequelize.col('user->profile.id'), Sequelize.col('user.id')]
+        });
+    }
+    
     res.json(
         {students}
     )
