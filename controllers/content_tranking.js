@@ -403,11 +403,62 @@ const SaveTest = async (req,res=response)=>{
 
     await conten.update({test_student:data});
 
-    res.json(data)
+    res.json(conten)
 
 
 }
 
+const getTest = async (req,res=response)=>{
+
+    const {idu, idt,idC}=req.params;
+
+
+    const Enroll_course = await enroll_course.findOne({
+        attributes: ['id'],
+        where: {
+            [Op.and]: [{
+                userId: idu
+            },
+            {
+                courseId: idC
+            }
+            ]
+        },
+        include:[
+            {
+                model:tracking,
+                attributes: ['id', 'test_student'],
+                where:{
+                        topicId: idt
+                    },
+            },
+            {
+                model:User,
+                attributes: [ 'name'],
+            }
+        ]
+           
+                
+
+    })
+
+    // const Traking = await tracking.findOne({
+    //     attributes: ['id', 'test_student'],
+    //     where: {
+    //         [Op.and]: [{
+    //             topicId: idt
+    //         },
+    //         {
+    //             enrollCourseId: Enroll_course.id
+    //         }
+    //         ]
+    //     }
+    // })
+
+    res.json(Enroll_course)
+
+
+}
 
 module.exports = {
     PostTracking,
@@ -418,5 +469,6 @@ module.exports = {
     GetTrackingEnroll,
     PutState,
     getalltask,
-    SaveTest
+    SaveTest,
+    getTest
 }

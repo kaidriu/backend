@@ -105,7 +105,19 @@ const CambioestadoQUizz = async (req, res = response) => {
 
     const { id, answerStuden } = req.body;
 
-    const Questions = await questions.findOne({ where: { id } })
+    const Questions = await questions.findOne({ where: { id } });
+
+
+    //Verificar
+    if(answerStuden=='true'){
+        const Options = await options.findAll({where:{questionId:id}});
+        
+        Options.map(async (resp)=>{
+            const x = await options.findOne({where:{id:resp.id}});
+            await x.destroy();
+        })
+      
+    }
 
     await Questions.update({ type_answer: answerStuden })
 
@@ -317,7 +329,7 @@ const GetAllTask = async (req, res = response) => {
 }
 
 
-const GetAllQuizz = async (req, res = response) => {
+const   GetAllQuizz = async (req, res = response) => {
 
     const { idC } = req.params;
 
@@ -328,12 +340,12 @@ const GetAllQuizz = async (req, res = response) => {
     const chapter = await Chapter.findAll({
 
         where: { courseId: curso.id },
-        attributes: { exclude: ['createdAt', 'updatedAt', 'number_chapter', 'title_chapter', 'courseId', 'id'] },
+        attributes: { exclude: ['createdAt', 'updatedAt', 'number_chapter', 'title_chapter', 'courseId'] },
         order: [['number_chapter', 'ASC']],
         include: [{
             model: Topic,
             order: [['number_topic', 'ASC']],
-            attributes: { exclude: ['createdAt', 'updatedAt', 'number_topic', 'title_topic', 'description_topic', 'recurso', 'demo', 'uri_video', 'duration_video', 'chapterId'] },
+            attributes: { exclude: ['createdAt', 'updatedAt', 'number_topic', 'description_topic', 'recurso', 'demo', 'uri_video', 'duration_video', 'chapterId'] },
             // required: true
             include: {
                 model: quizzes,

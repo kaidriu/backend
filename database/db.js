@@ -186,7 +186,7 @@ db.task.belongsTo(db.topic);
 db.topic.hasOne(db.task, {onDelete: 'cascade', hooks: true,});
 
 db.content_tracking.belongsTo(db.topic);
-db.topic.hasOne(db.content_tracking);
+db.topic.hasOne(db.content_tracking,{ onDelete: 'cascade', hooks: true, });
 
 db.content_tracking.belongsTo(db.enroll_course);
 db.enroll_course.hasOne(db.content_tracking);
