@@ -82,6 +82,10 @@ router.put('/putquestion',[validarJWT,validarCampos],Putquestionquizz)
 
 
 
+
+
+
+
 //SOLICITUD TAREAS
 
 router.post('/posttask',[validarJWT,validarCampos],PostTask)

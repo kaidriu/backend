@@ -423,7 +423,7 @@ const GetHomeTask = async (req, res = response) => {
         include: [
             {
                 model: User,
-                attributes: { exclude: ['id', 'password', 'updatedAt', 'createdAt', 'is_active', 'google', 'profileId'] },
+                attributes: { exclude: [ 'password', 'updatedAt', 'createdAt', 'is_active', 'google', 'profileId'] },
                 include: {
                     model: Profile,
                     attributes: { exclude: ['user_id_drive', 'id', 'updatedAt', 'createdAt', 'userTypeId', 'ubicationId', 'userDetailId', 'education', 'phone', 'aboutMe', 'profession', 'gender', 'edad'] },
