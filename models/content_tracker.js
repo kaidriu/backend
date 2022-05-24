@@ -40,7 +40,11 @@ module.exports = (sequelize, Sequelize) => {
       },
       test_student:{
         type:Sequelize.JSONB
+      },
+      qualification_test:{
+        type:Sequelize.DOUBLE
       }
+      
 
 
 

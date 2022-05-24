@@ -375,7 +375,7 @@ const getalltask = async (req,res=response)=>{
 
     const validar = await tracking.findAll({
         // order: [['topicId', 'ASC']],
-        attributes: { exclude: [ 'id_task_student','createdAt', 'updatedAt','id', 'score_ct', 'last_min_video', 'last_entre', 'enrollCourseId', 'qualification_task', 'date_finish_task', 'comment_task'] },
+        attributes: { exclude: [ 'id_task_student','createdAt', 'updatedAt','id', 'score_ct', 'last_min_video', 'last_entre', 'enrollCourseId', 'date_finish_task'] },
         where: {
             enrollCourseId: Enroll_course.id
         }
@@ -402,6 +402,26 @@ const SaveTest = async (req,res=response)=>{
     });
 
     await conten.update({test_student:data});
+
+    res.json(conten)
+
+
+}
+
+const qualificationTest = async (req,res=response)=>{
+
+    const {idt}=req.params;
+
+    const {data,qualification_test}=req.body;
+
+    console.log(data);
+
+
+    const conten = await tracking.findOne({
+        where:{id:idt}
+    });
+
+    await conten.update({test_student:data,qualification_test});
 
     res.json(conten)
 
@@ -470,5 +490,6 @@ module.exports = {
     PutState,
     getalltask,
     SaveTest,
-    getTest
+    getTest,
+    qualificationTest
 }

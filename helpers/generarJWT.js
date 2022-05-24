@@ -49,7 +49,21 @@ const comprobarJWT = async( token = '') => {
 
 }
 
+const comprobarJWTSocket = ( token = '' ) => {
+
+    try {
+
+        const { uid } = jwt.verify( token,process.env.SECRETORPRIVATEKEY );
+        return [ true, uid];
+
+    } catch (error) {
+        return [ false, null ];
+    }
+
+}
+
 module.exports={
     generarJWT,
-    comprobarJWT
+    comprobarJWT,
+    comprobarJWTSocket
 }

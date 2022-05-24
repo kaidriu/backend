@@ -12,13 +12,78 @@ const Course = db.course;
 const User = db.user;
 const Profile = db.profile;
 const enroll_course = db.enroll_course;
-
+const chat = db.chat;
 
 const sequelize = require("sequelize");
 
+//////////SOCKETS 
+
+const grabarMensaje = async( message,fromId,toId  ) => {
+
+    /*
+        payload: {
+            de: '',
+            para: '',
+            texto: ''
+        }
+    */
+
+    try {
+        const mensaje = new chat( {message,fromId,toId } );
+        await mensaje.save();
+
+        return true;
+    } catch (error) {
+        return false;
+    }
+
+}
 
 
+const obtenerChat = async(req, res) => {
 
+    const { id } = req.usuario;
+    const { idt } = req.params;
+
+    const chat30 = await chat.findAll({
+        // $or: [{ de: miId, para: mensajesDe }, { de: mensajesDe, para: miId } ]
+         order: [['createdAt', 'ASC']],
+        limit:30,
+        where: {
+            [Op.or]: [
+                {
+                    [Op.and]: [
+                        { toId: idt },
+                        { fromId: id }
+                    ]
+                }, {
+                    [Op.and]: [
+                        { toId: id },
+                        { fromId: idt }
+                    ]
+                }],
+        },
+        include: {
+            model: User,
+            // where:{id:toId},
+            attributes: { exclude: ['id', 'password', 'updatedAt', 'createdAt', 'email', 'is_active', 'google', 'profileId'] },
+            as:'from',
+            include: {
+                model: Profile,
+                attributes: { exclude: ['id', 'updatedAt', 'createdAt', 'userTypeId', 'ubicationId', 'userDetailId', 'education', 'phone', 'aboutMe', 'profession', 'gender', 'edad'] },
+            }
+        }
+
+    })
+    // .sort({ createdAt: 'desc' })
+    // .limit(30);
+
+    res.json( chat30 )
+
+}
+
+
+/////////////Antiguos
 const PostMessage = async (req, res = response) => {
 
     const { id } = req.usuario;
@@ -653,5 +718,7 @@ module.exports = {
     SearchToChat,
     SearchToChatInstructor,
     GetMessageEmitter,
-    DeleteMessages
+    DeleteMessages,
+    grabarMensaje,
+    obtenerChat
 }

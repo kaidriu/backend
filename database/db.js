@@ -76,6 +76,7 @@ db.content_tracking = require("../models/content_tracker")(sequelize, Sequelize)
 db.archive = require("../models/archives")(sequelize, Sequelize);
 db.message = require("../models/messages")(sequelize, Sequelize);
 db.header_chat = require("../models/header_chat")(sequelize, Sequelize);
+db.chat = require("../models/chat")(sequelize, Sequelize);
 
 
 
@@ -194,6 +195,12 @@ db.enroll_course.hasOne(db.content_tracking);
 
 db.header_chat.belongsTo(db.user, { as: 'from' });
 db.header_chat.belongsTo(db.user, { as: 'to' });
+
+
+db.chat.belongsTo(db.user, { as: 'from' });
+db.chat.belongsTo(db.user, { as: 'to' });
+
+
 // db.user.hasMany(db.header_chat, { as: 'from' });  
 
 

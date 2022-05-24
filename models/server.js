@@ -7,6 +7,7 @@ const db = require("../database/db");
 const fileUpload = require('express-fileupload');
 
 const { createServer } = require('http');
+const { socketController } = require('../sockets/controller');
 
 
 class Server {
@@ -18,6 +19,15 @@ class Server {
         this.port = process.env.PORT;
 
         this.server = createServer(this.app);
+
+
+        this.io     = require('socket.io')(this.server,{
+            cors: {
+                origin: '*',
+                allowedHeaders: ["my-custom-header"],
+                credentials: true
+              }
+        })
 
         this.paths = {
             auth: '/api/auth',
@@ -48,12 +58,14 @@ class Server {
         this.routes();
 
 
-
+    this.socket();
 
 
     }
 
-
+    socket(){
+        this.io.on('connection', ( socket ) => socketController(socket, this.io ) )
+    }
 
     static get instance() {
         return this._intance || (this._intance = new this());

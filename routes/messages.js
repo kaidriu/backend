@@ -1,5 +1,5 @@
 const {Router}=require('express');
-const { PostMessage, GetMessage, SearchToChat, SearchToChatInstructor, GetMessageEmitter } = require('../controllers/messages');
+const { PostMessage, GetMessage, SearchToChat, SearchToChatInstructor, GetMessageEmitter, obtenerChat } = require('../controllers/messages');
 
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJWT } = require('../middlewares/validar-JWT');
@@ -9,6 +9,7 @@ const router = Router();
 
 router.post('/postmessage/:idt',[validarJWT,validarCampos],PostMessage);
 router.get('/getmessage/:idt',[validarJWT,validarCampos],GetMessage);
+router.get('/getchat/:idt',[validarJWT,validarCampos],obtenerChat);
 
 router.get('/getemitter',[validarJWT,validarCampos],GetMessageEmitter);
 
