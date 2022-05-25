@@ -416,6 +416,13 @@ const GetAllArchives = async (req, res = response) => {
 const GetHomeTask = async (req, res = response) => {
 
     const { idC, idT } = req.params;
+    
+    const Quizzes = await quizzes.findOne({
+        where: { topicId: idT },
+        order: [['id', 'ASC']],
+        attributes:['id','tittle_quizz', 'timeActivate'],
+
+    })
 
     const enroll = await enroll_course.findAll({
         where: { courseId: idC },
@@ -433,12 +440,12 @@ const GetHomeTask = async (req, res = response) => {
                 model: content_tracking,
                 attributes: {
                     exclude: ["state_content_tacking", "score_ct", "last_min_video", "last_entre", "createdAt", "updatedAt", "topicId", "enrollCourseId"
-                        , "task_name_student", "id_task_student"]
+                        , "task_name_student", "id_task_student", "test_student"]
                 },
                 include: {
                     model: Topic,
                     attributes: { exclude: ["number_topic", "title_topic", "description_topic", "recurso", "createdAt", "updatedAt", "chapterId", "uri_video", "demo", "duration_video"] },
-                    where: { id: idT }
+                    where: { id: idT },
                 }
             }
         ]
@@ -462,7 +469,7 @@ const GetHomeTask = async (req, res = response) => {
     //     }]
     // })
 
-    res.json(enroll)
+    res.json({enroll, Quizzes})
 }
 
 
