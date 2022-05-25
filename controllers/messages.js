@@ -82,6 +82,147 @@ const obtenerChat = async(req, res) => {
 
 }
 
+const ultimomensaje = async(req, res) => {
+
+    const { id } = req.usuario;
+    // const { idt } = req.params;
+
+    const Chat = await chat.findAll({
+        // $or: [{ de: miId, para: mensajesDe }, { de: mensajesDe, para: miId } ]
+         order: [['createdAt', 'ASC']],
+        // limit:30,
+        where: {
+            [Op.or]: [
+                { toId: id },
+                // [Op.not]: {toId: id},
+                // {[Op.not]: {fromId: id}}
+                { fromId: id }
+            ]
+        },
+        // include: [
+        //     {
+        //         model: User,
+        //         // where:{id:toId},
+        //         attributes: { exclude: ['id', 'password', 'updatedAt', 'createdAt', 'email', 'is_active', 'google', 'profileId'] },
+        //         as:'from',
+        //         include: {
+        //             model: Profile,
+        //             attributes: ["image_perfil"] ,
+        //         }
+        //     },
+        //     {
+        //         model: User,
+        //         // where:{id:toId},
+        //         attributes: { exclude: ['id', 'password', 'updatedAt', 'createdAt', 'email', 'is_active', 'google', 'profileId'] },
+        //         as:'to',
+        //         include: {
+        //             model: Profile,
+        //             attributes: ["image_perfil"] ,
+        //         }
+        //     },
+        // ]
+
+    })
+
+    let ultimoMensaje = [];
+
+    // Chat.map(async (resp) => {
+
+
+    //     // let Message = await message.findOne({
+    //     //     where: { headerChatId: resp.id },
+    //     //     order: [['createdAt', 'DESC']],
+    //     //     // limit:1
+    //     //     include: {
+    //     //         model: User
+    //     //     }
+    //     // })
+    //     // console.log(Message.userId);
+    //     // console.log(Message.messaje_chat);
+    //     // Message.map((resp2)=>{
+    //     // console.log(resp);
+    //     // console.log(Message);
+
+
+    //     if (resp.fromId != id) {
+
+    //         ultimoMensaje.push({
+    //             "id": resp.id,
+    //             "createdAt": resp.createdAt,
+    //             "emisor": resp.fromId,
+    //             // "toId": resp.toId,
+    //             "Mensaje": resp.message,
+    //             "from": {
+    //                 "name": resp.from.name,
+    //                 "profile": {
+    //                     "image_perfil": resp.from.profile.image_perfil
+    //                 }
+    //             }
+    //         })
+
+    //         // ultimoMensaje.push({
+    //         //     "fromId": resp.fromId,
+
+    //         // })
+
+
+    //     } else {
+
+    //         ultimoMensaje.push({
+    //             "id": resp.id,
+    //             "createdAt": resp.createdAt,
+    //             // "fromId": resp.fromId,
+    //             "emisor": resp.toId,
+    //             "Mensaje": resp.message,
+    //             "from": {
+    //                 "name": resp.to.name,
+    //                 "profile": {
+    //                     "image_perfil": resp.to.profile.image_perfil
+    //                 }
+    //             }
+    //         })
+
+    //         // ultimoMensaje.push({
+
+    //         //     "toId": resp.toId
+    //         // })
+
+
+    //     }
+
+
+
+
+
+    //     // Heade_char.push({"Mensaje":Message.messaje_chat})
+    //     // })
+
+
+
+    //     if (Chat.length == ultimoMensaje.length) {
+    //         // console.log(ultimoMensaje);
+    //         res.json(
+
+    //             ultimoMensaje
+    //         )
+    //     }
+
+
+
+
+
+
+    //     // ultimoMensaje.push(resp.fromId);
+    //     // ultimoMensaje.push(resp.toId);
+    //     // ultimoMensaje2.push(resp.id);
+    // })
+    // .sort({ createdAt: 'desc' })
+    // .limit(30);
+
+    res.json(Chat)
+}
+
+
 
 /////////////Antiguos
 const PostMessage = async (req, res = response) => {
@@ -720,5 +861,6 @@ module.exports = {
     GetMessageEmitter,
     DeleteMessages,
     grabarMensaje,
-    obtenerChat
+    obtenerChat,
+    ultimomensaje
 }

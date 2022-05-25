@@ -47,7 +47,7 @@ const socketController = async (socket = new Socket(), io) => {
     socket.on('mensaje', async (payload) => {
         console.log( payload);
         const {message,toId} = payload;
-        await grabarMensaje(message,uid,toId );
+        // await grabarMensaje(message,uid,toId );
         io.emit('mensaje-nuevo', payload);
         // io.to( 1 ).emit('mensaje-nuevo', 'sexooooooo' );
     });

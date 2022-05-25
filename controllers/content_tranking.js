@@ -414,7 +414,8 @@ const qualificationTest = async (req,res=response)=>{
 
     const {data,qualification_test}=req.body;
 
-    console.log(data);
+    console.log(idt);
+    console.log(qualification_test);
 
 
     const conten = await tracking.findOne({
@@ -423,7 +424,7 @@ const qualificationTest = async (req,res=response)=>{
 
     await conten.update({test_student:data,qualification_test});
 
-    res.json(conten)
+    res.json(conten)    
 
 
 }
@@ -454,7 +455,12 @@ const getTest = async (req,res=response)=>{
             },
             {
                 model:User,
-                attributes: [ 'name'],
+                attributes: [ 'name','email'],
+                include:{
+                    model:profile,
+                    attributes:['image_perfil']
+
+                }
             }
         ]
            
