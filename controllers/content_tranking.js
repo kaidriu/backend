@@ -14,6 +14,8 @@ const Course = db.course;
 const Chapter = db.chapter;
 const Task = db.task;
 
+const sequelize = require("sequelize");
+
 const PostTracking = async (req, res = response) => {
 
     const { idT, idC } = req.body;
@@ -392,7 +394,7 @@ const SaveTest = async (req,res=response)=>{
 
     const {idt}=req.params;
 
-    const {data}=req.body;
+    const {data, date}=req.body;
 
     console.log(data);
 
@@ -401,10 +403,9 @@ const SaveTest = async (req,res=response)=>{
         where:{id:idt}
     });
 
-    await conten.update({test_student:data});
+    await conten.update({test_student:data, date_quiz_student:date});
 
     res.json(conten)
-
 
 }
 
@@ -425,7 +426,6 @@ const qualificationTest = async (req,res=response)=>{
     await conten.update({test_student:data,qualification_test});
 
     res.json(conten)    
-
 
 }
 
@@ -462,9 +462,7 @@ const getTest = async (req,res=response)=>{
 
                 }
             }
-        ]
-           
-                
+        ]       
 
     })
 
@@ -480,10 +478,35 @@ const getTest = async (req,res=response)=>{
     //         ]
     //     }
     // })
-
     res.json(Enroll_course)
+}
 
+const getStudentsWithCalifications = async (req, res = response) => {
 
+    const { idC } = req.params;
+
+    const enrolleds = await enroll_course.findAll({
+        attributes: [
+            'id','courseId', 'userId',
+            [sequelize.literal('(select SUM("content_trackings"."qualification_task") from "content_trackings" where "content_trackings"."enrollCourseId" = "enroll_course"."id")'), 'totalTasks'],
+            [sequelize.literal('(select SUM("content_trackings"."qualification_test") from "content_trackings" where "content_trackings"."enrollCourseId" = "enroll_course"."id")'), 'totalTests'],
+        ],
+
+        where:{
+            courseId: idC
+        },
+        include:{
+            model:User,
+            attributes: [ 'name','email'],
+                include:{
+                    model:profile,
+                    attributes:['image_perfil']
+                }
+        },
+        group: [sequelize.col('enroll_course.id'), sequelize.col('enroll_course.userId'), sequelize.col('enroll_course.courseId'), sequelize.col('user.id'),sequelize.col('user->profile.id')]
+    })
+
+    res.json(enrolleds);
 }
 
 module.exports = {
@@ -497,5 +520,6 @@ module.exports = {
     getalltask,
     SaveTest,
     getTest,
-    qualificationTest
+    qualificationTest,
+    getStudentsWithCalifications
 }

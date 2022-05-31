@@ -490,24 +490,32 @@ const PutHomeTask = async (req, res = response) => {
 
 const PostTask = async (req, res = response) => {
 
-    const { name_task, description_task, days_task, topicId } = req.body;
+    const { name_task, description_task, days_task, topicId, file_weight} = req.body;
 
-    const Task = new task({ name_task, description_task, days_task, topicId });
+    let {file_types} = req.body;
+    
+    file_types = file_types.split(",");
+
+    const Task = new task({ name_task, description_task, days_task, topicId, file_types, file_weight});
 
     await Task.save();
 
     res.json({ Task })
 }
 
+
+
 const PutTask = async (req, res = response) => {
 
-    const { id, name_task, description_task, days_task } = req.body;
+    const { id, name_task, description_task, days_task, file_weight} = req.body;
 
-    console.log(id);
+    let {file_types} = req.body;
+
+    file_types = file_types.split(",");
 
     const Task = await task.findOne({ where: { id } })
 
-    Task.update({ name_task, description_task, days_task });
+    Task.update({ name_task, description_task, days_task, file_types, file_weight});
 
     res.json({ Task })
 }

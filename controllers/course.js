@@ -784,6 +784,27 @@ const myrequtesCourse = async (req, res = response) => {
     res.json({ curso ,categories});
 }
 
+
+const myCourseswithCountStudents = async (req, res = response) => {
+
+    const { id } = req.usuario;
+     
+
+        const curso = await Course.findAll({
+            attributes: [
+                'title', 'createdAt', 'id', 'image_course',
+                [sequelize.literal('(SELECT COUNT(*) from enroll_courses where "courseId"="course"."id")'), 'students']
+            ],
+            where: { userId: id }
+        })
+
+
+    res.json({ curso });
+
+
+}
+
+
 const myCourseswithTasks = async (req, res = response) => {
 
     const { id } = req.usuario;
@@ -1287,5 +1308,6 @@ module.exports = {
     GetQuestion,
     getThisEnrollCourses,
     myCourseswithTasks,
-    myCourseswithQuizz
+    myCourseswithQuizz,
+    myCourseswithCountStudents
 }

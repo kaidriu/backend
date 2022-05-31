@@ -11,8 +11,13 @@ module.exports = (sequelize , Sequelize) =>{
         },
         days_task : {
             type : Sequelize.INTEGER
-        }
-
+        },
+        file_types:{
+            type : Sequelize.ARRAY(Sequelize.TEXT)
+        },
+        file_weight:{
+            type : Sequelize.DOUBLE
+        },
     });
 
     return Task;
