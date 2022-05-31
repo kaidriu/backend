@@ -9,9 +9,11 @@ const router = Router();
 
 router.post('/postmessage/:idt',[validarJWT,validarCampos],PostMessage);
 router.get('/getmessage/:idt',[validarJWT,validarCampos],GetMessage);
+
 router.get('/getchat/:idt',[validarJWT,validarCampos],obtenerChat);
 
 router.get('/getemitter',[validarJWT,validarCampos],GetMessageEmitter);
+
 router.get('/ultimomensaje',[validarJWT,validarCampos],ultimomensaje);
 
 router.get('/searchTo',[validarJWT,validarCampos],SearchToChat);

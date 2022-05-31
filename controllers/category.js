@@ -94,6 +94,7 @@ const GetCategory = async(req,res=response)=>{
     );
 
     res.json(
+        
         category
     )
 }
