@@ -124,7 +124,7 @@ const CambioestadoQUizz = async (req, res = response) => {
 
 const TimeQuizz = async (req, res = response) => {
 
-    const { time, timeActivate, idt, tittle_quizz } = req.body;
+    const { time, timeActivate, idt, tittle_quizz, note_weight_quiz} = req.body;
 
     const Quizzes = new quizzes({ time, timeActivate, topicId: idt, tittle_quizz, note_weight_quiz})
 
@@ -140,7 +140,7 @@ const TimeQuizz = async (req, res = response) => {
 
 const PutQuizz = async (req, res = response) => {
 
-    const {  idq, time, timeActivate, tittle_quizz } = req.body;
+    const {  idq, time, timeActivate, tittle_quizz, note_weight_quiz} = req.body;
 
 
     const Quizzes = await quizzes.findOne({where:{id:idq}});

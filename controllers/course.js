@@ -1280,9 +1280,6 @@ const checkWeightActivity= async(req, res = response) => {
     const weight = req.query.weight;
     const old_weight = req.query.old_weight;
 
-    console.log("--------------------------------");
-    console.log(req.query);
-
     const curso = await Course.findOne({
         where: { id: idc },
         attributes : ['id'],
@@ -1309,10 +1306,6 @@ const checkWeightActivity= async(req, res = response) => {
 
     curso.chapters.map((chapter)=>{
         chapter.topics.map((topic)=>{
-            // topic.map((activity)=>{
-            //     console.log(!activity.task);
-            //     console.log(!activity.quiz);     
-            // });
             if(topic.task){
                 if(topic.task.note_weight_task)
                     sum_weight+=topic.task.note_weight_task;
