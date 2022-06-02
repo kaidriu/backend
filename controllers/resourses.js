@@ -35,15 +35,12 @@ const PostQuizz = async (req, res = response) => {
 
     console.log(req.body);
 
-
     const { time, question, answerStuden ,weighing} = req.body;
-
 
     const Quizzes = await quizzes.findOne({ where: { topicId: idt } })
 
 
     if (Quizzes) {
-
 
         const Questions = new questions({ question: question, type_answer: answerStuden, quizId: Quizzes.id ,weighing})
         await Questions.save();
@@ -58,7 +55,7 @@ const PostQuizz = async (req, res = response) => {
             Questions, Quizzes
         })
 
-    } 
+    }
     // else {
     //     if (time == '') {
     //         const Quizzes = new quizzes({ topicId: idt })
@@ -98,7 +95,6 @@ const PostQuizz = async (req, res = response) => {
     //     }
 
     // }
-
 }
 
 const CambioestadoQUizz = async (req, res = response) => {
@@ -130,7 +126,7 @@ const TimeQuizz = async (req, res = response) => {
 
     const { time, timeActivate, idt, tittle_quizz } = req.body;
 
-    const Quizzes = new quizzes({ time, timeActivate, topicId: idt, tittle_quizz })
+    const Quizzes = new quizzes({ time, timeActivate, topicId: idt, tittle_quizz, note_weight_quiz})
 
 
     await Quizzes.save();
@@ -149,7 +145,7 @@ const PutQuizz = async (req, res = response) => {
 
     const Quizzes = await quizzes.findOne({where:{id:idq}});
 
-    await Quizzes.update({ time, timeActivate, tittle_quizz });
+    await Quizzes.update({ time, timeActivate, tittle_quizz, note_weight_quiz});
 
     res.json({ Quizzes })
 
@@ -490,13 +486,13 @@ const PutHomeTask = async (req, res = response) => {
 
 const PostTask = async (req, res = response) => {
 
-    const { name_task, description_task, days_task, topicId, file_weight} = req.body;
+    const { name_task, description_task, days_task, topicId, file_weight, note_weight_task} = req.body;
 
     let {file_types} = req.body;
     
     file_types = file_types.split(",");
 
-    const Task = new task({ name_task, description_task, days_task, topicId, file_types, file_weight});
+    const Task = new task({ name_task, description_task, days_task, topicId, file_types, file_weight, note_weight_task});
 
     await Task.save();
 
@@ -507,7 +503,7 @@ const PostTask = async (req, res = response) => {
 
 const PutTask = async (req, res = response) => {
 
-    const { id, name_task, description_task, days_task, file_weight} = req.body;
+    const { id, name_task, description_task, days_task, file_weight, note_weight_task} = req.body;
 
     let {file_types} = req.body;
 
@@ -515,7 +511,7 @@ const PutTask = async (req, res = response) => {
 
     const Task = await task.findOne({ where: { id } })
 
-    Task.update({ name_task, description_task, days_task, file_types, file_weight});
+    Task.update({ name_task, description_task, days_task, file_types, file_weight, note_weight_task});
 
     res.json({ Task })
 }

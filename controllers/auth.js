@@ -24,7 +24,7 @@ const login = async (req, res = response) => {
             where: { email },
             include:{
                 model:Profile,
-                attributes: { exclude: ['createdAt', 'updatedAt', 'ubicationId', 'userTypeId', 'userDetailId'] },
+                attributes: { exclude: ['createdAt', 'updatedAt', 'ubication-Id', 'userTypeId', 'userDetailId'] },
             }
         });
 
@@ -86,7 +86,7 @@ const loginadministrador = async (req, res = response) => {
 
         if (!validarPassword) {
             return res.status(400).json({
-                msg: `El passsword esta mal : ${password}`
+                msg: `El password esta mal : ${password}`
             })
         }
         const id = usuario.id;

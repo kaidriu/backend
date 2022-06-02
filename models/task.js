@@ -18,6 +18,9 @@ module.exports = (sequelize , Sequelize) =>{
         file_weight:{
             type : Sequelize.DOUBLE
         },
+        note_weight_task:{
+            type : Sequelize.DOUBLE
+        },
     });
 
     return Task;

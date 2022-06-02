@@ -1,5 +1,5 @@
 const {Router}=require('express');
-const {  PostChapter,getCoursesByInstructorId, PostTopic, PostCourse, GetCourse, myrequtesCourse, GetCourseid, PutCourse, GetChapter, GetTopic, SendCourse, GeAllCourse, getAllCourseID, GetCourseRevision, deleteTopic, puttopic, PutChatper, deleteCourse, getMyPurchasedcourses, DeleteChapter, Getenroll_course, getThisEnrollCourses, myCourseswithTasks, myCourseswithQuizz, myCourseswithCountStudents } = require('../controllers/course');
+const {  PostChapter,getCoursesByInstructorId, PostTopic, PostCourse, GetCourse, myrequtesCourse, GetCourseid, PutCourse, GetChapter, GetTopic, SendCourse, GeAllCourse, getAllCourseID, GetCourseRevision, deleteTopic, puttopic, PutChatper, deleteCourse, getMyPurchasedcourses, DeleteChapter, Getenroll_course, getThisEnrollCourses, myCourseswithTasks, myCourseswithQuizz, myCourseswithCountStudents, checkWeightActivity} = require('../controllers/course');
 const { PostQuizz, GetQuizz, CambioestadoQUizz, PostOptions, SeleccionarRespuesta, DeleteAnswer, DeleteQuizz, DeleteQuestion, PutTask, DeleteTask, PostTask, GetTask, PostArchive, GetArchive, Deletearchive, TimeQuizz, GetAllTask, GetHomeTask, PutHomeTask, GetAllQuizz, GetAllArchives, Putquestionquizz, PutQuizz } = require('../controllers/resourses');
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJWT } = require('../middlewares/validar-JWT');
@@ -38,8 +38,9 @@ router.get('/mypurchasedcourses',[validarJWT,validarCampos],getMyPurchasedcourse
 router.get('/Getenroll_course/:idc',[validarJWT,validarCampos],Getenroll_course)
 
 
+//Verificar Peso de la nota
 
-
+router.get('/check_weight_activity/:idc', [validarJWT,validarCampos], checkWeightActivity)
 
 // SOLICITUDES CAPITULOS
 
