@@ -1,5 +1,5 @@
 const { Socket } = require('socket.io');
-const { grabarMensaje } = require('../controllers/messages');
+const { grabarMensaje, PostMessage } = require('../controllers/messages');
 const { comprobarJWT, comprobarJWTSocket } = require('../helpers/generarJWT');
 // const { validarJWT } = require('../middlewares/validar-JWT');
 // const { ChatMensajes } = require('../models');
@@ -46,8 +46,10 @@ const socketController = async (socket = new Socket(), io) => {
 
     socket.on('mensaje', async (payload) => {
         console.log( payload);
-        const {message,toId} = payload;
+        const {messaje_chat,toId} = payload;
         // await grabarMensaje(message,uid,toId );
+        console.log(messaje_chat);
+        await PostMessage(messaje_chat,uid,toId );
         io.emit('mensaje-nuevo', payload);
         // io.to( 1 ).emit('mensaje-nuevo', 'sexooooooo' );
     });

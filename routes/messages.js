@@ -7,7 +7,7 @@ const { validarJWT } = require('../middlewares/validar-JWT');
 const router = Router();
 
 
-router.post('/postmessage/:idt',[validarJWT,validarCampos],PostMessage);
+// router.post('/postmessage/:idt',[validarJWT,validarCampos],PostMessage);
 router.get('/getmessage/:idt',[validarJWT,validarCampos],GetMessage);
 
 router.get('/getchat/:idt',[validarJWT,validarCampos],obtenerChat);

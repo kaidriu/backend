@@ -225,24 +225,24 @@ const ultimomensaje = async(req, res) => {
 
 
 /////////////Antiguos
-const PostMessage = async (req, res = response) => {
+const PostMessage = async (messages,fromId,toId ) => {
 
-    const { id } = req.usuario;
-    const { idt } = req.params;
-    const { messaje_chat } = req.body;
+    // const { id } = req.usuario;
+    // const { idt } = req.params;
+    // const { messaje_chat } = req.body;
 
     const Heade_char = await header_Chat.findOne({
         where: {
             [Op.or]: [
                 {
                     [Op.and]: [
-                        { toId: idt },
-                        { fromId: id }
+                        { toId: fromId },
+                        { fromId: toId }
                     ]
                 }, {
                     [Op.and]: [
-                        { toId: id },
-                        { fromId: idt }
+                        { toId: toId },
+                        { fromId: fromId }
                     ]
                 }],
         },
@@ -251,20 +251,20 @@ const PostMessage = async (req, res = response) => {
 
     if (Heade_char) {
         console.log('exites');
-        const newMessage = new message({ messaje_chat, userId: id, headerChatId: Heade_char.id });
+        const newMessage = new message({ messaje_chat: messages, userId: fromId, headerChatId: Heade_char.id });
         await newMessage.save();
 
-        res.json(newMessage)
+        return true;
 
     } else {
         console.log('no exites');
-        const newHeader = new header_Chat({ fromId: idt, toId: id });
+        const newHeader = new header_Chat({ fromId: fromId, toId: toId });
         await newHeader.save();
 
-        const newMessage = new message({ messaje_chat, userId: id, headerChatId: newHeader.id });
+        const newMessage = new message({ messaje_chat: messages, userId: fromId, headerChatId: newHeader.id });
         await newMessage.save();
 
-        res.json(newMessage)
+        return true;
 
     }
 
@@ -413,6 +413,7 @@ const GetMessageEmitter = async (req, res = response) => {
                 "Mensaje": Message.messaje_chat,
                 "from": {
                     "name": resp.from.name,
+                    "email": resp.from.email,
                     "profile": {
                         "image_perfil": resp.from.profile.image_perfil
                     }
@@ -435,6 +436,7 @@ const GetMessageEmitter = async (req, res = response) => {
                 "Mensaje": Message.messaje_chat,
                 "from": {
                     "name": resp.to.name,
+                    "email": resp.to.email,
                     "profile": {
                         "image_perfil": resp.to.profile.image_perfil
                     }

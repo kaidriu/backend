@@ -41,7 +41,7 @@ const getEnrollCourse = async (req, res = response) => {
     const chapters = await Chapter.findAll({
         attributes: [
             'id', 'number_chapter','title_chapter',
-            [Sequelize.fn('count', 'id'), 'student_since']
+            [sequelize.fn('count', 'id'), 'student_since']
         ],
         where : {
             courseId: enroll_course.courseId
