@@ -41,13 +41,13 @@ module.exports = (sequelize, Sequelize) => {
       test_student:{
         type:Sequelize.JSONB
       },
+      date_quiz_student:{
+        type: Sequelize.DATE
+      },
       qualification_test:{
         type:Sequelize.DOUBLE
       }
       
-
-
-
     });
     return Content_tracking;
   };

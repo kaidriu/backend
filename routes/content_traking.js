@@ -1,5 +1,5 @@
 const {Router}=require('express');
-const { PostTracking, GetEnroll, AggTask, GetTaskStudent, DeleteTaskStudent, GetTrackingEnroll, PutState, getalltask, SaveTest, getTest, qualificationTest } = require('../controllers/content_tranking');
+const { PostTracking, GetEnroll, AggTask, GetTaskStudent, DeleteTaskStudent, GetTrackingEnroll, PutState, getalltask, SaveTest, getTest, qualificationTest, getStudentsWithCalifications } = require('../controllers/content_tranking');
 
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJWT } = require('../middlewares/validar-JWT');
@@ -15,6 +15,8 @@ router.delete('/deletetaskstuden/:idC/:idT',[validarJWT,validarCampos],DeleteTas
 
 
 router.get('/getTrackingCheck/:idC',[validarJWT,validarCampos],GetTrackingEnroll);
+
+router.get('/getTrackingStudentsOfCourse/:idC',[validarJWT,validarCampos],getStudentsWithCalifications);
 
 
 router.get('/getalltask/:idC',[validarJWT,validarCampos],getalltask);

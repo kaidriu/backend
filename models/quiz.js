@@ -1,6 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
   const Quiz = sequelize.define("quiz", {
-    
     time: {
       type: Sequelize.INTEGER
     },
@@ -9,7 +8,10 @@ module.exports = (sequelize, Sequelize) => {
     },
     tittle_quizz: {
       type: Sequelize.STRING
-    }
+    },
+    note_weight_quiz:{
+      type : Sequelize.DOUBLE
+  },
   });
   return Quiz;
 };

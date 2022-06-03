@@ -15,6 +15,8 @@ const { deleteFolder, createFolder, createVideo, modifyFolder, deleteVideo, putV
 const sequelize = require("sequelize");
 
 const { createFolderDrive, updateTitleFile } = require('../helpers/drive');
+const { chapter } = require('../database/db');
+const task = require('../models/task');
 
 const Request = db.requestI;
 const RequestC = db.requestC;
@@ -29,6 +31,7 @@ const Subcategory = db.subcategory;
 const Chapter = db.chapter;
 const Topic = db.topic;
 const Question_Course = db.question_course;
+const Task = db.task;
 
 const enroll_course = db.enroll_course;
 
@@ -60,7 +63,7 @@ const PostCourse = async (req, res = response) => {
     uri_folder = resp;
 
     createFolderDrive(title).then(async (resp) => {
-
+      
 
       const course = new Course({ title, description, objectives, remark, image_course, link_presentation, mode, state, userId, uri_folder, id_drive: resp });
 
@@ -82,14 +85,14 @@ const PostCourse = async (req, res = response) => {
     })
     // curso.update({ title, description, objectives, image_course, link_presentation, mode, state, price, userId, subcategoryId, languaje, learning, uri_folder, description_large });
     // return res.json({
-    //     curso
+    //     curso  
     // })
   })
 }
 
 const PutCourse = async (req, res = response) => {
 
-  let { title, description, objectivess, link_presentation, mode, precio, subcategoryId, learnings, languaje, description_large,
+  let { title, description, objectives, link_presentation, mode, precio, subcategoryId, learning, languaje, description_large,
     enrollmentDataInitial,
     enrollmentTimeInitial,
     enrollmentDataFinal,
@@ -99,10 +102,9 @@ const PutCourse = async (req, res = response) => {
     courseDataFinal,
     courseTimeFinal,
     linkCourse,
-    discountCode, percentageDiscount
+    discountCode, percentageDiscount,labels
   } = req.body;
-  let learning;
-  let objectives;
+
 
 
   console.log(req.body);
@@ -121,13 +123,19 @@ const PutCourse = async (req, res = response) => {
     linkCourse = null;
   }
 
-  if (learnings) {
-    learning = learnings.split(",");
+  if (learning) {
+    learning = learning.split(",");
   }
 
-  if (objectivess) {
-    objectives = objectivess.split(",");
+  if (objectives) {
+    objectives = objectives.split(",");
   }
+  if (labels) {
+    labels = labels.split(",");
+  }
+
+  console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+  console.log(labels)
 
   let price = parseFloat(precio);
   percentageDiscount = parseFloat(percentageDiscount);
@@ -138,7 +146,6 @@ const PutCourse = async (req, res = response) => {
   const userId = id;
 
   const { idc } = req.params;
-
   let image_course = '';
 
 
@@ -184,7 +191,7 @@ const PutCourse = async (req, res = response) => {
           courseTimeInitial,
           courseDataFinal,
           courseTimeFinal,
-          linkCourse, discountCode, percentageDiscount
+          linkCourse, discountCode, percentageDiscount,labels
         });
         return res.json({
           curso
@@ -204,7 +211,7 @@ const PutCourse = async (req, res = response) => {
       courseTimeInitial,
       courseDataFinal,
       courseTimeFinal,
-      linkCourse, discountCode, percentageDiscount
+      linkCourse, discountCode, percentageDiscount,labels
     });
     return res.json({
       curso
@@ -272,7 +279,6 @@ const GetCourseRevision = async (req, res = response) => {
 }
 
 
-
 const PostChapter = async (req, res = response) => {
 
   const { num_chapter, title_chapter, idc } = req.body;
@@ -314,7 +320,6 @@ const GetChapter = async (req, res = response) => {
 
   res.json(chapter);
 }
-
 
 const PutChatper = async (req, res = response) => {
 
@@ -783,6 +788,27 @@ const myrequtesCourse = async (req, res = response) => {
 
   res.json({ curso, categories });
 }
+
+
+const myCourseswithCountStudents = async (req, res = response) => {
+
+    const { id } = req.usuario;
+     
+
+        const curso = await Course.findAll({
+            attributes: [
+                'title', 'createdAt', 'id', 'image_course',
+                [sequelize.literal('(SELECT COUNT(*) from enroll_courses where "courseId"="course"."id")'), 'students']
+            ],
+            where: { userId: id }
+        })
+
+
+    res.json({ curso });
+
+
+}
+
 
 const myCourseswithTasks = async (req, res = response) => {
 
@@ -1261,33 +1287,88 @@ const Getenroll_course = async (req, res = response) => {
 
 }
 
+const checkWeightActivity= async(req, res = response) => {
+    const { idc } = req.params;
+    const weight = req.query.weight;
+    const old_weight = req.query.old_weight;
+
+    const curso = await Course.findOne({
+        where: { id: idc },
+        attributes : ['id'],
+        include:{
+            model: Chapter,
+            attributes : ['id'],
+            include:{
+                model: Topic,
+                attributes: ['id'],
+                include: [{
+                    model: Task,
+                    attributes: ['id','note_weight_task']
+                },
+                {
+                    model: quizzes,
+                    attributes: ['id','note_weight_quiz']
+                }
+            ]
+            }
+        }
+    });
+
+    let sum_weight = 0;
+
+    curso.chapters.map((chapter)=>{
+        chapter.topics.map((topic)=>{
+            if(topic.task){
+                if(topic.task.note_weight_task)
+                    sum_weight+=topic.task.note_weight_task;
+            }
+            if(topic.quiz){
+                if(topic.quiz.note_weight_quiz)
+                    sum_weight+=topic.quiz.note_weight_quiz;
+            }
+        });
+    });
+
+    if(old_weight){
+        
+        sum_weight -=old_weight;
+    }
+
+    if(weight<=(10-sum_weight) && weight>=0)
+        res.json({valid:true});
+    else
+        res.json({valid:false, max_weight:(10-sum_weight)});
+}
+
 module.exports = {
-  PostCourse,
-  PostChapter,
-  PostTopic,
-  GetCourse,
-  myrequtesCourse,
-  GetCourseid,
-  PutCourse,
-  GetChapter,
-  GetTopic,
-  SendCourse,
-  GeAllCourse,
-  getAllCourseID,
-  GetCourseRevision,
-  deleteTopic,
-  puttopic,
-  PutChatper,
-  deleteCourse,
-  getMyPurchasedcourses,
-  getCoursesByInstructorId,
-  Getenroll_course,
-  DeleteChapter,
-  PostQuestion,
-  PutQuestion,
-  DeleteQuestion,
-  GetQuestion,
-  getThisEnrollCourses,
-  myCourseswithTasks,
-  myCourseswithQuizz
+    PostCourse,
+    PostChapter,
+    PostTopic,
+    GetCourse,
+    myrequtesCourse,
+    GetCourseid,
+    PutCourse,
+    GetChapter,
+    GetTopic,
+    SendCourse,
+    GeAllCourse,
+    getAllCourseID,
+    GetCourseRevision,
+    deleteTopic,
+    puttopic,
+    PutChatper,
+    deleteCourse,
+    getMyPurchasedcourses,
+    getCoursesByInstructorId,
+    Getenroll_course,
+    DeleteChapter,
+    PostQuestion,
+    PutQuestion,
+    DeleteQuestion,
+    GetQuestion,
+    getThisEnrollCourses,
+    myCourseswithTasks,
+    myCourseswithQuizz,
+    myCourseswithCountStudents,
+    checkWeightActivity
 }

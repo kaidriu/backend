@@ -37,9 +37,9 @@ const socketController = async (socket = new Socket(), io) => {
 
     const [validar,uid] = comprobarJWTSocket(socket.handshake.query['my-custom-header'])
 
-
+    
     if ( !validar ) { return socket.disconnect(); }
-
+    
     console.log(uid);
     
     socket.join(uid);
