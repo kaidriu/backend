@@ -521,7 +521,17 @@ const getContentTrackingStudent = async (req, res = response) => {
             'id', 'number_chapter', 'title_chapter'
         ],
         where:{
-            courseId: idC,
+            [Op.and]:[
+                {
+                courseId: idC,
+                },
+                {
+                    [Op.or]:[
+                        sequelize.where(sequelize.col('topics->quiz.id'), Op.not, null),
+                        sequelize.where(sequelize.col('topics->task.id'), Op.not, null),
+                    ]
+                },
+            ]
         },
         include:{
             model: Topic,
@@ -529,12 +539,11 @@ const getContentTrackingStudent = async (req, res = response) => {
             include:[
                 {
                     model: Task,
-                    attributes: ['id','name_task'],
-                
+                    attributes: ['id','name_task', 'note_weight_task'],
                 },
                 {
                     model: Quiz,
-                    attributes: ['id', 'tittle_quizz'],
+                    attributes: ['id', 'tittle_quizz', 'note_weight_quiz'],
                
                 },
                 {
