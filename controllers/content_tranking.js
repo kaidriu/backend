@@ -5,16 +5,18 @@ const { Op } = require("sequelize");
 const { uploadFile, generatePublicUrl, createFolderDriveStudents, deleteFile } = require("../helpers/drive");
 
 const enroll_course = db.enroll_course;
-const tracking = db.content_tracking;
+const Tracking = db.content_tracking;
 const profile = db.profile;
 const User = db.user;
 const Topic = db.topic;
 const Course = db.course;
+const Quiz = db.quiz;
 
 const Chapter = db.chapter;
 const Task = db.task;
 
 const sequelize = require("sequelize");
+
 
 const PostTracking = async (req, res = response) => {
 
@@ -33,7 +35,7 @@ const PostTracking = async (req, res = response) => {
         }
     })
 
-    const validar = await tracking.findOne({
+    const validar = await Tracking.findOne({
         where: {
             [Op.and]: [{
                 topicId: idT
@@ -53,7 +55,7 @@ const PostTracking = async (req, res = response) => {
         });
         res.json(validar);
     } else {
-        const Tracking = new tracking({
+        const Tracking = new Tracking({
             topicId: idT,
             enrollCourseId: Enroll_course.id,
             state_content_tacking: false
@@ -132,7 +134,7 @@ const AggTask = async (req, res = response) => {
         }
     })
 
-    const validar = await tracking.findOne({
+    const validar = await Tracking.findOne({
         where: {
             [Op.and]: [{
                 topicId: idT
@@ -257,7 +259,7 @@ const GetTaskStudent = async (req, res = response) => {
         }
     })
 
-    const validar = await tracking.findOne({
+    const validar = await Tracking.findOne({
         where: {
             [Op.and]: [{
                 topicId: idT
@@ -292,7 +294,7 @@ const DeleteTaskStudent = async (req, res = response) => {
         }
     })
 
-    const validar = await tracking.findOne({
+    const validar = await Tracking.findOne({
         where: {
             [Op.and]: [{
                 topicId: idT
@@ -330,7 +332,7 @@ const GetTrackingEnroll = async (req, res = response) => {
         }
     })
 
-    const validar = await tracking.findAll({
+    const validar = await Tracking.findAll({
         // order: [['topicId', 'ASC']],
         attributes: { exclude: [ 'id_task_student','createdAt', 'updatedAt','id', 'score_ct', 'last_min_video', 'last_entre', 'enrollCourseId','link_task', 'qualification_task', 'date_finish_task', 'comment_task'] },
         where: {
@@ -345,7 +347,7 @@ const PutState = async (req,res=response)=>{
 
     const {id}=req.body;
 
-    const conten = await tracking.findOne({
+    const conten = await Tracking.findOne({
         where:{id}
     });
 
@@ -375,7 +377,7 @@ const getalltask = async (req,res=response)=>{
         }
     })
 
-    const validar = await tracking.findAll({
+    const validar = await Tracking.findAll({
         // order: [['topicId', 'ASC']],
         attributes: { exclude: [ 'id_task_student','createdAt', 'updatedAt','id', 'score_ct', 'last_min_video', 'last_entre', 'enrollCourseId', 'date_finish_task'] },
         where: {
@@ -399,7 +401,7 @@ const SaveTest = async (req,res=response)=>{
     console.log(data);
 
 
-    const conten = await tracking.findOne({
+    const conten = await Tracking.findOne({
         where:{id:idt}
     });
 
@@ -419,7 +421,7 @@ const qualificationTest = async (req,res=response)=>{
     console.log(qualification_test);
 
 
-    const conten = await tracking.findOne({
+    const conten = await Tracking.findOne({
         where:{id:idt}
     });
 
@@ -447,7 +449,7 @@ const getTest = async (req,res=response)=>{
         },
         include:[
             {
-                model:tracking,
+                model:Tracking,
                 attributes: ['id', 'test_student'],
                 where:{
                         topicId: idt
@@ -509,6 +511,52 @@ const getStudentsWithCalifications = async (req, res = response) => {
     res.json(enrolleds);
 }
 
+const getContentTrackingStudent = async (req, res = response) => {
+    
+    const { idE } = req.params;
+    const { idC } = req.params;
+
+    const contentTracking = await Chapter.findAll({
+        attributes: [
+            'id', 'number_chapter', 'title_chapter'
+        ],
+        where:{
+            courseId: idC,
+        },
+        include:{
+            model: Topic,
+            attributes: ['id', 'number_topic', 'title_topic'],
+            include:[
+                {
+                    model: Task,
+                    attributes: ['id','name_task'],
+                
+                },
+                {
+                    model: Quiz,
+                    attributes: ['id', 'tittle_quizz'],
+               
+                },
+                {
+                    model: Tracking,
+                    attributes: [
+                        'id', 'qualification_test', 'qualification_task', 
+                        'date_finish_task', 
+                        'date_quiz_student'
+                    ],
+                    where:{
+                        enrollCourseId: idE,
+                    }
+                },
+
+            ]
+        },
+        order: ['number_chapter', sequelize.col('topics.number_topic')]        
+    })
+
+    res.json(contentTracking);
+}
+
 module.exports = {
     PostTracking,
     GetEnroll,
@@ -521,5 +569,6 @@ module.exports = {
     SaveTest,
     getTest,
     qualificationTest,
-    getStudentsWithCalifications
+    getStudentsWithCalifications,
+    getContentTrackingStudent
 }

@@ -290,9 +290,16 @@ const GetTask = async (req, res = response) => {
 
     const { idt } = req.params;
 
-    const Task = await task.findOne({ where: { topicId: idt } })
+    const Task = await task.findOne({ 
+        where: { topicId: idt } ,
+        include: {
+            model: Topic,
+            attributes: ['title_topic']
+        }
+    })
 
     res.json({ Task })
+
 }
 
 const GetAllTask = async (req, res = response) => {

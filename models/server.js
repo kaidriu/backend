@@ -59,8 +59,6 @@ class Server {
 
 
     this.socket();
-
-
     }
 
     socket(){
@@ -81,7 +79,6 @@ class Server {
         // Parseo y Lectura del body
         this.app.use(express.json());
 
-
         //directorio publico
         this.app.use(express.static('public'));
 
@@ -96,7 +93,6 @@ class Server {
 
 
     routes() {
-
         this.app.use(this.paths.auth, require('../routes/auth'));
         this.app.use(this.paths.usuario, require('../routes/usuarios'));
         this.app.use(this.paths.sendemail, require('../routes/sendMail'));

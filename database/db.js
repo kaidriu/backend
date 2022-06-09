@@ -215,7 +215,6 @@ db.history_payment_inst.belongsTo(db.user);
 db.user.hasMany(db.history_payment_inst);
 
 
-
 db.order_details.belongsTo(db.commission);
 db.commission.hasOne(db.order_details);
 
