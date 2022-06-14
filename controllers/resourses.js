@@ -32,11 +32,7 @@ const archive = db.archive;
 const PostQuizz = async (req, res = response) => {
 
     const { idt } = req.params;
-
-    console.log(req.body);
-
     const { time, question, answerStuden ,weighing} = req.body;
-
     const Quizzes = await quizzes.findOne({ where: { topicId: idt } })
 
 
@@ -56,6 +52,7 @@ const PostQuizz = async (req, res = response) => {
         })
 
     }
+
     // else {
     //     if (time == '') {
     //         const Quizzes = new quizzes({ topicId: idt })
@@ -154,9 +151,9 @@ const PutQuizz = async (req, res = response) => {
 
 const Putquestionquizz = async (req, res = response) => {
 
-    const { id, question } = req.body;
+    const { id, question, weighing } = req.body;
     const Question = await questions.findOne({ where: { id } })
-    await Question.update({ question })
+    await Question.update({ question, weighing })
     res.json(Question)
 
 }

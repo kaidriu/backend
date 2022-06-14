@@ -508,7 +508,14 @@ const getStudentsWithCalifications = async (req, res = response) => {
         group: [sequelize.col('enroll_course.id'), sequelize.col('enroll_course.userId'), sequelize.col('enroll_course.courseId'), sequelize.col('user.id'),sequelize.col('user->profile.id')]
     })
 
-    res.json(enrolleds);
+    const curso = await Course.findOne({
+        attributes:['title'],
+        where: {
+            id: idC
+        }
+    })
+
+    res.json({enrolleds, curso});
 }
 
 const getContentTrackingStudent = async (req, res = response) => {
