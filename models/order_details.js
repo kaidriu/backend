@@ -11,6 +11,10 @@ module.exports = (sequelize, Sequelize) => {
       },
       total_order_details: {
         type: Sequelize.DOUBLE
+      },
+      accredited:{
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
       }
     });
     return Order_details;
