@@ -78,7 +78,7 @@ db.message = require("../models/messages")(sequelize, Sequelize);
 db.header_chat = require("../models/header_chat")(sequelize, Sequelize);
 db.chat = require("../models/chat")(sequelize, Sequelize);
 
-
+db.courseReview = require("../models/courseReview")(sequelize, Sequelize);
 
 db.history_payment_inst = require("../models/instructor_payment_history")(sequelize, Sequelize);
 
@@ -217,6 +217,18 @@ db.user.hasMany(db.history_payment_inst);
 
 db.order_details.belongsTo(db.commission);
 db.commission.hasOne(db.order_details);
+
+
+db.courseReview.belongsTo(db.user);
+db.user.hasMany(db.courseReview);
+
+db.courseReview.belongsTo(db.course);
+db.course.hasMany(db.courseReview);
+
+db.courseReview.belongsToMany(db.courseReview, { as: 'Children', through: 'repliesCourseReview' })
+
+
+
 
 
 module.exports = db;

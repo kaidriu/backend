@@ -3,20 +3,13 @@ require('dotenv').config();
 
 const cloudinary = require('cloudinary').v2
 cloudinary.config(process.env.CLOUDINARY_URL);
+
 const jwt = require('jsonwebtoken');
-
 const db = require('../database/db')
-
 const { Op } = require("sequelize");
-
 const { deleteFolder, createFolder, createVideo, modifyFolder, deleteVideo, putVideo } = require('../helpers/vimeo');
-
-
 const sequelize = require("sequelize");
-
 const { createFolderDrive, updateTitleFile } = require('../helpers/drive');
-const { chapter } = require('../database/db');
-const task = require('../models/task');
 
 const Request = db.requestI;
 const RequestC = db.requestC;
@@ -32,13 +25,11 @@ const Chapter = db.chapter;
 const Topic = db.topic;
 const Question_Course = db.question_course;
 const Task = db.task;
-
 const enroll_course = db.enroll_course;
-
 const quizzes = db.quiz;
 const questions = db.question;
 const options = db.option;
-
+const courseReviews = db.courseReview
 
 
 const PostCourse = async (req, res = response) => {
@@ -221,7 +212,6 @@ const PutCourse = async (req, res = response) => {
   }
 }
 
-
 const SendCourse = async (req, res = response) => {
   console.log('hola');
 
@@ -365,7 +355,6 @@ const DeleteChapter = async (req, res = response) => {
 
 }
 
-
 const PostTopic = async (req, res = response) => {
 
   let { number_topic, title_topic, description_topic, recurso, idc, num_chapter, demo, duration_video } = req.body;
@@ -500,7 +489,6 @@ const GetTopic = async (req, res = response) => {
   res.json(chapter);
 }
 
-
 const GetCourse = async (req, res = response) => {
 
   const { title } = req.params;
@@ -541,11 +529,9 @@ const getThisEnrollCourses = async (req, res = response) => {
   res.json({ courses });
 }
 
-
 const GeAllCourse = async (req, res = response) => {
 
   let token = req.query.token;
-
 
   if (token) {
 
@@ -558,7 +544,6 @@ const GeAllCourse = async (req, res = response) => {
 
     let ids = [];
     Enroll_course.map((resp) => {
-      // console.log(resp.courseId);
       ids.push(resp.courseId);
 
     })
@@ -652,19 +637,7 @@ const GeAllCourse = async (req, res = response) => {
     })
     res.json({ curso });
   }
-
-
-
-
-  // const chapter = await Chapter.findAll({
-  //     where: { courseId: curso.id },
-  //     // include:[{model:Course}]
-
-  // })
-
-
 }
-
 
 const getMyPurchasedcourses = async (req, res = response) => {
 
@@ -737,7 +710,6 @@ const GetCourseid = async (req, res = response) => {
 
 }
 
-
 const myrequtesCourse = async (req, res = response) => {
 
   const { id } = req.usuario;
@@ -789,7 +761,6 @@ const myrequtesCourse = async (req, res = response) => {
   res.json({ curso, categories });
 }
 
-
 const myCourseswithCountStudents = async (req, res = response) => {
 
     const { id } = req.usuario;
@@ -808,7 +779,6 @@ const myCourseswithCountStudents = async (req, res = response) => {
 
 
 }
-
 
 const myCourseswithTasks = async (req, res = response) => {
 
@@ -875,7 +845,6 @@ const getCoursesByInstructorId = async (req, res = response) => {
   })
   res.json({ curso });
 }
-
 
 const getAllCourseID = async (req, res = response) => {
 
@@ -956,7 +925,6 @@ const deleteCourse = async (req, res = response) => {
 
 }
 
-
 const deleteTopic = async (req, res = response) => {
 
 
@@ -999,7 +967,6 @@ const deleteTopic = async (req, res = response) => {
 
 
 }
-
 
 const puttopic = async (req, res = response) => {
 
@@ -1217,7 +1184,6 @@ const puttopic = async (req, res = response) => {
 
 }
 
-
 const PostQuestion = async (req, res = response) => {
 
   const { idc } = req.params;
@@ -1272,7 +1238,6 @@ const GetQuestion = async (req, res = response) => {
   res.json(question);
 
 }
-
 
 const Getenroll_course = async (req, res = response) => {
 
@@ -1340,6 +1305,59 @@ const checkWeightActivity= async(req, res = response) => {
         res.json({valid:false, max_weight:(10-sum_weight)});
 }
 
+const postCourseReview = async (req, res = response) => {
+  
+  const { id: userId } = req.usuario;
+  const { courseId, courseStars, courseReview, reviewId } = req.body;
+  
+  let review = null;
+
+  if (reviewId != null) {
+    review = await courseReviews.findOne({ where: { id: reviewId } });
+
+    reply = new courseReviews({ userId, courseId, courseStars: null, courseReview });
+    
+    await reply.save();
+
+    await review.addChildren(reply, { ChildId: reply.id })
+
+    res.json({ reply });
+
+  } else{
+    review = new courseReviews({ userId, courseId, courseStars, courseReview });
+    await review.save();
+    res.json({ review });
+  }
+  
+}
+
+const putCourseReview = async (req, res = response) => {
+
+  const { courseStars, courseReview, reviewId } = req.body;
+
+  const review = await courseReviews.findOne({
+    where: { id: reviewId }
+  });
+
+  await review.update({ courseStars, courseReview });
+
+  res.json(review);
+
+}
+
+const getCourseReview = async (req, res = response) => {
+
+  const { idC } = req.params;
+
+  const reviews = await courseReviews.findAll({
+    where: { courseId: idC },
+    include: [ { model: courseReviews, as: 'Children' } ]
+  });
+
+  res.json( reviews )
+
+}
+
 module.exports = {
     PostCourse,
     PostChapter,
@@ -1370,5 +1388,8 @@ module.exports = {
     myCourseswithTasks,
     myCourseswithQuizz,
     myCourseswithCountStudents,
-    checkWeightActivity
+    checkWeightActivity,
+    postCourseReview,
+    putCourseReview,
+    getCourseReview
 }

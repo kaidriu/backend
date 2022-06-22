@@ -590,7 +590,6 @@ const Deletearchive = async (req, res = response) => {
 
 
 
-
 }
 
 const GetDateCourse = async (req, res = response) => {
@@ -598,16 +597,10 @@ const GetDateCourse = async (req, res = response) => {
     const { ida } = req.params;
 
     const Archive = await archive.findOne({ where: { id: ida } })
-
-
-
     deleteFile(Archive.id_drive_archive).then(async (resp) => {
         await Archive.destroy();
         res.json({ Archive })
     })
-
-
-
 
 }
 
