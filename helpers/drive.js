@@ -46,6 +46,7 @@ const uploadFile = function (file, title, type, id_folder) {
     )
 }
 
+
 const createFolderDrive = function (title) {
     return new Promise((resolve) => {
             drive.files.create({

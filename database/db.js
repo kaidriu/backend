@@ -228,7 +228,7 @@ db.courseReview.belongsToMany(db.courseReview, { as: 'Children', through: 'repli
 
 
 //questions
-db.question.belongsTo(db.archive, { onDelete: 'cascade', hooks: true, });
+db.question.belongsTo(db.archive);
 db.archive.hasOne(db.question);
 
 
