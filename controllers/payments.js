@@ -191,6 +191,7 @@ const CancelOrder = async (req, res = response) => {
 
 const SaveOrder = async (req, res = response) => {
 
+
     var f = new Date(); //Obtienes la fecha
     
 
@@ -232,6 +233,83 @@ const SaveOrder = async (req, res = response) => {
 }
 
 
+
+const payDeposit = async (req,res=response)=>{
+
+    var f = new Date(); //Obtienes la fecha
+    
+
+    let fecha = f.getDate() + "/" + (f.getMonth() +1) + "/" + f.getFullYear();
+   
+    console.log(fecha);
+
+
+    const {curso, formData ,total_order,paymentMethodId }= req.body;
+
+    const {buyer_name, buyer_address, buyer_email, buyer_phone, discount, file_transaction_url, buyer_countre, buyer_state, buyer_postcode} = formData;
+
+    const {id}= req.usuario;
+
+    const payment_status = 'pendiente';
+
+    const Order = new order({userId:id,buyer_name, buyer_address, buyer_email, buyer_phone, payment_status, discount, file_transaction_url, total_order, buyer_countre, buyer_state, buyer_postcode,paymentMethodId });
+
+    await Order.save();
+
+    console.log('------------------------');    
+    // console.log(buyer_name);
+    // console.log(req.body);
+
+    curso.map(async (resp)=>{
+
+        const Order_Details = new order_details({ total_order_details : resp.unit_amount.value , orderId : Order.id, courseId : resp.courseId})
+
+        await Order_Details.save();
+
+
+        const Enroll_course = new enroll_course({ enroll_date : fecha, status_enroll : 'empezar', courseId : resp.courseId ,userId : id})
+        await Enroll_course .save();
+    })
+
+    await Car.destroy({
+        where: {
+            userId: id
+        }
+    });
+
+    res.json({Order});  
+}
+
+
+const viewDeposit = async(req,res=response)=>{
+
+    const {id}= req.usuario;
+    console.log(id)
+
+
+    const Order = await order.findAll({
+        attributes:["id" ,"payment_status","file_transaction_url","createdAt","total_order"],
+        where:
+        {
+          [Op.and]: [
+            {userId:id},
+            { paymentMethodId: 3 }
+          ]
+        },
+        // include:{
+        //     model:order_details,
+        //     attributes:["total_order_details","createdAt"],
+        //     include:{
+        //         model:Course,
+        //         attributes:["title"],
+        //     }
+        // }
+        // where:{userId:id}
+    })
+
+
+    res.json({Order});  
+}
 
 const addCar = async (req, res = response) => {
 
@@ -436,5 +514,7 @@ module.exports = {
     getFav,
     deleteFav,
     SaveOrder,
-    deleteallcar
+    deleteallcar,
+    payDeposit,
+    viewDeposit
 }

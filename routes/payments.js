@@ -1,5 +1,5 @@
 const {Router}=require('express');
-const { CreateOrder, CaptureOrder, CancelOrder, addCar, getCar, deleteCar, addFav, getFav, deleteFav, SaveOrder, deleteallcar } = require('../controllers/payments');
+const { CreateOrder, CaptureOrder, CancelOrder, addCar, getCar, deleteCar, addFav, getFav, deleteFav, SaveOrder, deleteallcar, payDeposit, viewDeposit } = require('../controllers/payments');
 
 
 const { validarCampos } = require('../middlewares/validar-campos');
@@ -35,6 +35,9 @@ router.delete('/deleteallcar',[validarJWT,validarCampos],deleteallcar);
 
 
 router.post('/saveorder',[validarJWT,validarCampos],SaveOrder);
+
+router.post('/payDeposit',[validarJWT,validarCampos],payDeposit);
+router.get('/viewDeposit',[validarJWT,validarCampos],viewDeposit);
 
 
     
