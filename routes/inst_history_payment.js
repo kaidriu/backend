@@ -1,5 +1,5 @@
 const { Router} = require('express');
-const { getHistory, Putpaymentsinstructor, HistoryPayments, GraphicHistoryPayments, getHistoryInstructor, HistoryPaymentsdetails, GraphicHistoryPaymentsdetails } = require('../controllers/inst_payment_history');
+const { getHistory, Putpaymentsinstructor, HistoryPayments, GraphicHistoryPayments, getHistoryInstructor, HistoryPaymentsdetails, GraphicHistoryPaymentsdetails, getDetailTransfers } = require('../controllers/inst_payment_history');
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJWT } = require('../middlewares/validar-JWT');
 const router = Router();
@@ -14,6 +14,10 @@ router.get('/gethistoryintructor',[validarJWT,validarCampos],getHistoryInstructo
 router.get('/historypaymentsdetails/:idC/:valor/:from/:to',[validarJWT,validarCampos],HistoryPaymentsdetails);
 
 router.get('/graphichistorypaymentsdetails/:idC',[validarJWT,validarCampos],GraphicHistoryPaymentsdetails);
+
+router.get('/getDetailsTransfers/:idT',[validarJWT,validarCampos],getDetailTransfers);
+
+//getDetailTransfers
 
 
 

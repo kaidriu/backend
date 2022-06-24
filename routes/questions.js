@@ -11,4 +11,5 @@ router.post('/:idc',[validarJWT,validarCampos],PostQuestion);
 router.put('/put/:idq',[validarJWT,validarCampos],PutQuestion);
 router.delete('/delete/:idq',[validarJWT,validarCampos],DeleteQuestion);
 
+
 module.exports=router;  

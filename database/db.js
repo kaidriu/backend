@@ -170,7 +170,6 @@ db.order.hasOne(db.order_details, { onDelete: 'cascade', hooks: true, });
 db.order_details.belongsTo(db.course);
 db.course.hasOne(db.order_details);
 
-
 db.quiz.belongsTo(db.topic);
 db.topic.hasOne(db.quiz, { onDelete: 'cascade', hooks: true, });
 
@@ -228,7 +227,9 @@ db.course.hasMany(db.courseReview);
 db.courseReview.belongsToMany(db.courseReview, { as: 'Children', through: 'repliesCourseReview' })
 
 
-
+//questions
+db.question.belongsTo(db.archive, { onDelete: 'cascade', hooks: true, });
+db.archive.hasOne(db.question);
 
 
 module.exports = db;

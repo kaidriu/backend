@@ -9,7 +9,6 @@ module.exports = (sequelize , Sequelize) =>{
         name_archive:{
             type : Sequelize.STRING
         }
-
     });
 
     return Archive;

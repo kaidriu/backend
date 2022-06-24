@@ -1350,8 +1350,33 @@ const getCourseReview = async (req, res = response) => {
   const { idC } = req.params;
 
   const reviews = await courseReviews.findAll({
-    where: { courseId: idC },
-    include: [ { model: courseReviews, as: 'Children' } ]
+    where: { 
+      courseId: idC,
+      courseStars: {
+        [Op.not]: null,
+      },
+    },
+    include: [{ 
+      model: courseReviews, as: 'Children',
+      attributes: { exclude: ['courseId', 'courseStars', 'repliesCourseReview'] },
+      include:{
+        model:User,
+        attributes: [ 'name','email'],
+            include:{
+                model:Profile,
+                attributes:['image_perfil']
+            }
+      },
+    },
+    {
+      model:User,
+      attributes: [ 'name','email'],
+      include:{
+        model:Profile,
+        attributes:['image_perfil']
+      }
+    }
+  ],
   });
 
   res.json( reviews )

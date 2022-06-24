@@ -1,8 +1,6 @@
 const { response } = require('express');
 const db = require('../database/db')
 const { Op, BOOLEAN } = require("sequelize");
-const chapter = require('../models/chapter');
-const sequelize = require("sequelize");
 const { uploadFile, generatePublicUrl, deleteFile } = require('../helpers/drive');
 const Request = db.requestI;
 const RequestC = db.requestC;
@@ -32,13 +30,13 @@ const archive = db.archive;
 const PostQuizz = async (req, res = response) => {
 
     const { idt } = req.params;
-    const { time, question, answerStuden ,weighing} = req.body;
+    const { time, question, answerStuden, weighing } = req.body;
     const Quizzes = await quizzes.findOne({ where: { topicId: idt } })
 
 
     if (Quizzes) {
 
-        const Questions = new questions({ question: question, type_answer: answerStuden, quizId: Quizzes.id ,weighing})
+        const Questions = new questions({ question: question, type_answer: answerStuden, quizId: Quizzes.id, weighing })
         await Questions.save();
         //     if (resp.answerStuden == false) {
         //         resp.options.map(async (resp2) => {
@@ -102,14 +100,14 @@ const CambioestadoQUizz = async (req, res = response) => {
 
 
     //Verificar
-    if(answerStuden=='true'){
-        const Options = await options.findAll({where:{questionId:id}});
-        
-        Options.map(async (resp)=>{
-            const x = await options.findOne({where:{id:resp.id}});
+    if (answerStuden == 'true') {
+        const Options = await options.findAll({ where: { questionId: id } });
+
+        Options.map(async (resp) => {
+            const x = await options.findOne({ where: { id: resp.id } });
             await x.destroy();
         })
-      
+
     }
 
     await Questions.update({ type_answer: answerStuden })
@@ -118,12 +116,11 @@ const CambioestadoQUizz = async (req, res = response) => {
 
 }
 
-
 const TimeQuizz = async (req, res = response) => {
 
-    const { time, timeActivate, idt, tittle_quizz, note_weight_quiz} = req.body;
+    const { time, timeActivate, idt, tittle_quizz, note_weight_quiz } = req.body;
 
-    const Quizzes = new quizzes({ time, timeActivate, topicId: idt, tittle_quizz, note_weight_quiz})
+    const Quizzes = new quizzes({ time, timeActivate, topicId: idt, tittle_quizz, note_weight_quiz })
 
 
     await Quizzes.save();
@@ -137,17 +134,16 @@ const TimeQuizz = async (req, res = response) => {
 
 const PutQuizz = async (req, res = response) => {
 
-    const {  idq, time, timeActivate, tittle_quizz, note_weight_quiz} = req.body;
+    const { idq, time, timeActivate, tittle_quizz, note_weight_quiz } = req.body;
 
 
-    const Quizzes = await quizzes.findOne({where:{id:idq}});
+    const Quizzes = await quizzes.findOne({ where: { id: idq } });
 
-    await Quizzes.update({ time, timeActivate, tittle_quizz, note_weight_quiz});
+    await Quizzes.update({ time, timeActivate, tittle_quizz, note_weight_quiz });
 
     res.json({ Quizzes })
 
 }
-
 
 const Putquestionquizz = async (req, res = response) => {
 
@@ -223,7 +219,6 @@ const DeleteQuestion = async (req, res = response) => {
 
 const GetQuizz = async (req, res = response) => {
 
-
     const { idt } = req.params;
 
     const Quizzes = await quizzes.findOne({
@@ -244,7 +239,12 @@ const GetQuizz = async (req, res = response) => {
                 order: [['id', 'DESC']],
                 attributes: { exclude: ['createdAt', 'updatedAt'] },
                 // required: true
-            }]
+            },
+            {
+                model: archive,
+                attributes: ['id', 'link_archive_Drive']
+            }
+            ]
 
         })
         res.json({
@@ -287,8 +287,8 @@ const GetTask = async (req, res = response) => {
 
     const { idt } = req.params;
 
-    const Task = await task.findOne({ 
-        where: { topicId: idt } ,
+    const Task = await task.findOne({
+        where: { topicId: idt },
         include: {
             model: Topic,
             attributes: ['title_topic']
@@ -329,7 +329,7 @@ const GetAllTask = async (req, res = response) => {
 }
 
 
-const   GetAllQuizz = async (req, res = response) => {
+const GetAllQuizz = async (req, res = response) => {
 
     const { idC } = req.params;
 
@@ -416,11 +416,11 @@ const GetAllArchives = async (req, res = response) => {
 const GetHomeTask = async (req, res = response) => {
 
     const { idC, idT } = req.params;
-    
+
     const Quizzes = await quizzes.findOne({
         where: { topicId: idT },
         order: [['id', 'ASC']],
-        attributes:['id','tittle_quizz', 'timeActivate'],
+        attributes: ['id', 'tittle_quizz', 'timeActivate'],
 
     })
 
@@ -430,7 +430,7 @@ const GetHomeTask = async (req, res = response) => {
         include: [
             {
                 model: User,
-                attributes: { exclude: [ 'password', 'updatedAt', 'createdAt', 'is_active', 'google', 'profileId'] },
+                attributes: { exclude: ['password', 'updatedAt', 'createdAt', 'is_active', 'google', 'profileId'] },
                 include: {
                     model: Profile,
                     attributes: { exclude: ['user_id_drive', 'id', 'updatedAt', 'createdAt', 'userTypeId', 'ubicationId', 'userDetailId', 'education', 'phone', 'aboutMe', 'profession', 'gender', 'edad'] },
@@ -469,7 +469,7 @@ const GetHomeTask = async (req, res = response) => {
     //     }]
     // })
 
-    res.json({enroll, Quizzes})
+    res.json({ enroll, Quizzes })
 }
 
 
@@ -490,13 +490,13 @@ const PutHomeTask = async (req, res = response) => {
 
 const PostTask = async (req, res = response) => {
 
-    const { name_task, description_task, days_task, topicId, file_weight, note_weight_task} = req.body;
+    const { name_task, description_task, days_task, topicId, file_weight, note_weight_task } = req.body;
 
-    let {file_types} = req.body;
-    
+    let { file_types } = req.body;
+
     file_types = file_types.split(",");
 
-    const Task = new task({ name_task, description_task, days_task, topicId, file_types, file_weight, note_weight_task});
+    const Task = new task({ name_task, description_task, days_task, topicId, file_types, file_weight, note_weight_task });
 
     await Task.save();
 
@@ -504,18 +504,17 @@ const PostTask = async (req, res = response) => {
 }
 
 
-
 const PutTask = async (req, res = response) => {
 
-    const { id, name_task, description_task, days_task, file_weight, note_weight_task} = req.body;
+    const { id, name_task, description_task, days_task, file_weight, note_weight_task } = req.body;
 
-    let {file_types} = req.body;
+    let { file_types } = req.body;
 
     file_types = file_types.split(",");
 
     const Task = await task.findOne({ where: { id } })
 
-    Task.update({ name_task, description_task, days_task, file_types, file_weight, note_weight_task});
+    Task.update({ name_task, description_task, days_task, file_types, file_weight, note_weight_task });
 
     res.json({ Task })
 }
@@ -539,25 +538,16 @@ const PostArchive = async (req, res = response) => {
     const { idc, idt } = req.body;
 
     const { archivo } = req.files;
-    console.log(archivo);
-    // console.log(idc);
-    // console.log(idt);
 
     const { tempFilePath } = archivo;
+
     const curso = await Course.findOne({ where: { id: idc } });
     let file_name = tempFilePath;
-    // console.log(tempFilePath);
 
     uploadFile(file_name, archivo.name, archivo.mimetype, curso.id_drive).then((resp) => {
-        // console.log('xxxxxxxxxxxxxxxxxxxxxxxxx');
-        // console.log(resp);
-
         generatePublicUrl(resp).then(async (xxx) => {
-            // console.log('linkkkkkkkkkkkkkk');
-            // console.log(xxx.webContentLink);
 
             const Archive = new archive({ name_archive: archivo.name, id_drive_archive: resp, link_archive_Drive: xxx.webContentLink, topicId: idt });
-
             await Archive.save();
             res.json({ Archive })
         })
@@ -605,6 +595,121 @@ const GetDateCourse = async (req, res = response) => {
 }
 
 
+const postQuestionResource = async (req, res = response) => {
+
+    try {
+        const { idq } = req.body;
+        const { archivo } = req.files;
+
+        const { tempFilePath } = archivo;
+
+        const question = await questions.findOne({
+            where: {
+                id: idq
+            },
+            attributes: ['id'],
+            include: {
+                model: quizzes,
+                attributes: ['id'],
+                include: {
+                    model: Topic,
+                    attributes: ['id'],
+                    include: {
+                        model: Chapter,
+                        attributes: ['id'],
+                        include: {
+                            model: Course,
+                            attributes: ['id'],
+                        }
+                    }
+                }
+            }
+        });
+
+        const course = await Course.findByPk(question.quiz.topic.chapter.course.id);
+
+        uploadFile(tempFilePath, archivo.name, archivo.mimetype, course.id_drive).then((resp) => {
+            generatePublicUrl(resp).then(async (fileURLs) => {
+
+                const Archive = new archive({ name_archive: archivo.name, id_drive_archive: resp, link_archive_Drive: fileURLs.webViewLink });
+                await Archive.save();
+                await question.update({ archiveId: Archive.id });
+
+                res.json({ Archive })
+            })
+        })
+    } catch (error) {
+        res.status(400).send(error)
+    }
+
+
+}
+
+const putQuestionResource = async (req, res = response) => {
+
+    try {
+        const { idq } = req.body;
+        const { archivo } = req.files;
+        const { tempFilePath } = archivo;
+
+        const question = await questions.findOne({
+            where: {
+                id: idq
+            },
+            attributes: ['id', 'archiveId'],
+            include: {
+                model: quizzes,
+                attributes: ['id'],
+                include: {
+                    model: Topic,
+                    attributes: ['id'],
+                    include: {
+                        model: Chapter,
+                        attributes: ['id'],
+                        include: {
+                            model: Course,
+                            attributes: ['id'],
+                        }
+                    }
+                }
+            }
+        });
+
+        const course = await Course.findByPk(question.quiz.topic.chapter.course.id);
+        const Archive = await archive.findByPk(question.archiveId);
+        oldFileId = Archive.id_drive_archive;
+
+        uploadFile(tempFilePath, archivo.name, archivo.mimetype, course.id_drive).then((resp) => {
+            generatePublicUrl(resp).then(async (fileURLs) => {
+                await Archive.update({ name_archive: archivo.name, id_drive_archive: resp, link_archive_Drive: fileURLs.webViewLink });
+                await deleteFile(oldFileId).then(() => {
+                    res.json({ Archive })
+                });
+            })
+        })
+    } catch (error) {
+        res.status(400).send(error)
+    }
+
+}
+
+const deleteQuestionResource = async (req, res = response) => {
+    try {
+        const { idq } = req.params;
+        const question = await questions.findByPk(idq);
+        const Archive = await archive.findByPk(question.archiveId);
+
+        deleteFile(Archive.id_drive_archive).then(async (resp) => {
+            await Archive.destroy();
+            await question.update({ archiveId: null });
+            res.json({ question })
+        });
+    } catch (error) {
+        res.status(400).send(error)
+    }
+
+}
+
 module.exports = {
     PostQuizz,
     GetQuizz,
@@ -628,5 +733,8 @@ module.exports = {
     GetAllQuizz,
     GetAllArchives,
     Putquestionquizz,
-    PutQuizz
+    PutQuizz,
+    postQuestionResource,
+    putQuestionResource,
+    deleteQuestionResource
 }

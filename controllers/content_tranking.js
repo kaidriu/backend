@@ -435,7 +435,6 @@ const getTest = async (req,res=response)=>{
 
     const {idu, idt,idC}=req.params;
 
-
     const Enroll_course = await enroll_course.findOne({
         attributes: ['id'],
         where: {

@@ -2,6 +2,7 @@ const { response } = require("express");
 const db = require('../database/db');
 const { Op } = require("sequelize");
 const { Sequelize } = require('../database/db');
+
 const Userdetails = db.userDetails;
 
 const user = db.user;
@@ -13,6 +14,7 @@ const courses = db.course;
 const historypayment = db.history_payment_inst;
 const commission = db.commission;
 const instructor_payment_history = db.instructor_payment_history;
+
 
 const getHistory = async (req, res = response) => {
 
@@ -92,11 +94,11 @@ const HistoryPaymentsdetails = async (req, res = response) => {
 
     console.log("mira ---- >");
     console.log(valor);
-    
+
     let OrderDetails = null;
     let estado = 'por cobrar'
-    
-    if(valor == 'por cobrar')
+
+    if (valor == 'por cobrar')
         estado = false;
     else
         estado = true;
@@ -104,29 +106,29 @@ const HistoryPaymentsdetails = async (req, res = response) => {
     console.log("variables ------>");
     console.log(estado);
 
-    if(from === 'undefined' & to === 'undefined'){
-        if(valor != 'todo'){
+    if (from === 'undefined' & to === 'undefined') {
+        if (valor != 'todo') {
             /* const fecha = new Date();
             const año = fecha.getFullYear();
             const mesActual = fecha.getMonth() + 1;
     
             const x = `${año}-${mesActual}-01`;
             const y = `${año}-${mesActual}-31`; */
-    
+
             OrderDetails = await orderDetails.findAll({
                 attributes: [
-                    'discount_order_details', 'createdAt', 'total_order_details', 'discountCode_order_details', 
+                    'discount_order_details', 'createdAt', 'total_order_details', 'discountCode_order_details',
                     'discountPercentage_order_details', 'accredited'
                 ],
                 where: {
-                        courseId: idC,
-                        accredited: estado
+                    courseId: idC,
+                    accredited: estado
                 },
                 include: [
                     {
                         model: orders,
-                        where: { payment_status: 'pagado'},
-                        attributes: [ 'discount'],
+                        where: { payment_status: 'pagado' },
+                        attributes: ['discount'],
                         include: [
                             {
                                 model: user,
@@ -134,7 +136,8 @@ const HistoryPaymentsdetails = async (req, res = response) => {
                                 include: {
                                     model: profile,
                                     attributes: ['image_perfil'],
-                            }}, 
+                                }
+                            },
                             {
                                 model: payment_method,
                                 attributes: ['payment_method'],
@@ -147,20 +150,20 @@ const HistoryPaymentsdetails = async (req, res = response) => {
                     }
                 ],
             });
-        }else{
+        } else {
             OrderDetails = await orderDetails.findAll({
                 attributes: [
-                    'discount_order_details', 'createdAt', 'total_order_details', 'discountCode_order_details', 
+                    'discount_order_details', 'createdAt', 'total_order_details', 'discountCode_order_details',
                     'discountPercentage_order_details', 'accredited'
                 ],
                 where: {
-                        courseId: idC,
+                    courseId: idC,
                 },
                 include: [
                     {
                         model: orders,
-                        where: { payment_status: 'pagado'},
-                        attributes: [ 'discount'],
+                        where: { payment_status: 'pagado' },
+                        attributes: ['discount'],
                         include: [
                             {
                                 model: user,
@@ -168,7 +171,8 @@ const HistoryPaymentsdetails = async (req, res = response) => {
                                 include: {
                                     model: profile,
                                     attributes: ['image_perfil'],
-                            }}, 
+                                }
+                            },
                             {
                                 model: payment_method,
                                 attributes: ['payment_method'],
@@ -182,25 +186,25 @@ const HistoryPaymentsdetails = async (req, res = response) => {
                 ],
             });
         }
-    }else{
-        if(valor != 'todo'){
+    } else {
+        if (valor != 'todo') {
             OrderDetails = await orderDetails.findAll({
                 attributes: [
-                    'discount_order_details', 'createdAt', 'total_order_details', 'discountCode_order_details', 
+                    'discount_order_details', 'createdAt', 'total_order_details', 'discountCode_order_details',
                     'discountPercentage_order_details', 'accredited'
                 ],
                 where: {
                     [Op.and]: [
                         { courseId: idC },
-                        { createdAt:{ [Op.between] : [from, to] }},
-                        { accredited: estado}
+                        { createdAt: { [Op.between]: [from, to] } },
+                        { accredited: estado }
                     ]
                 },
                 include: [
                     {
                         model: orders,
-                        where: { payment_status: 'pagado'},
-                        attributes: [ 'discount' ],
+                        where: { payment_status: 'pagado' },
+                        attributes: ['discount'],
                         include: [
                             {
                                 model: user,
@@ -208,7 +212,8 @@ const HistoryPaymentsdetails = async (req, res = response) => {
                                 include: {
                                     model: profile,
                                     attributes: ['image_perfil'],
-                            }}, 
+                                }
+                            },
                             {
                                 model: payment_method,
                                 attributes: ['payment_method'],
@@ -221,23 +226,23 @@ const HistoryPaymentsdetails = async (req, res = response) => {
                     }
                 ],
             });
-        }else{
+        } else {
             OrderDetails = await orderDetails.findAll({
                 attributes: [
-                    'discount_order_details', 'createdAt', 'total_order_details', 'discountCode_order_details', 
+                    'discount_order_details', 'createdAt', 'total_order_details', 'discountCode_order_details',
                     'discountPercentage_order_details', 'accredited'
                 ],
                 where: {
                     [Op.and]: [
                         { courseId: idC },
-                        { createdAt:{ [Op.between] : [from, to] }},
+                        { createdAt: { [Op.between]: [from, to] } },
                     ]
                 },
                 include: [
                     {
                         model: orders,
-                        where: { payment_status: 'pagado'},
-                        attributes: [ 'discount' ],
+                        where: { payment_status: 'pagado' },
+                        attributes: ['discount'],
                         include: [
                             {
                                 model: user,
@@ -245,7 +250,8 @@ const HistoryPaymentsdetails = async (req, res = response) => {
                                 include: {
                                     model: profile,
                                     attributes: ['image_perfil'],
-                            }}, 
+                                }
+                            },
                             {
                                 model: payment_method,
                                 attributes: ['payment_method'],
@@ -268,9 +274,8 @@ const HistoryPaymentsdetails = async (req, res = response) => {
         ],
     });
 
-    res.json({OrderDetails, curso});
+    res.json({ OrderDetails, curso });
 }
-
 
 const GraphicHistoryPaymentsdetails = async (req, res = response) => {
 
@@ -327,8 +332,6 @@ const GraphicHistoryPaymentsdetails = async (req, res = response) => {
 
 }
 
-
-
 const GraphicHistoryPayments = async (req, res = response) => {
 
     const { id } = req.usuario;
@@ -382,7 +385,7 @@ const GraphicHistoryPayments = async (req, res = response) => {
             order: [[Sequelize.fn('date_trunc', 'month', Sequelize.col('order_details.createdAt')), 'DESC']],
         });
 
-        res.json({NoAccreditedSales, AccreditedSales});
+        res.json({ NoAccreditedSales, AccreditedSales });
 
 
     } else {
@@ -399,17 +402,19 @@ const GraphicHistoryPayments = async (req, res = response) => {
                 ],
                 where: {
                     [Op.and]: [
-                        {courseId: {
-                            [Sequelize.Op.in]: [Sequelize.literal(`Select "id" from courses where "userId"=${id}`)]
-                        }},
                         {
-                            createdAt:  
+                            courseId: {
+                                [Sequelize.Op.in]: [Sequelize.literal(`Select "id" from courses where "userId"=${id}`)]
+                            }
+                        },
+                        {
+                            createdAt:
                             {
                                 [Op.between]:
                                     [from, to]
                             }
                         },
-                        {accredited: false}
+                        { accredited: false }
                     ]
 
                 },
@@ -427,17 +432,19 @@ const GraphicHistoryPayments = async (req, res = response) => {
                 ],
                 where: {
                     [Op.and]: [
-                        {courseId: {
-                            [Sequelize.Op.in]: [Sequelize.literal(`Select "id" from courses where "userId"=${id}`)]
-                        }},
                         {
-                            createdAt:  
+                            courseId: {
+                                [Sequelize.Op.in]: [Sequelize.literal(`Select "id" from courses where "userId"=${id}`)]
+                            }
+                        },
+                        {
+                            createdAt:
                             {
                                 [Op.between]:
                                     [from, to]
                             }
                         },
-                        {accredited: true}
+                        { accredited: true }
                     ]
 
                 },
@@ -445,7 +452,7 @@ const GraphicHistoryPayments = async (req, res = response) => {
                 order: [[Sequelize.fn('date_trunc', 'month', Sequelize.col('order_details.createdAt')), 'DESC']],
             });
 
-            res.json({NoAccreditedSales, AccreditedSales});
+            res.json({ NoAccreditedSales, AccreditedSales });
 
         } else {
             const NoAccreditedSales = await orderDetails.findAll({
@@ -455,19 +462,19 @@ const GraphicHistoryPayments = async (req, res = response) => {
                     [Sequelize.fn('date_trunc', 'month', Sequelize.col('order_details.createdAt')), 'Mes']
                     // exclude: [ "id", "discount_order_details", "total_order_details", "createdAt", "updatedAt", "orderId"] 
                 ],
-                where: { 
+                where: {
                     [Op.and]: [
                         { courseId: idC },
                         {
-                            createdAt:  
+                            createdAt:
                             {
                                 [Op.between]:
                                     [from, to]
                             }
                         },
-                        {accredited: false}
+                        { accredited: false }
                     ]
-                
+
                 },
                 group: [Sequelize.fn('date_trunc', 'month', Sequelize.col('order_details.createdAt'))],
                 order: [[Sequelize.fn('date_trunc', 'month', Sequelize.col('order_details.createdAt')), 'DESC']],
@@ -480,25 +487,25 @@ const GraphicHistoryPayments = async (req, res = response) => {
                     [Sequelize.fn('date_trunc', 'month', Sequelize.col('order_details.createdAt')), 'Mes']
                     // exclude: [ "id", "discount_order_details", "total_order_details", "createdAt", "updatedAt", "orderId"] 
                 ],
-                where: { 
+                where: {
                     [Op.and]: [
                         { courseId: idC },
                         {
-                            createdAt:  
+                            createdAt:
                             {
                                 [Op.between]:
                                     [from, to]
                             }
                         },
-                        {accredited: true}
+                        { accredited: true }
                     ]
-                
+
                 },
                 group: [Sequelize.fn('date_trunc', 'month', Sequelize.col('order_details.createdAt'))],
                 order: [[Sequelize.fn('date_trunc', 'month', Sequelize.col('order_details.createdAt')), 'DESC']],
             });
 
-            res.json({NoAccreditedSales, AccreditedSales});
+            res.json({ NoAccreditedSales, AccreditedSales });
 
         }
 
@@ -519,6 +526,46 @@ const getHistoryInstructor = async (req, res = response) => {
     res.json(history);
 }
 
+const getDetailTransfers = async (req, res = response) => {
+
+    try {
+        const { idT } = req.params;
+        console.log(idT);
+
+        const history = await historypayment.findByPk(idT);
+
+        const resOrdersDetails = await orderDetails.findAll({
+            attributes: [
+                [Sequelize.fn('COUNT', Sequelize.col('order_details.id')), 'cantidad'],
+                'commissionId',
+                'discountCode_order_details',
+                'discountPercentage_order_details',
+                'total_order_details',
+            ],
+            where: {
+                id: {
+                    [Op.in]: history.dataValues.ordersDetailsIds
+                }
+            },
+            include: [{
+                model: commission,
+                attributes: ['Percent', 'DistributionMode']
+            }],
+            group: [Sequelize.col('order_details.commissionId'), Sequelize.col('commission.id'), Sequelize.col('order_details.discountCode_order_details'), Sequelize.col('order_details.discountPercentage_order_details'), Sequelize.col('order_details.total_order_details')]
+        });
+
+        let resTable = resOrdersDetails.map(() => {
+
+        });
+
+
+        res.json({resOrdersDetails, history});
+    } catch (error) {
+        res.json(error);
+    }
+
+}
+
 module.exports = {
     getHistory,
     Putpaymentsinstructor,
@@ -526,5 +573,6 @@ module.exports = {
     GraphicHistoryPayments,
     getHistoryInstructor,
     HistoryPaymentsdetails,
-    GraphicHistoryPaymentsdetails
+    GraphicHistoryPaymentsdetails,
+    getDetailTransfers
 }

@@ -1,6 +1,6 @@
 const {Router}=require('express');
 const {  PostChapter,getCoursesByInstructorId, PostTopic, PostCourse, GetCourse, myrequtesCourse, GetCourseid, PutCourse, GetChapter, GetTopic, SendCourse, GeAllCourse, getAllCourseID, GetCourseRevision, deleteTopic, puttopic, PutChatper, deleteCourse, getMyPurchasedcourses, DeleteChapter, Getenroll_course, getThisEnrollCourses, myCourseswithTasks, myCourseswithQuizz, myCourseswithCountStudents, checkWeightActivity, postCourseReview, putCourseReview, getCourseReview } = require('../controllers/course');
-const { PostQuizz, GetQuizz, CambioestadoQUizz, PostOptions, SeleccionarRespuesta, DeleteAnswer, DeleteQuizz, DeleteQuestion, PutTask, DeleteTask, PostTask, GetTask, PostArchive, GetArchive, Deletearchive, TimeQuizz, GetAllTask, GetHomeTask, PutHomeTask, GetAllQuizz, GetAllArchives, Putquestionquizz, PutQuizz } = require('../controllers/resourses');
+const { PostQuizz, GetQuizz, CambioestadoQUizz, PostOptions, SeleccionarRespuesta, DeleteAnswer, DeleteQuizz, DeleteQuestion, PutTask, DeleteTask, PostTask, GetTask, PostArchive, GetArchive, Deletearchive, TimeQuizz, GetAllTask, GetHomeTask, PutHomeTask, GetAllQuizz, GetAllArchives, Putquestionquizz, PutQuizz, postQuestionResource, putQuestionResource, deleteQuestionResource } = require('../controllers/resourses');
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJWT } = require('../middlewares/validar-JWT');
 
@@ -81,6 +81,14 @@ router.put('/changequizzes',[validarJWT,validarCampos],CambioestadoQUizz)
 router.get('/getquizzes/:idt',[validarJWT,validarCampos],GetQuizz)
 router.delete('/deletequizz/:idt',[validarJWT,validarCampos],DeleteQuizz)
 router.put('/putquestion',[validarJWT,validarCampos],Putquestionquizz)
+
+
+// IMAGENES / VIDEOS EN LAS PREGUNTAS
+router.post('/question/postResource',[validarJWT,validarCampos], postQuestionResource)
+router.put('/question/putResource',[validarJWT,validarCampos], putQuestionResource)
+router.delete('/question/deleteResource/:idq',[validarJWT,validarCampos], deleteQuestionResource)
+
+
 
 
 //SOLICITUD TAREAS
