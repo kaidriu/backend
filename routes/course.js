@@ -1,6 +1,6 @@
 const {Router}=require('express');
-const {  PostChapter,getCoursesByInstructorId, PostTopic, PostCourse, GetCourse, myrequtesCourse, GetCourseid, PutCourse, GetChapter, GetTopic, SendCourse, GeAllCourse, getAllCourseID, GetCourseRevision, deleteTopic, puttopic, PutChatper, deleteCourse, getMyPurchasedcourses, DeleteChapter, Getenroll_course, getThisEnrollCourses, myCourseswithTasks, myCourseswithQuizz, myCourseswithCountStudents, checkWeightActivity} = require('../controllers/course');
-const { PostQuizz, GetQuizz, CambioestadoQUizz, PostOptions, SeleccionarRespuesta, DeleteAnswer, DeleteQuizz, DeleteQuestion, PutTask, DeleteTask, PostTask, GetTask, PostArchive, GetArchive, Deletearchive, TimeQuizz, GetAllTask, GetHomeTask, PutHomeTask, GetAllQuizz, GetAllArchives, Putquestionquizz, PutQuizz } = require('../controllers/resourses');
+const {  PostChapter,getCoursesByInstructorId, PostTopic, PostCourse, GetCourse, myrequtesCourse, GetCourseid, PutCourse, GetChapter, GetTopic, SendCourse, GeAllCourse, getAllCourseID, GetCourseRevision, deleteTopic, puttopic, PutChatper, deleteCourse, getMyPurchasedcourses, DeleteChapter, Getenroll_course, getThisEnrollCourses, myCourseswithTasks, myCourseswithQuizz, myCourseswithCountStudents, checkWeightActivity, postCourseReview, putCourseReview, getCourseReview } = require('../controllers/course');
+const { PostQuizz, GetQuizz, CambioestadoQUizz, PostOptions, SeleccionarRespuesta, DeleteAnswer, DeleteQuizz, DeleteQuestion, PutTask, DeleteTask, PostTask, GetTask, PostArchive, GetArchive, Deletearchive, TimeQuizz, GetAllTask, GetHomeTask, PutHomeTask, GetAllQuizz, GetAllArchives, Putquestionquizz, PutQuizz, postQuestionResource, putQuestionResource, deleteQuestionResource } = require('../controllers/resourses');
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJWT } = require('../middlewares/validar-JWT');
 
@@ -83,6 +83,14 @@ router.delete('/deletequizz/:idt',[validarJWT,validarCampos],DeleteQuizz)
 router.put('/putquestion',[validarJWT,validarCampos],Putquestionquizz)
 
 
+// IMAGENES / VIDEOS EN LAS PREGUNTAS
+router.post('/question/postResource',[validarJWT,validarCampos], postQuestionResource)
+router.put('/question/putResource',[validarJWT,validarCampos], putQuestionResource)
+router.delete('/question/deleteResource/:idq',[validarJWT,validarCampos], deleteQuestionResource)
+
+
+
+
 //SOLICITUD TAREAS
 
 router.post('/posttask',[validarJWT,validarCampos],PostTask)
@@ -105,8 +113,11 @@ router.post('/postarchivo',[validarJWT,validarCampos],PostArchive)
 router.get('/getarchivo/:idt',[validarJWT,validarCampos],GetArchive)
 router.delete('/deletearchivo/:ida',[validarJWT,validarCampos],Deletearchive)
 
+//Reseñas a Cursos
 
-
+router.post('/postcoursereview',[validarJWT,validarCampos],postCourseReview)
+router.put('/putcoursereview',[validarJWT,validarCampos],putCourseReview)
+router.get('/getcoursereview/:idC', getCourseReview)
 
 
 

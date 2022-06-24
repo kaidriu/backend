@@ -6,9 +6,10 @@ const { validarJWT } = require('../middlewares/validar-JWT');
 
 const router = Router();
 
-router.get('/get/:idc',[validarJWT,validarCampos],GetQuestion);
+router.get('/get/:idc', GetQuestion);
 router.post('/:idc',[validarJWT,validarCampos],PostQuestion);
 router.put('/put/:idq',[validarJWT,validarCampos],PutQuestion);
 router.delete('/delete/:idq',[validarJWT,validarCampos],DeleteQuestion);
+
 
 module.exports=router;  

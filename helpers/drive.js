@@ -13,7 +13,6 @@ const auth = new google.auth.GoogleAuth({
     scopes: ['https://www.googleapis.com/auth/drive'],
 });
 
-
 const uploadFile = function (file, title, type, id_folder) {
 
     return new Promise((resolve) => {
@@ -47,10 +46,8 @@ const uploadFile = function (file, title, type, id_folder) {
     )
 }
 
-
 const createFolderDrive = function (title) {
     return new Promise((resolve) => {
-
             drive.files.create({
                 requestBody: {
                     name: title,
@@ -69,7 +66,6 @@ const createFolderDrive = function (title) {
     }
     )
 }
-
 
 const createFolderDriveStudents = function (title) {
     return new Promise((resolve) => {
@@ -109,9 +105,6 @@ const deleteFile = function (id) {
     )
 }
 
-
-
-
 const updateTitleFile = function (id, newTitle) {
     return new Promise((resolve) => {
         drive.files.update({
@@ -131,7 +124,6 @@ const updateTitleFile = function (id, newTitle) {
     )
 }
 
-
 const generatePublicUrl = function (id) {
     return new Promise((resolve) => {
         drive.files.get({
@@ -149,12 +141,10 @@ const generatePublicUrl = function (id) {
     )
 }
 
-
 auth.getClient().then(
     (resp) => {
         google.options({ auth: resp });
-    });
-
+});
 
 module.exports = {
     generatePublicUrl,

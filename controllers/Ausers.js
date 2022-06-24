@@ -40,8 +40,6 @@ const getInstructors = async (req, res = response) => {
         })
     ])
 
-    console.log(instructores);
-
     res.json({
         instructores
     })
@@ -80,8 +78,6 @@ const getUsers = async (req, res = response) => {
         }),
 
     ])
-
-    console.log({usuarios});
 
     res.json({
         usuarios

@@ -2,6 +2,7 @@ const { response } = require("express");
 const db = require('../database/db');
 const { Op } = require("sequelize");
 const { Sequelize } = require('../database/db');
+
 const Userdetails = db.userDetails;
 
 const user = db.user;
@@ -12,6 +13,8 @@ const payment_method = db.payment_method;
 const courses = db.course;
 const historypayment = db.history_payment_inst;
 const commission = db.commission;
+const instructor_payment_history = db.instructor_payment_history;
+
 
 const getHistory = async (req, res = response) => {
 
@@ -87,237 +90,192 @@ const HistoryPayments = async (req, res = response) => {
 
 const HistoryPaymentsdetails = async (req, res = response) => {
 
-    const { idC, valor } = req.params;
+    const { idC, valor, from, to } = req.params;
 
+    console.log("mira ---- >");
+    console.log(valor);
 
-    if (valor == 'por cobrar') {
+    let OrderDetails = null;
+    let estado = 'por cobrar'
 
-        const fecha = new Date();
-        const año = fecha.getFullYear();
-        const mesActual = fecha.getMonth() + 1;
+    if (valor == 'por cobrar')
+        estado = false;
+    else
+        estado = true;
 
-        const x = `${año}-${mesActual}-01`;
-        const y = `${año}-${mesActual}-31`;
+    console.log("variables ------>");
+    console.log(estado);
 
-        const OrderDetails = await orderDetails.findAll({
-            attributes: [
-                'discount_order_details', 'createdAt', 'total_order_details', 'discountCode_order_details', 'discountPercentage_order_details'
-            ],
-            where: {
-                [Op.and]: [
-                    { courseId: idC },
-                    {
-                        createdAt:
-                        {
-                            [Op.between]:
-                                [x, y]
-                        }
-                    }]
-            },
+    if (from === 'undefined' & to === 'undefined') {
+        if (valor != 'todo') {
+            /* const fecha = new Date();
+            const año = fecha.getFullYear();
+            const mesActual = fecha.getMonth() + 1;
+    
+            const x = `${año}-${mesActual}-01`;
+            const y = `${año}-${mesActual}-31`; */
 
-            include: [
-                {
-                    model: orders,
-                    where: {
-                        payment_status: 'pagado'
-                    },
-                    attributes: [
-                        'discount'
-                    ],
-                    include: [{
-                        model: user,
-                        attributes: [
-                            'name', 'id', 'email'
-
-                        ],
-                        include: {
-                            model: profile,
-                            attributes: [
-                                'image_perfil'
-
-                            ],
-                        }
-
-                    }, {
-                        model: payment_method,
-                        attributes: [
-                            'payment_method'
-
-                        ],
-                    }
-
-                    ]
-
+            OrderDetails = await orderDetails.findAll({
+                attributes: [
+                    'discount_order_details', 'createdAt', 'total_order_details', 'discountCode_order_details',
+                    'discountPercentage_order_details', 'accredited'
+                ],
+                where: {
+                    courseId: idC,
+                    accredited: estado
                 },
-                {
-                    model: commission,
-                    attributes: [
-                        'Percent', 'DistributionMode'
-                    ]
-                }
-            ],
-            // group: [Sequelize.col('order_details.orderId'),Sequelize.col('order.id')]
-        });
-        const curso = await courses.findOne({
-            where: { id: idC },
-            attributes: [
-                'price', 'title', 'image_course'
-
-            ],
-        })
-        res.json({ OrderDetails, curso });
-    } else if (valor == 'cobrado') {
-
-        const fecha = new Date();
-        const año = fecha.getFullYear();
-        const mesActual = fecha.getMonth();
-
-        const x = `2021-1-01`;
-        const y = `${año}-${mesActual}-31`;
-
-        const OrderDetails = await orderDetails.findAll({
-            attributes: [
-                'discount_order_details', 'createdAt', 'total_order_details', 'discountCode_order_details', 'discountPercentage_order_details'
-            ],
-            where: {
-                [Op.and]: [
-                    { courseId: idC },
+                include: [
                     {
-                        createdAt:
-                        {
-                            [Op.between]:
-                                [x, y]
-                        }
-                    }]
-            },
-
-            include: [
-                {
-                    model: orders,
-                    where: {
-                        payment_status: 'pagado'
+                        model: orders,
+                        where: { payment_status: 'pagado' },
+                        attributes: ['discount'],
+                        include: [
+                            {
+                                model: user,
+                                attributes: ['name', 'id', 'email'],
+                                include: {
+                                    model: profile,
+                                    attributes: ['image_perfil'],
+                                }
+                            },
+                            {
+                                model: payment_method,
+                                attributes: ['payment_method'],
+                            }
+                        ]
                     },
-                    attributes: [
-                        'discount'
-                    ],
-                    include: [{
-                        model: user,
-                        attributes: [
-                            'name', 'id', 'email'
-
-                        ],
-                        include: {
-                            model: profile,
-                            attributes: [
-                                'image_perfil'
-
-                            ],
-                        }
-
-                    }, {
-                        model: payment_method,
-                        attributes: [
-                            'payment_method'
-
-                        ],
+                    {
+                        model: commission,
+                        attributes: ['Percent', 'DistributionMode']
                     }
-
-                    ]
-
+                ],
+            });
+        } else {
+            OrderDetails = await orderDetails.findAll({
+                attributes: [
+                    'discount_order_details', 'createdAt', 'total_order_details', 'discountCode_order_details',
+                    'discountPercentage_order_details', 'accredited'
+                ],
+                where: {
+                    courseId: idC,
                 },
-                {
-                    model: commission,
-                    attributes: [
-                        'Percent', 'DistributionMode'
-                    ]
-                }
-            ],
-            // group: [Sequelize.col('order_details.orderId'),Sequelize.col('order.id')]
-        });
-        const curso = await courses.findOne({
-            where: { id: idC },
-            attributes: [
-                'price', 'title', 'image_course'
-
-            ],
-        })
-        res.json({ OrderDetails, curso });
+                include: [
+                    {
+                        model: orders,
+                        where: { payment_status: 'pagado' },
+                        attributes: ['discount'],
+                        include: [
+                            {
+                                model: user,
+                                attributes: ['name', 'id', 'email'],
+                                include: {
+                                    model: profile,
+                                    attributes: ['image_perfil'],
+                                }
+                            },
+                            {
+                                model: payment_method,
+                                attributes: ['payment_method'],
+                            }
+                        ]
+                    },
+                    {
+                        model: commission,
+                        attributes: ['Percent', 'DistributionMode']
+                    }
+                ],
+            });
+        }
     } else {
-        console.log('------------todfoooooooooooo-------------');
-        const OrderDetails = await orderDetails.findAll({
-            attributes: [
-                'discount_order_details', 'createdAt', 'total_order_details', 'discountCode_order_details', 'discountPercentage_order_details'
-            ],
-            where:
-                // {
-                // [Op.and]: [
-                { courseId: idC },
-            // {
-            //     createdAt:
-            //     {
-            //         [Op.between]:
-            //         [startedDate, endDate]
-            //     }
-            // }]
-            // },
-
-            include: [
-                {
-                    model: orders,
-                    where: {
-                        payment_status: 'pagado'
-                    },
-                    attributes: [
-                        'discount'
-                    ],
-                    include: [{
-                        model: user,
-                        attributes: [
-                            'name', 'id', 'email'
-
-                        ],
-                        include: {
-                            model: profile,
-                            attributes: [
-                                'image_perfil'
-
-                            ],
-                        }
-
-                    }, {
-                        model: payment_method,
-                        attributes: [
-                            'payment_method'
-
-                        ],
-                    }
-
+        if (valor != 'todo') {
+            OrderDetails = await orderDetails.findAll({
+                attributes: [
+                    'discount_order_details', 'createdAt', 'total_order_details', 'discountCode_order_details',
+                    'discountPercentage_order_details', 'accredited'
+                ],
+                where: {
+                    [Op.and]: [
+                        { courseId: idC },
+                        { createdAt: { [Op.between]: [from, to] } },
+                        { accredited: estado }
                     ]
-
                 },
-                {
-                    model: commission,
-                    attributes: [
-                        'Percent', 'DistributionMode'
+                include: [
+                    {
+                        model: orders,
+                        where: { payment_status: 'pagado' },
+                        attributes: ['discount'],
+                        include: [
+                            {
+                                model: user,
+                                attributes: ['name', 'id', 'email'],
+                                include: {
+                                    model: profile,
+                                    attributes: ['image_perfil'],
+                                }
+                            },
+                            {
+                                model: payment_method,
+                                attributes: ['payment_method'],
+                            }
+                        ]
+                    },
+                    {
+                        model: commission,
+                        attributes: ['Percent', 'DistributionMode']
+                    }
+                ],
+            });
+        } else {
+            OrderDetails = await orderDetails.findAll({
+                attributes: [
+                    'discount_order_details', 'createdAt', 'total_order_details', 'discountCode_order_details',
+                    'discountPercentage_order_details', 'accredited'
+                ],
+                where: {
+                    [Op.and]: [
+                        { courseId: idC },
+                        { createdAt: { [Op.between]: [from, to] } },
                     ]
-                }
-            ],
-            // group: [Sequelize.col('order_details.orderId'),Sequelize.col('order.id')]
-        });
-        const curso = await courses.findOne({
-            where: { id: idC },
-            attributes: [
-                'price', 'title', 'image_course'
-
-            ],
-        })
-        res.json({ OrderDetails, curso });
+                },
+                include: [
+                    {
+                        model: orders,
+                        where: { payment_status: 'pagado' },
+                        attributes: ['discount'],
+                        include: [
+                            {
+                                model: user,
+                                attributes: ['name', 'id', 'email'],
+                                include: {
+                                    model: profile,
+                                    attributes: ['image_perfil'],
+                                }
+                            },
+                            {
+                                model: payment_method,
+                                attributes: ['payment_method'],
+                            }
+                        ]
+                    },
+                    {
+                        model: commission,
+                        attributes: ['Percent', 'DistributionMode']
+                    }
+                ],
+            });
+        }
     }
 
+    const curso = await courses.findOne({
+        where: { id: idC },
+        attributes: [
+            'price', 'title', 'image_course'
+        ],
+    });
 
-
+    res.json({ OrderDetails, curso });
 }
-
 
 const GraphicHistoryPaymentsdetails = async (req, res = response) => {
 
@@ -374,8 +332,6 @@ const GraphicHistoryPaymentsdetails = async (req, res = response) => {
 
 }
 
-
-
 const GraphicHistoryPayments = async (req, res = response) => {
 
     const { id } = req.usuario;
@@ -387,13 +343,13 @@ const GraphicHistoryPayments = async (req, res = response) => {
     console.log('--------------------------');
     // console.log(from);
     // console.log(to);
+    console.log(id);
     console.log(idC);
 
 
     if (idC === 'undefined') {
 
-
-        const OrderDetails = await orderDetails.findAll({
+        const NoAccreditedSales = await orderDetails.findAll({
             limit: 6,
             attributes: [
                 [Sequelize.fn('count', Sequelize.col('order_details.courseId')), 'Ventas'],
@@ -404,21 +360,39 @@ const GraphicHistoryPayments = async (req, res = response) => {
             where: {
                 courseId: {
                     [Sequelize.Op.in]: [Sequelize.literal(`Select "id" from courses where "userId"=${id}`)]
-                }
-
+                },
+                accredited: false
             },
             group: [Sequelize.fn('date_trunc', 'month', Sequelize.col('order_details.createdAt'))],
             order: [[Sequelize.fn('date_trunc', 'month', Sequelize.col('order_details.createdAt')), 'DESC']],
         });
 
-        res.json(OrderDetails);
+        const AccreditedSales = await orderDetails.findAll({
+            limit: 6,
+            attributes: [
+                [Sequelize.fn('count', Sequelize.col('order_details.courseId')), 'Ventas'],
+                [Sequelize.fn('sum', Sequelize.col('order_details.total_order_details')), 'Ganancia'],
+                [Sequelize.fn('date_trunc', 'month', Sequelize.col('order_details.createdAt')), 'Mes']
+                // exclude: [ "id", "discount_order_details", "total_order_details", "createdAt", "updatedAt", "orderId"] 
+            ],
+            where: {
+                courseId: {
+                    [Sequelize.Op.in]: [Sequelize.literal(`Select "id" from courses where "userId"=${id}`)]
+                },
+                accredited: true
+            },
+            group: [Sequelize.fn('date_trunc', 'month', Sequelize.col('order_details.createdAt'))],
+            order: [[Sequelize.fn('date_trunc', 'month', Sequelize.col('order_details.createdAt')), 'DESC']],
+        });
+
+        res.json({ NoAccreditedSales, AccreditedSales });
 
 
     } else {
 
         if (idC === 'null') {
             console.log('--------nulo-------');
-            const OrderDetails = await orderDetails.findAll({
+            const NoAccreditedSales = await orderDetails.findAll({
                 limit: 6,
                 attributes: [
                     [Sequelize.fn('count', Sequelize.col('order_details.courseId')), 'Ventas'],
@@ -427,52 +401,111 @@ const GraphicHistoryPayments = async (req, res = response) => {
                     // exclude: [ "id", "discount_order_details", "total_order_details", "createdAt", "updatedAt", "orderId"] 
                 ],
                 where: {
-                    
-
                     [Op.and]: [
-                        {courseId: {
-                            [Sequelize.Op.in]: [Sequelize.literal(`Select "id" from courses where "userId"=${id}`)]
-                        }},
                         {
-                            createdAt:  
+                            courseId: {
+                                [Sequelize.Op.in]: [Sequelize.literal(`Select "id" from courses where "userId"=${id}`)]
+                            }
+                        },
+                        {
+                            createdAt:
                             {
                                 [Op.between]:
                                     [from, to]
                             }
-                        }]
+                        },
+                        { accredited: false }
+                    ]
 
                 },
                 group: [Sequelize.fn('date_trunc', 'month', Sequelize.col('order_details.createdAt'))],
                 order: [[Sequelize.fn('date_trunc', 'month', Sequelize.col('order_details.createdAt')), 'DESC']],
             });
 
-            res.json(OrderDetails);
-
-        } else {
-            const OrderDetails = await orderDetails.findAll({
+            const AccreditedSales = await orderDetails.findAll({
+                limit: 6,
                 attributes: [
                     [Sequelize.fn('count', Sequelize.col('order_details.courseId')), 'Ventas'],
                     [Sequelize.fn('sum', Sequelize.col('order_details.total_order_details')), 'Ganancia'],
                     [Sequelize.fn('date_trunc', 'month', Sequelize.col('order_details.createdAt')), 'Mes']
                     // exclude: [ "id", "discount_order_details", "total_order_details", "createdAt", "updatedAt", "orderId"] 
                 ],
-                where: { 
+                where: {
                     [Op.and]: [
-                        { courseId: idC },
                         {
-                            createdAt:  
+                            courseId: {
+                                [Sequelize.Op.in]: [Sequelize.literal(`Select "id" from courses where "userId"=${id}`)]
+                            }
+                        },
+                        {
+                            createdAt:
                             {
                                 [Op.between]:
                                     [from, to]
                             }
-                        }]
-                
+                        },
+                        { accredited: true }
+                    ]
+
                 },
                 group: [Sequelize.fn('date_trunc', 'month', Sequelize.col('order_details.createdAt'))],
                 order: [[Sequelize.fn('date_trunc', 'month', Sequelize.col('order_details.createdAt')), 'DESC']],
             });
 
-            res.json(OrderDetails);
+            res.json({ NoAccreditedSales, AccreditedSales });
+
+        } else {
+            const NoAccreditedSales = await orderDetails.findAll({
+                attributes: [
+                    [Sequelize.fn('count', Sequelize.col('order_details.courseId')), 'Ventas'],
+                    [Sequelize.fn('sum', Sequelize.col('order_details.total_order_details')), 'Ganancia'],
+                    [Sequelize.fn('date_trunc', 'month', Sequelize.col('order_details.createdAt')), 'Mes']
+                    // exclude: [ "id", "discount_order_details", "total_order_details", "createdAt", "updatedAt", "orderId"] 
+                ],
+                where: {
+                    [Op.and]: [
+                        { courseId: idC },
+                        {
+                            createdAt:
+                            {
+                                [Op.between]:
+                                    [from, to]
+                            }
+                        },
+                        { accredited: false }
+                    ]
+
+                },
+                group: [Sequelize.fn('date_trunc', 'month', Sequelize.col('order_details.createdAt'))],
+                order: [[Sequelize.fn('date_trunc', 'month', Sequelize.col('order_details.createdAt')), 'DESC']],
+            });
+
+            const AccreditedSales = await orderDetails.findAll({
+                attributes: [
+                    [Sequelize.fn('count', Sequelize.col('order_details.courseId')), 'Ventas'],
+                    [Sequelize.fn('sum', Sequelize.col('order_details.total_order_details')), 'Ganancia'],
+                    [Sequelize.fn('date_trunc', 'month', Sequelize.col('order_details.createdAt')), 'Mes']
+                    // exclude: [ "id", "discount_order_details", "total_order_details", "createdAt", "updatedAt", "orderId"] 
+                ],
+                where: {
+                    [Op.and]: [
+                        { courseId: idC },
+                        {
+                            createdAt:
+                            {
+                                [Op.between]:
+                                    [from, to]
+                            }
+                        },
+                        { accredited: true }
+                    ]
+
+                },
+                group: [Sequelize.fn('date_trunc', 'month', Sequelize.col('order_details.createdAt'))],
+                order: [[Sequelize.fn('date_trunc', 'month', Sequelize.col('order_details.createdAt')), 'DESC']],
+            });
+
+            res.json({ NoAccreditedSales, AccreditedSales });
 
         }
 
@@ -493,6 +526,46 @@ const getHistoryInstructor = async (req, res = response) => {
     res.json(history);
 }
 
+const getDetailTransfers = async (req, res = response) => {
+
+    try {
+        const { idT } = req.params;
+        console.log(idT);
+
+        const history = await historypayment.findByPk(idT);
+
+        const resOrdersDetails = await orderDetails.findAll({
+            attributes: [
+                [Sequelize.fn('COUNT', Sequelize.col('order_details.id')), 'cantidad'],
+                'commissionId',
+                'discountCode_order_details',
+                'discountPercentage_order_details',
+                'total_order_details',
+            ],
+            where: {
+                id: {
+                    [Op.in]: history.dataValues.ordersDetailsIds
+                }
+            },
+            include: [{
+                model: commission,
+                attributes: ['Percent', 'DistributionMode']
+            }],
+            group: [Sequelize.col('order_details.commissionId'), Sequelize.col('commission.id'), Sequelize.col('order_details.discountCode_order_details'), Sequelize.col('order_details.discountPercentage_order_details'), Sequelize.col('order_details.total_order_details')]
+        });
+
+        let resTable = resOrdersDetails.map(() => {
+
+        });
+
+
+        res.json({resOrdersDetails, history});
+    } catch (error) {
+        res.json(error);
+    }
+
+}
+
 module.exports = {
     getHistory,
     Putpaymentsinstructor,
@@ -500,5 +573,6 @@ module.exports = {
     GraphicHistoryPayments,
     getHistoryInstructor,
     HistoryPaymentsdetails,
-    GraphicHistoryPaymentsdetails
+    GraphicHistoryPaymentsdetails,
+    getDetailTransfers
 }

@@ -78,7 +78,7 @@ db.message = require("../models/messages")(sequelize, Sequelize);
 db.header_chat = require("../models/header_chat")(sequelize, Sequelize);
 db.chat = require("../models/chat")(sequelize, Sequelize);
 
-
+db.courseReview = require("../models/courseReview")(sequelize, Sequelize);
 
 db.history_payment_inst = require("../models/instructor_payment_history")(sequelize, Sequelize);
 
@@ -170,7 +170,6 @@ db.order.hasOne(db.order_details, { onDelete: 'cascade', hooks: true, });
 db.order_details.belongsTo(db.course);
 db.course.hasOne(db.order_details);
 
-
 db.quiz.belongsTo(db.topic);
 db.topic.hasOne(db.quiz, { onDelete: 'cascade', hooks: true, });
 
@@ -215,9 +214,22 @@ db.history_payment_inst.belongsTo(db.user);
 db.user.hasMany(db.history_payment_inst);
 
 
-
 db.order_details.belongsTo(db.commission);
 db.commission.hasOne(db.order_details);
+
+
+db.courseReview.belongsTo(db.user);
+db.user.hasMany(db.courseReview);
+
+db.courseReview.belongsTo(db.course);
+db.course.hasMany(db.courseReview);
+
+db.courseReview.belongsToMany(db.courseReview, { as: 'Children', through: 'repliesCourseReview' })
+
+
+//questions
+db.question.belongsTo(db.archive, { onDelete: 'cascade', hooks: true, });
+db.archive.hasOne(db.question);
 
 
 module.exports = db;

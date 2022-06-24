@@ -12,7 +12,9 @@ module.exports = (sequelize, Sequelize) => {
       total_instructor_payment_history: {
         type: Sequelize.DOUBLE,
       },
+      ordersDetailsIds: {
+        type: Sequelize.ARRAY(Sequelize.INTEGER)
+      },
     });
     return instructor_payment_history;
   };
-
