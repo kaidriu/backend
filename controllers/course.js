@@ -615,8 +615,6 @@ const GeAllCourse = async (req, res = response) => {
     console.log(ids);
 
     if (Object.keys(Enroll_course).length == 0) {
-      console.log("-----------------enroll---------");
-      console.log("todos");
       const curso = await Course.findAll({
         where: { state: "publicado" },
         attributes: { exclude: ["updatedAt", "createdAt", "subcategoryId"] },
@@ -1499,15 +1497,23 @@ const postCourseReview = async (req, res = response) => {
 };
 
 const putCourseReview = async (req, res = response) => {
-  const { courseStars, courseReview, reviewId } = req.body;
 
-  const review = await courseReviews.findOne({
-    where: { id: reviewId },
-  });
+  try {
+    const { courseStars, courseReview, reviewId } = req.body;
 
-  await review.update({ courseStars, courseReview });
+    const review = await courseReviews.findOne({
+      where: { id: reviewId },
+    });
 
-  res.json(review);
+    await review.update({ courseStars, courseReview });
+
+    res.json(review);
+  } catch (error) {
+    console.log(error);
+  }
+  
+
+
 };
 
 const getCourseReview = async (req, res = response) => {
