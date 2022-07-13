@@ -86,7 +86,7 @@ const getCoursesFromInstructor = async (req, res = response) => {
 	const { idt } = req.params;
 
 	const curso = await Curso.findAll({
-		attributes: ["id", "title", "image_course", "state", "createdAt", "updatedAt"],
+		attributes: ["id", "title", "image_course", "price", "state", "createdAt", "updatedAt"],
 		where: { 
 			userId: idt
 		},
