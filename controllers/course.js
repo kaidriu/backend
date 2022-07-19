@@ -543,6 +543,7 @@ const GeAllCourse = async (req, res = response) => {
     });
 
     let ids = [];
+    
     Enroll_course.map((resp) => {
       ids.push(resp.courseId);
 

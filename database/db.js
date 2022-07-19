@@ -84,6 +84,8 @@ db.history_payment_inst = require("../models/instructor_payment_history")(sequel
 
 db.commission = require("../models/commission")(sequelize, Sequelize);
 
+db.packageCourse = require("../models/package_course")(sequelize, Sequelize);
+
 
 
 
@@ -230,6 +232,11 @@ db.courseReview.belongsToMany(db.courseReview, { as: 'Children', through: 'repli
 //questions
 db.question.belongsTo(db.archive, { onDelete: 'cascade', hooks: true, });
 db.archive.hasOne(db.question);
+
+
+db.course.belongsToMany(db.packageCourse, { as: 'packageToCourse', through: 'packageCourse_course' })
+db.packageCourse.belongsToMany(db.course, { as: 'packageToCourse', through: 'packageCourse_course' })
+
 
 
 module.exports = db;

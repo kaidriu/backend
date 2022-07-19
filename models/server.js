@@ -111,7 +111,7 @@ class Server {
 
 
     bd() {
-        //db.sequelize.sync();
+        // db.sequelize.sync();
         //  db.sequelize.sync({ alter: true }).then(() => {
         //  });
     }
