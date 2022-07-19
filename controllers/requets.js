@@ -111,7 +111,7 @@ const getSolicitudInstructor = async (req, res = response) => {
                     include: [
                         {
                             model: User,
-                            attributes: { exclude: ['password', 'createdAt', 'updatedAt', 'id', 'email', 'is_active', 'google', 'profileId'] },
+                            attributes: { exclude: ['password', 'createdAt', 'updatedAt', 'id', 'is_active', 'google', 'profileId'] },
                         },
                         //  {
                         //      model: Ubication,

@@ -205,14 +205,23 @@ const DeleteAnswer = async (req, res = response) => {
 
 const DeleteQuestion = async (req, res = response) => {
 
-    const { idq } = req.params;
+    try {
+        const { idq } = req.params;
 
+        const question = await questions.findByPk(idq);
+        const Archive = await archive.findByPk(question.archiveId);
 
-    let Questions = await questions.findOne({ where: { id: idq } })
-    await Questions.destroy();
+        deleteFile(Archive.id_drive_archive).then(async (resp) => {
+            await Archive.destroy();
+        });
 
+        await question.destroy();
 
-    res.json({ Questions })
+        res.status(200).json(question)
+    } catch (error) {
+        res.status(400).send(error)
+    }
+
 
 }
 
@@ -631,7 +640,7 @@ const postQuestionResource = async (req, res = response) => {
         uploadFile(tempFilePath, archivo.name, archivo.mimetype, course.id_drive).then((resp) => {
             generatePublicUrl(resp).then(async (fileURLs) => {
 
-                const Archive = new archive({ name_archive: archivo.name, id_drive_archive: resp, link_archive_Drive: fileURLs.webViewLink });
+                const Archive = new archive({ name_archive: archivo.name, id_drive_archive: resp, link_archive_Drive: fileURLs.webContentLink });
                 await Archive.save();
                 await question.update({ archiveId: Archive.id });
 
@@ -702,7 +711,7 @@ const deleteQuestionResource = async (req, res = response) => {
         deleteFile(Archive.id_drive_archive).then(async (resp) => {
             await Archive.destroy();
             await question.update({ archiveId: null });
-            res.json({ question })
+            res.status(200).json(question);
         });
     } catch (error) {
         res.status(400).send(error)
