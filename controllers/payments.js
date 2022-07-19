@@ -569,20 +569,67 @@ const getPackage = async (req,res=response)=>{
 
 const getCoursesInPackage = async (req,res=response)=>{
     const{id} = req.params;
-    const packageCourse = await package.findAll({
+    const packageCourse = await package.findOne({
         where:{
             id
         },
         include:{
             model: Course, as: 'packageToCourse',
             attributes:["title","description","image_course","id","updatedAt"],
-            include:{
-                model:User,
-                attributes:["name"]
-            }
+            include:
+            [
+                {
+                    model: User,
+                    attributes: {
+                      exclude: [
+                        "id",
+                        "password",
+                        "updatedAt",
+                        "createdAt",
+                        "email",
+                        "is_active",
+                        "google",
+                        "profileId",
+                      ],
+                    },
+                    include: {
+                      model: Profile,
+                      attributes: {
+                        exclude: [
+                          "id",
+                          "updatedAt",
+                          "createdAt",
+                          "userTypeId",
+                          "ubicationId",
+                          "userDetailId",
+                          "education",
+                          "phone",
+                          "aboutMe",
+                          "profession",
+                          "gender",
+                          "edad",
+                        ],
+                      },
+                    },
+                  },
+                  {
+                    model: Subcategory,
+                    attributes: {
+                      exclude: ["updatedAt", "createdAt", "categoryId", "name_subcategory"],
+                    },
+                    include: {
+                      model: Category,
+                      attributes: { exclude: ["id", "updatedAt", "createdAt"] },
+                    },
+                  },
+            ]
+            // {
+            //     model:User,
+            //     attributes:["name"]
+            // }
         }
     });
-    res.json(packageCourse);
+    res.json({packageCourse});
 
 }
 
