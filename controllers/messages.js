@@ -328,8 +328,6 @@ const GetMessage = async (req, res = response) => {
 const GetMessageEmitter = async (req, res = response) => {
 
     const { id } = req.usuario;
-    // const { idt } = req.params;
-
 
     const Heade_char = await header_Chat.findAll({
         // attributes: { exclude: ['updatedAt', 'read_chat'] },
@@ -363,296 +361,71 @@ const GetMessageEmitter = async (req, res = response) => {
             ]
         // order: [['createdAt', 'DESC']],
     })
-
     let ultimoMensaje = [];
-    // let ultimoMensaje2 = [];
+    if(Heade_char.length>0){
+        Heade_char.map(async (resp) => {
 
 
-
-    // //     ultimoMensaje.push({
-    // //         "id": resp.id,
-    // //         "createdAt": resp.createdAt,
-    // //         "fromId": resp.fromId,
-    // //         "toId": resp.toId,
-    // //         "Mensaje": Message.messaje_chat,
-    // //         "from": {   
-    // //             "name": resp.from.name, 
-    // //             "profile" : {
-    // //                 "image_perfil" : resp.from.profile.image_perfil 
-    // //             } 
-    // //         }
-    // //     })
-
-    // res.json(Heade_char)
-
-    Heade_char.map(async (resp) => {
-
-
-        let Message = await message.findOne({
-            where: { headerChatId: resp.id },
-            order: [['createdAt', 'DESC']],
-            // limit:1
-            include: {
-                model: User
+            let Message = await message.findOne({
+                where: { headerChatId: resp.id },
+                order: [['createdAt', 'DESC']],
+                // limit:1
+                include: {
+                    model: User
+                }
+            })
+    
+    
+            if (resp.fromId != id) {
+    
+                ultimoMensaje.push({
+                    "id": resp.id,
+                    "createdAt": Message.createdAt,
+                    "emisor": resp.fromId,
+                    // "toId": resp.toId,
+                    "Mensaje": Message.messaje_chat,
+                    "from": {
+                        "name": resp.from.name,
+                        "email": resp.from.email,
+                        "profile": {
+                            "image_perfil": resp.from.profile.image_perfil
+                        }
+                    }
+                })
+    
+    
+    
+            } else {
+    
+                ultimoMensaje.push({
+                    "id": resp.id,
+                    "createdAt": Message.createdAt,
+                    // "fromId": resp.fromId,
+                    "emisor": resp.toId,
+                    "Mensaje": Message.messaje_chat,
+                    "from": {
+                        "name": resp.to.name,
+                        "email": resp.to.email,
+                        "profile": {
+                            "image_perfil": resp.to.profile.image_perfil
+                        }
+                    }
+                })
+    
+    
             }
+    
+            if (Heade_char.length == ultimoMensaje.length) {
+                res.json(
+    
+                    ultimoMensaje
+                )
+            }
+    
         })
-        // console.log(Message.userId);
-        // console.log(Message.messaje_chat);
-        // Message.map((resp2)=>{
-        // console.log(resp);
-        // console.log(Message);
-
-
-        if (resp.fromId != id) {
-
-            ultimoMensaje.push({
-                "id": resp.id,
-                "createdAt": Message.createdAt,
-                "emisor": resp.fromId,
-                // "toId": resp.toId,
-                "Mensaje": Message.messaje_chat,
-                "from": {
-                    "name": resp.from.name,
-                    "email": resp.from.email,
-                    "profile": {
-                        "image_perfil": resp.from.profile.image_perfil
-                    }
-                }
-            })
-
-            // ultimoMensaje.push({
-            //     "fromId": resp.fromId,
-
-            // })
-
-
-        } else {
-
-            ultimoMensaje.push({
-                "id": resp.id,
-                "createdAt": Message.createdAt,
-                // "fromId": resp.fromId,
-                "emisor": resp.toId,
-                "Mensaje": Message.messaje_chat,
-                "from": {
-                    "name": resp.to.name,
-                    "email": resp.to.email,
-                    "profile": {
-                        "image_perfil": resp.to.profile.image_perfil
-                    }
-                }
-            })
-
-            // ultimoMensaje.push({
-
-            //     "toId": resp.toId
-            // })
-
-
-        }
-
-
-
-
-
-        // Heade_char.push({"Mensaje":Message.messaje_chat})
-        // })
-
-
-
-        if (Heade_char.length == ultimoMensaje.length) {
-            // console.log(ultimoMensaje);
-            res.json(
-
-                ultimoMensaje
-            )
-        }
-
-
-
-
-
-
-        // ultimoMensaje.push(resp.fromId);
-        // ultimoMensaje.push(resp.toId);
-        // ultimoMensaje2.push(resp.id);
-    })
-
-    // ultimoMensaje = ultimoMensaje.filter(function (i) { return i !== id }); // filtramos
-
-    // console.log(ultimoMensaje);
-
-
-    // const users = await sequelize.query("SELECT * FROM `users`", { type: QueryTypes.SELECT })
-
-    // let Message = await sequelize.query(`SELECT DISTINCT ON("headerChatId") "headerChatId" , "id" from (select *  from "messajes" where "headerChatId" IN (${ultimoMensaje2}) order by messajes."createdAt" DESC) as x`, {
-    //     // type: sequelize.QueryTypes.SELECT,
-    //     model: message,
-    //     include: {
-    //         model: User
-    //     }
-    // });
-
-
-    // Message.map((resp) => {
-    //     ultimoMensaje.push(resp.id);
-    //     // ultimoMensaje.push(resp.toId);
-    //     // ultimoMensaje2.push(resp.id);
-    // })
-
-
-
-
-    // .then(users => {
-    //   // We don't need spread here, since only the results will be returned for select queries
-    //   res.json(users);
-    // })
-
-    //    const x =  await Message.findAll({
-    //     where:{
-    //         headerChatId:9
-    //     }
-    //     })
-
-    // console.log(Message);
-
-    // const user = await User.findAll({
-    //     where: {
-    //         id: {
-    //             [Op.in]: ultimoMensaje
-    //         }
-    //     }
-    // })
-
-
-    // res.json(Heade_char);
-
-    // const Heade_char = await header_Chat.findAll({
-    //     attributes: { exclude: ['updatedAt', 'userId'] },
-    //     order: [['createdAt', 'ASC']],
-    //     where: {
-    //         [Op.or]: [
-    //             { toId: id },
-    //             // [Op.not]: {toId: id},
-    //             // {[Op.not]: {fromId: id}}
-    //             { fromId: id }
-    //         ]
-    //     },
-    //     // where: {  
-    //     //     [Op.or]: [
-    //     //         {
-    //     //             [Op.and]: [
-    //     //                 { toId: idt },
-    //     //                 { fromId: id }
-    //     //             ]
-    //     //         }, {
-    //     //             [Op.and]: [
-    //     //                 { toId: id },
-    //     //                 { fromId: idt }
-    //     //             ]
-    //     //         }],
-    //     // },
-    //     include: [
-    //         // {
-    //         //     model: message,
-    //         //     order: [['createdAt', 'DESC']],
-    //         //     // limit: 1,
-    //         //     attributes: { exclude: ['id', 'createdAt','updatedAt', 'headerChatId'] },             
-    //         // },
-    //         {
-    //             model: User,
-    //             // where:{id:toId},
-    //             attributes: { exclude: ['id', 'password', 'updatedAt', 'createdAt', 'email', 'is_active', 'google', 'profileId'] },
-    //             as:'from',
-    //             where:{
-    //                 [Op.not]: {id},
-    //             },
-    //             include: {
-    //                 model: Profile,
-    //                 attributes: { exclude: ['id', 'updatedAt', 'createdAt', 'userTypeId', 'ubicationId', 'userDetailId', 'education', 'phone', 'aboutMe', 'profession', 'gender', 'edad'] },
-    //             }
-    //         }
-
-
-    //     ]
-
-    // })
-
-
-    // let ultimoMensaje = [];
-
-    // // Heade_char.map(async (resp) => {
-
-    // //     let Message = await message.findOne({
-    // //         where: { headerChatId: resp.id },
-    // //         order: [['createdAt', 'DESC']],
-    // //         // limit:1
-    // //         include:{
-    // //             model:User
-    // //         }
-    // //     })
-    // //     // console.log(Message.userId);
-    // //     // console.log(Message.messaje_chat);
-    // //     // Message.map((resp2)=>{
-    // //     console.log(resp);
-    // //     console.log(Message);
-    // //     ultimoMensaje.push({
-    // //         "id": resp.id,
-    // //         "createdAt": resp.createdAt,
-    // //         "fromId": resp.fromId,
-    // //         "toId": resp.toId,
-    // //         "Mensaje": Message.messaje_chat,
-    // //         "from": {   
-    // //             "name": resp.from.name, 
-    // //             "profile" : {
-    // //                 "image_perfil" : resp.from.profile.image_perfil 
-    // //             } 
-    // //         }
-    // //     })
-
-    // //     // Heade_char.push({"Mensaje":Message.messaje_chat})
-    // //     // })
-
-
-
-    // //     if (Heade_char.length == ultimoMensaje.length) {
-    // //         // console.log(ultimoMensaje);
-    // //         res.json(
-
-    // //             Heade_char
-    // //         )
-    // //     }
-
-    // // })
-
-    // // await xxxxxxxx(Heade_char).then((resp)=>{
-    // //     console.log(resp);
-    // //     // console.log(ultimoMensaje);
-
-    // // })
-
-
-
-    // // ultimoMensaje2 =  await xxxxxxxx(Heade_char);
-    // // let Message = await message.findAll({
-    // //     // where: { headerChatId: resp.id },
-    // //     where: {
-    // //         headerChatId: {
-    // //             [Op.in]: ultimoMensaje
-    // //         }
-    // //     },
-    // //     order: [['createdAt', 'ASC']],
-    // //     // limit:1
-    // // })
-    // // const Message = await message.findAll({
-    // //     where:{headerChatId:Heade_char.id}
-    // // })
-
-    // // console.log(ultimoMensaje2);
-    // res.json(
-
-    //                 Heade_char
-    //             )
+    }else{
+        res.json(Heade_char)
+    }
 
 }
 

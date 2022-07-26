@@ -46,6 +46,38 @@ const uploadFile = function (file, title, type, id_folder) {
     )
 }
 
+const uploadFilePayOrder = function (file, title, type) {
+
+    return new Promise((resolve) => {
+        drive.files.create({
+
+            requestBody: {
+                name: title,
+                mimeType: type,
+                parents: ["13HykfV1WhvIogo1adkDQFDLkhCeBrRY8"],
+            },  
+            media: {
+                mimeType: type,
+                body: fs.createReadStream(path.join(file))
+            },
+        }, function (err, file) {
+            if (err) {
+                // Handle error
+                console.error(err);
+            } else {
+                drive.permissions.create({
+                    fileId: file.data.id,
+                    requestBody: {
+                        role: 'reader',
+                        type: 'anyone'
+                    }
+                });
+                resolve(file.data.id);
+            }
+        })
+    }
+    )
+}
 
 const createFolderDrive = function (title) {
     return new Promise((resolve) => {
@@ -153,5 +185,6 @@ module.exports = {
     deleteFile,
     uploadFile,
     updateTitleFile,
-    createFolderDriveStudents
+    createFolderDriveStudents,
+    uploadFilePayOrder
 }

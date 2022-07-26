@@ -1,5 +1,5 @@
 const {Router}=require('express');
-const { CreateOrder, CaptureOrder, CancelOrder, addCar, getCar, deleteCar, addFav, getFav, deleteFav, SaveOrder, deleteallcar } = require('../controllers/payments');
+const { CreateOrder, CaptureOrder, CancelOrder, addCar, getCar, deleteCar, addFav, getFav, deleteFav, SaveOrder, deleteallcar, payDeposit, viewDeposit, putDeposit, deleteFavoriteInArray, getPackage, getCoursesInPackage } = require('../controllers/payments');
 
 
 const { validarCampos } = require('../middlewares/validar-campos');
@@ -21,13 +21,15 @@ router.get('/getcar',[validarJWT,validarCampos],getCar);
 
 router.delete('/deletecar/:idch',[validarJWT,validarCampos],deleteCar);
 
-
+router.get('/getPackageCourse',getPackage);
+router.get('/getPackageInCourse/:id',getCoursesInPackage);
 
 router.post('/addfav',[validarJWT,validarCampos],addFav);
 
 router.get('/getfav',[validarJWT,validarCampos],getFav);
 
 router.delete('/deletefav/:idch',[validarJWT,validarCampos],deleteFav);
+router.delete('/deleteFavoriteArray/:ids',[validarJWT,validarCampos],deleteFavoriteInArray);
 
 
 
@@ -35,6 +37,10 @@ router.delete('/deleteallcar',[validarJWT,validarCampos],deleteallcar);
 
 
 router.post('/saveorder',[validarJWT,validarCampos],SaveOrder);
+
+router.post('/payDeposit',[validarJWT,validarCampos],payDeposit);
+router.get('/viewDeposit',[validarJWT,validarCampos],viewDeposit);
+router.put('/putDeposit/:id',[validarJWT,validarCampos],putDeposit);
 
 
     
