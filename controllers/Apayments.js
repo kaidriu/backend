@@ -53,10 +53,10 @@ const viewDeposit = async (req, res = response) => {
         },
         include:{
             model:orderDetails,
-            attributes:["total_order_details","createdAt"],
+            attributes:["total_order_details"],
             include:{
                 model:courses,
-                attributes:["title"],
+                attributes:["id","title", "image_course"],
             }
         },
         // group: [Sequelize.col('order.id'),Sequelize.col('order_detail.id')]
@@ -67,7 +67,17 @@ const viewDeposit = async (req, res = response) => {
     res.json({ Order });
 }
 
+const approveDeposit = async (req, res = response) => {
+
+}
+
+const refuseDeposit = async (req, res = response) => {
+    
+}
+
 module.exports = {
     HistoryPayments,
-    viewDeposit
+    viewDeposit,
+    approveDeposit,
+    refuseDeposit
 }

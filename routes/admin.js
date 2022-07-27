@@ -1,7 +1,7 @@
 const {Router}=require('express');
 const { cursosPublicados, cursosRevision, sendRemark, changeStateCourse, getCoursesFromInstructor } = require('../controllers/Acourses');
 const {getUsers, getInstructors} = require('../controllers/Ausers');
-const {HistoryPayments, viewDeposit} = require('../controllers/Apayments');
+const {HistoryPayments, viewDeposit, approveDeposit, refuseDeposit} = require('../controllers/Apayments');
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJWT } = require('../middlewares/validar-JWT');
 
@@ -31,6 +31,9 @@ router.get('/coursesByInstructor/:idt',[validarJWT,validarCampos],getCoursesFrom
 -------------------------------------*/
 router.get('/allPayments',[validarJWT,validarCampos],HistoryPayments)
 router.get('/viewDeposit',[validarJWT,validarCampos],viewDeposit)
+router.put('/approveDeposit',[validarJWT,validarCampos],approveDeposit)
+router.put('/refuseDeposit',[validarJWT,validarCampos],refuseDeposit)
+
 
 
 module.exports=router;  

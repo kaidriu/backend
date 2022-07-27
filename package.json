@@ -27,6 +27,7 @@
     "nodemon": "^2.0.15",
     "pg": "^8.7.1",
     "pg-hstore": "^2.3.4",
+    "puppeteer": "^15.5.0",
     "request": "^2.88.2",
     "sequelize": "^6.21.3",
     "socket.io": "^4.5.1",

@@ -5,6 +5,7 @@ const db = require("../database/db");
 
 
 const fileUpload = require('express-fileupload');
+const genCertificate = require('../helpers/genCertificates');
 
 const { createServer } = require('http');
 const { socketController } = require('../sockets/controller');
@@ -111,7 +112,7 @@ class Server {
 
 
     bd() {
-        // db.sequelize.sync();
+        //db.sequelize.sync();
         /* db.sequelize.sync({ alter: true }).then(() => {
         }); */
     }

@@ -328,7 +328,7 @@ const putDeposit = async (req, res = response) => {
 
     uploadFilePayOrder(tempFilePath, archivo.name, archivo.mimetype).then((resp) => {
         generatePublicUrl(resp).then(async (fileURLs) => {
-            await Order.update({ file_transaction_url: fileURLs.webViewLink })
+            await Order.update({ file_transaction_url: fileURLs.webContentLink })
             res.json(Order);
         })
     })
