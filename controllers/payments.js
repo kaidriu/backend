@@ -17,9 +17,10 @@ const Subcategory = db.subcategory;
 const order = db.order;
 const order_details = db.order_details;
 const enroll_course = db.enroll_course;
-const Car = db.choppingcar;
+const Car = db.shoppingcar;
 const Favorite = db.favorite;
 const package = db.packageCourse;
+const detail_package = db.detail_package_order;
 
 const cloudinary = require('cloudinary').v2
 cloudinary.config(process.env.CLOUDINARY_URL);
@@ -406,9 +407,67 @@ const getCar = async (req, res = response) => {
                         attributes: { exclude: ['id', 'updatedAt', 'createdAt', 'userTypeId', 'ubicationId', 'userDetailId', 'education', 'phone', 'aboutMe', 'profession', 'gender', 'edad'] },
                     }
                 }
+            },
+            {
+                model: detail_package,
+                attributes:['id','courses_package_id'],
+                // attributes:['id', 
+                // [
+                //     sequelize.literal(
+                //       '(SELECT title from courses where "id" in courses_package_id)'
+                //     ),
+                //     "tasks",
+                //   ]
+                // ],
+                include:{
+                    model:package,
+                    attributes:['id','cant_course','price_package'],
+                }
             }
         ]
     })
+
+
+    let cursos = [];
+    let carShopping=[];
+    Carshopping.map((resp,index)=>{
+        if(resp.detail_package_order){
+            cursos.push({
+                "pos":index,
+                "cursosIds":resp.detail_package_order.courses_package_id
+            })
+        }
+    })
+    console.log('🎈🎈🎈');
+    console.log(cursos);
+    
+
+    for (let index = 0; index < cursos.length; index++) {
+        const {cursosIds,pos} = cursos[index];
+
+        let courses = await Course.findAll({
+            where: {
+              id: {
+                [Op.in]: cursosIds,
+              },
+            },  
+            attributes: { exclude: ['id', 'uri_folder', 'createdAt', 'updatedAt', 'objectives', 'learning', 'link_presentation', 'mode', 'state', 'subcategoryId', 'userId', 'description', 'languaje'] },
+                include: {
+                    model: User,
+                    attributes: { exclude: ['id', 'password', 'updatedAt', 'createdAt', 'email', 'is_active', 'google', 'profileId'] },
+                    include: {
+                        model: Profile,
+                        attributes: { exclude: ['id', 'updatedAt', 'createdAt', 'userTypeId', 'ubicationId', 'userDetailId', 'education', 'phone', 'aboutMe', 'profession', 'gender', 'edad'] },
+                    }
+                }
+          });
+          console.log('🎈');
+          Carshopping[pos].detail_package_order.courses_package_id=courses;
+        //   Carshopping.detail_package_order[pos].prueba=courses;
+
+
+          
+    }
 
 
     res.json({ Carshopping });
@@ -419,19 +478,22 @@ const deleteCar = async (req, res = response) => {
 
     const { idch } = req.params;
     const { id } = req.usuario;
+    console.log('---------------------');
+    console.log(idch)
     const Carshopping = await Car.destroy({
         where: {
-            [Op.and]: [
-                { userId: id },
-                { courseId: idch }
-            ]
+            // [Op.and]: [
+            //     { userId: id },
+            //     { courseId: idch }
+            // ]
+            id:idch
         }
     });
 
-    const course = await Course.findOne({
-        where: { id: idch }
-    })
-    await course.update({ state_cart: false })
+    // const course = await Course.findOne({
+    //     where: { id: idch }
+    // })
+    // await course.update({ state_cart: false })
 
 
     res.json(Carshopping);
@@ -633,6 +695,21 @@ const getCoursesInPackage = async (req,res=response)=>{
 
 }
 
+
+const buyPackage =async (req,res=response)=>{
+    const{courses_package_id,packageCourseId} = req.body;
+    const { id } = req.usuario;
+    console.log(courses_package_id);
+    const details_package = new detail_package({courses_package_id,packageCourseId })
+    await details_package.save();
+
+    const Carshopping = new Car({ userId: id, detailPackageOrderId: details_package.id});
+    await Carshopping.save();
+    
+    res.json(details_package);
+
+}
+
 module.exports = {
     CreateOrder,
     CancelOrder,
@@ -650,5 +727,6 @@ module.exports = {
     putDeposit,
     deleteFavoriteInArray,
     getPackage,
-    getCoursesInPackage
+    getCoursesInPackage,
+    buyPackage
 }
