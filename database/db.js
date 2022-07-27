@@ -58,7 +58,7 @@ db.category = require("../models/category")(sequelize, Sequelize);
 db.subcategory = require("../models/subcategory")(sequelize, Sequelize);
 
 
-db.choppingcar = require("../models/shoppingcar")(sequelize, Sequelize);
+db.shoppingcar = require("../models/shoppingcar")(sequelize, Sequelize);
 db.country = require("../models/country")(sequelize, Sequelize);
 db.payment_method = require("../models/payment_metods")(sequelize, Sequelize);
 db.payment_method_country = require("../models/payment_method_country")(sequelize, Sequelize);
@@ -85,6 +85,8 @@ db.history_payment_inst = require("../models/instructor_payment_history")(sequel
 db.commission = require("../models/commission")(sequelize, Sequelize);
 
 db.packageCourse = require("../models/package_course")(sequelize, Sequelize);
+
+db.detail_package_order = require("../models/details_package_order")(sequelize, Sequelize);
 
 
 
@@ -140,11 +142,20 @@ db.category.hasMany(db.subcategory, { onDelete: 'cascade', hooks: true, });
 db.course.belongsTo(db.subcategory);
 db.subcategory.hasOne(db.course);
 
-db.choppingcar.belongsTo(db.user);
-db.user.hasOne(db.choppingcar);
+db.shoppingcar.belongsTo(db.user);
+db.user.hasOne(db.shoppingcar);
 
-db.choppingcar.belongsTo(db.course);
-db.course.hasOne(db.choppingcar);
+db.shoppingcar.belongsTo(db.course);
+db.course.hasOne(db.shoppingcar);
+
+db.shoppingcar.belongsTo(db.detail_package_order);
+db.detail_package_order.hasOne(db.shoppingcar);
+
+db.detail_package_order.belongsTo(db.packageCourse);
+db.packageCourse.hasOne(db.detail_package_order);
+
+db.order_details.belongsTo(db.detail_package_order);
+db.detail_package_order.hasOne(db.order_details);
 
 
 db.favorite.belongsTo(db.user);
