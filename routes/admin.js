@@ -30,7 +30,7 @@ router.get('/coursesByInstructor/:idt',[validarJWT,validarCampos],getCoursesFrom
 --------------PAGOS-----------------
 -------------------------------------*/
 router.get('/allPayments',[validarJWT,validarCampos],HistoryPayments)
-router.get('/viewDeposit',[validarJWT,validarCampos],viewDeposit)
+router.get('/viewDeposit/:payment_status',[validarJWT,validarCampos],viewDeposit)
 router.put('/approveDeposit',[validarJWT,validarCampos],approveDeposit)
 router.put('/refuseDeposit',[validarJWT,validarCampos],refuseDeposit)
 

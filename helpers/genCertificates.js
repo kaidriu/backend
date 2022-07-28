@@ -35,8 +35,6 @@ function genCertificate(
     }});
 };
 
-
-
 async function htmlToImage(path){
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
@@ -60,7 +58,8 @@ async function htmlToImage(path){
 
 const fecha = new Date(); 
 let fechaesp = fecha.getDate() + "-" + (fecha.getMonth() +1) + "-" + fecha.getFullYear();
-//genCertificate('Juan Perez', 'Programación en JAVA', fechaesp);
+
+genCertificate('Juan Perez', 'Programación en JAVA', fechaesp);
 
 /* (async () => {
     const browser = await puppeteer.launch();

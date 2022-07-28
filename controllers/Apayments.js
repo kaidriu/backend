@@ -40,13 +40,14 @@ const HistoryPayments = async (req, res = response) => {
 
 const viewDeposit = async (req, res = response) => {
 
-    //const { id } = req.usuario;
+    const { payment_status } = req.params;
+
     const Order = await orders.findAll({
         attributes: ["id", "payment_status","file_transaction_url", "updatedAt", "total_order"],
         where:
         {
             [Op.and]: [
-                { payment_status: 'pendiente'},
+                { payment_status },
                 {file_transaction_url: {[Op.not]: null,}},
                 { paymentMethodId: 3 }
             ]
@@ -68,11 +69,17 @@ const viewDeposit = async (req, res = response) => {
 }
 
 const approveDeposit = async (req, res = response) => {
-
+    const { orderId} = req.body;
+    const Order = await orders.findByPk(orderId);
+    await Order.update({ payment_status:'pagado' });
+    res.json({ Order });
 }
 
 const refuseDeposit = async (req, res = response) => {
-    
+    const { orderId, remark} = req.body;
+    const Order = await orders.findByPk(orderId);
+    await Order.update({ payment_status:'rechazado', payment_remark: remark});
+    res.json({ Order });
 }
 
 module.exports = {
