@@ -8,7 +8,9 @@ const router = Router();
 
 
 router.post('/postcontent',[validarJWT,validarCampos],PostTracking);
+
 router.get('/getenroll/:idC',[validarJWT,validarCampos],GetEnroll);
+
 router.post('/aggtaskstuden',[validarJWT,validarCampos],AggTask);
 router.get('/gettaskstuden/:idC/:idT',[validarJWT,validarCampos],GetTaskStudent);
 router.delete('/deletetaskstuden/:idC/:idT',[validarJWT,validarCampos],DeleteTaskStudent);

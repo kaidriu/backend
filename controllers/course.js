@@ -76,7 +76,9 @@ const PostCourse = async (req, res = response) => {
       await course.save();
 
       const requC = await Course.findOne({
-        where: { id: course.id },
+        where: { 
+          id: course.id 
+        },
         include: [
           {
             model: User,
@@ -528,21 +530,19 @@ const GetTopic = async (req, res = response) => {
       exclude: [
         "createdAt",
         "updatedAt",
-        "number_chapter",
         "title_chapter",
         "courseId",
         "id",
       ],
     },
-    order: [["number_chapter", "ASC"]],
     include: [
       {
         model: Topic,
-        order: [["number_topic", "ASC"]],
         attributes: { exclude: ["createdAt", "updatedAt"] },
         required: true,
       },
     ],
+    order: [["number_chapter", "ASC"], [ sequelize.col('topics.number_topic'),"ASC"]],
   });
 
   res.json(chapter);

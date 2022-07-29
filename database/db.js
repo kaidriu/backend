@@ -199,10 +199,10 @@ db.task.belongsTo(db.topic);
 db.topic.hasOne(db.task, {onDelete: 'cascade', hooks: true,});
 
 db.content_tracking.belongsTo(db.topic);
-db.topic.hasOne(db.content_tracking,{ onDelete: 'cascade', hooks: true, });
+db.topic.hasMany(db.content_tracking,{ onDelete: 'cascade', hooks: true, });
 
 db.content_tracking.belongsTo(db.enroll_course);
-db.enroll_course.hasOne(db.content_tracking);
+db.enroll_course.hasMany(db.content_tracking);
 
 
 db.header_chat.belongsTo(db.user, { as: 'from' });
