@@ -16,6 +16,8 @@ const Chapter = db.chapter;
 const Task = db.task;
 
 const sequelize = require("sequelize");
+const chapter = require("../models/chapter");
+const title = require("../models/title");
 
 
 const PostTracking = async (req, res = response) => {
@@ -92,8 +94,31 @@ const GetEnroll = async (req, res = response) => {
             }
             ]
         }
+    });
+
+    let chapter = await Chapter.findOne({
+        attributes:[
+            [sequelize.fn('min', sequelize.col('chapter.number_chapter')), 'number_chapter']
+        ],
+        where:{
+            courseId: idC,
+        },
+        include: {
+            model:Topic,
+            limit:1,
+            attributes:[
+                'id',
+                'number_topic',
+            ],
+            order:[['number_topic', 'ASC']],
+        },
+        order:[[sequelize.col('chapter.number_chapter'), 'ASC']],
+        group:[sequelize.col('chapter.id')]
     })
 
+    Enroll_course.dataValues['firsTopicId'] = chapter.topics[0].id
+    
+    console.log(Enroll_course.dataValues);
 
     res.json(Enroll_course);
 }
