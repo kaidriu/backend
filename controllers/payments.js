@@ -333,7 +333,6 @@ const putDeposit = async (req, res = response) => {
         })
     })
 
-
 }
 
 
@@ -438,9 +437,7 @@ const getCar = async (req, res = response) => {
             })
         }
     })
-    console.log('🎈🎈🎈');
-    console.log(cursos);
-    
+   
 
     for (let index = 0; index < cursos.length; index++) {
         const {cursosIds,pos} = cursos[index];

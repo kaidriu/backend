@@ -69,8 +69,6 @@ const getEnrollCourse = async (req, res = response) => {
         order: ['number_chapter', sequelize.col('topics.number_topic')]
     })
 
-    console.log(chapters);
-
     res.json({enroll_course, chapters});
 }
 

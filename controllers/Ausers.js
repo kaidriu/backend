@@ -1,6 +1,7 @@
 const { response } = require('express');
 const db = require('../database/db');
 const { Op } = require("sequelize");
+const profile = require('../models/profile');
 
 
 const User = db.user;

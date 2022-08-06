@@ -88,9 +88,9 @@ db.packageCourse = require("../models/package_course")(sequelize, Sequelize);
 
 db.detail_package_order = require("../models/details_package_order")(sequelize, Sequelize);
 
+db.certificate = require("../models/certificate")(sequelize, Sequelize);
 
-
-
+db.entity_certificate = require("../models/entity_certificate.js")(sequelize, Sequelize);
 
 
 db.user.belongsTo(db.profile);
@@ -247,6 +247,12 @@ db.archive.hasOne(db.question);
 
 db.course.belongsToMany(db.packageCourse, { as: 'packageToCourse', through: 'packageCourse_course' })
 db.packageCourse.belongsToMany(db.course, { as: 'packageToCourse', through: 'packageCourse_course' })
+
+/* db.certificate.belongsToMany(db.entity, { as: 'certificateToEntity', through: 'throughEntityCertificate' })
+db.entity.belongsToMany(db.certificate, { as: 'entityToCertificate', through: 'throughEntityCertificate' }) */
+
+
+//certificates
 
 
 

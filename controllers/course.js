@@ -37,6 +37,7 @@ const quizzes = db.quiz;
 const questions = db.question;
 const options = db.option;
 const courseReviews = db.courseReview;
+const contentTracking = db.content_tracking;
 
 const PostCourse = async (req, res = response) => {
   const { title, description, objectives, link_presentation, mode, price } =
@@ -341,21 +342,27 @@ const PostChapter = async (req, res = response) => {
 };
 
 const GetChapter = async (req, res = response) => {
-  const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-  const curso = await Course.findOne({
-    where: { id },
-  });
+    const curso = await Course.findOne({
+      where: { id },
+    });
 
-  const chapter = await Chapter.findAll({
-    where: { courseId: curso.id },
-    attributes: { exclude: ["createdAt", "updatedAt"] },
-    order: [["number_chapter", "ASC"]],
+    const chapter = await Chapter.findAll({
+      where: { courseId: curso.id },
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+      order: [["number_chapter", "ASC"]],
 
-    // include:[{model:Course}]
-  });
+      // include:[{model:Course}]
+    });
 
-  res.json(chapter);
+    res.json(chapter);
+
+  } catch (error) {
+    res.status(400).send(error)
+  }
+  
 };
 
 const PutChatper = async (req, res = response) => {
@@ -797,47 +804,24 @@ const getMyPurchasedcourses = async (req, res = response) => {
   const { id } = req.usuario;
 
   const curso = await Course.findAll({
-    where: { state: "publicado" },
-    attributes: { exclude: ["updatedAt", "createdAt", "subcategoryId"] },
+    attributes: [
+      "id", "title",
+      [sequelize.literal('(SELECT COUNT("topics"."id") FROM "chapters" LEFT OUTER JOIN "topics" ON "chapters"."id" = "topics"."chapterId" AND "chapters"."courseId"="course"."id")'), 'totalTopics'],
+      [sequelize.literal('(SELECT COUNT("content_trackings"."id") from "content_trackings" WHERE "content_trackings"."enrollCourseId" = "enroll_course"."id" AND "content_trackings"."state_content_tacking" IS TRUE)'), 'topicsDone']
+    ],
     include: [
       {
         model: User,
-        attributes: {
-          exclude: [
-            "id",
-            "password",
-            "updatedAt",
-            "createdAt",
-            "email",
-            "is_active",
-            "google",
-            "profileId",
-          ],
-        },
+        attributes: ["name"],
         include: {
           model: Profile,
-          attributes: {
-            exclude: [
-              "id",
-              "updatedAt",
-              "createdAt",
-              "userTypeId",
-              "ubicationId",
-              "userDetailId",
-              "education",
-              "phone",
-              "aboutMe",
-              "profession",
-              "gender",
-              "edad",
-            ],
-          },
+          attributes: ["image_perfil", "user_id_drive"],
         },
       },
       {
         model: Subcategory,
         attributes: {
-          exclude: ["updatedAt", "createdAt", "categoryId", "name_subcategory"],
+          exclude: ["updatedAt", "createdAt", "categoryId"],
         },
         include: {
           model: Category,
@@ -847,7 +831,9 @@ const getMyPurchasedcourses = async (req, res = response) => {
       {
         model: enroll_course,
         where: { userId: id },
-        attributes: { exclude: ["createdAt", "updatedAt"] },
+        attributes: { 
+          exclude: ["createdAt", "updatedAt"] 
+        },
         required: true,
       },
     ],
