@@ -6,7 +6,7 @@ cloudinary.config(process.env.CLOUDINARY_URL);
 
 const jwt = require("jsonwebtoken");
 const db = require("../database/db");
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
 const {
   deleteFolder,
   createFolder,
@@ -124,7 +124,6 @@ const PutCourse = async (req, res = response) => {
     labels,
   } = req.body;
 
-  console.log(req.body);
 
   if (mode == "autoaprendizaje") {
     enrollmentDataInitial = null;
@@ -148,9 +147,6 @@ const PutCourse = async (req, res = response) => {
   if (labels) {
     labels = labels.split(",");
   }
-
-  console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-  console.log(labels);
 
   let price = parseFloat(precio);
   percentageDiscount = parseFloat(percentageDiscount);
@@ -194,8 +190,6 @@ const PutCourse = async (req, res = response) => {
   if (curso.title != title) {
     modifyFolder(uri_folder, title).then(() => {
       updateTitleFile(curso.id_drive, title).then(() => {
-        console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-        // console.log(resp);
         uri_folder = curso.uri_folder;
         curso.update({
           description_large,
@@ -267,7 +261,6 @@ const PutCourse = async (req, res = response) => {
 };
 
 const SendCourse = async (req, res = response) => {
-  console.log("hola");
 
   const { idc } = req.body;
   const state = "revisión";
@@ -390,14 +383,10 @@ const DeleteChapter = async (req, res = response) => {
 
   const { topics } = chapter;
 
-  console.log("--------------------------------");
-
   topics.map(async (resp) => {
     if (resp.uri_video != null) {
       await deleteVideo(resp.uri_video);
     }
-
-    console.log(resp.uri_video);
   });
   await chapter.destroy();
   res.json({ chapter });
@@ -418,9 +407,6 @@ const PostTopic = async (req, res = response) => {
   let idcap = parseInt(num_chapter);
   // const {archivo}=req.files;
 
-  console.log(duration_video);
-
-  console.log("------------------------------------------------------");
   duration_video = parseFloat(duration_video);
   console.log(duration_video);
   const course = await Course.findOne({
@@ -680,8 +666,6 @@ const GeAllCourse = async (req, res = response) => {
       });
       res.json({ curso });
     } else {
-      console.log("-----------------enroll---------");
-      console.log("uno");
       const curso = await Course.findAll({
         where: { state: "publicado", [Op.not]: [{ id: ids }] },
         attributes: { exclude: ["updatedAt", "createdAt", "subcategoryId"] },
@@ -804,11 +788,13 @@ const getMyPurchasedcourses = async (req, res = response) => {
   const { id } = req.usuario;
 
   const curso = await Course.findAll({
-    attributes: [
-      "id", "title",
-      [sequelize.literal('(SELECT COUNT("topics"."id") FROM "chapters" LEFT OUTER JOIN "topics" ON "chapters"."id" = "topics"."chapterId" AND "chapters"."courseId"="course"."id")'), 'totalTopics'],
-      [sequelize.literal('(SELECT COUNT("content_trackings"."id") from "content_trackings" WHERE "content_trackings"."enrollCourseId" = "enroll_course"."id" AND "content_trackings"."state_content_tacking" IS TRUE)'), 'topicsDone']
-    ],
+    attributes: {
+      include:[ 
+        [sequelize.literal('(SELECT COUNT("topics"."id") FROM "chapters" LEFT OUTER JOIN "topics" ON "chapters"."id" = "topics"."chapterId" AND "chapters"."courseId"="course"."id")'), 'totalTopics'],
+        [sequelize.literal('(SELECT COUNT("content_trackings"."id") from "content_trackings" WHERE "content_trackings"."enrollCourseId" = "enroll_course"."id" AND "content_trackings"."state_content_tacking" IS TRUE)'), 'topicsDone']
+      ],
+      exclude:[]
+    },
     include: [
       {
         model: User,
@@ -837,6 +823,7 @@ const getMyPurchasedcourses = async (req, res = response) => {
         required: true,
       },
     ],
+    order:[sequelize.col('enroll_course')]
   });
   res.json({ curso });
 };
@@ -1512,10 +1499,10 @@ const getCourseReview = async (req, res = response) => {
     if(idU == undefined){
       reviews = await courseReviews.findAll({
         where: {
-          courseId: idC,
-          courseStars: {
-            [Op.not]: null,
-          }
+        	courseId: idC,
+        	courseStars: {
+            	[Op.not]: null,
+        	}
         },
         include: [
           {
@@ -1546,7 +1533,6 @@ const getCourseReview = async (req, res = response) => {
       
       stars = await courseReviews.findAll({
         attributes: [
-          //[sequelize.fn('avg', sequelize.col('courseStars')), 'average'],
           'courseStars',
           [sequelize.fn('count', sequelize.col('courseStars')), 'count'],
         ],
@@ -1601,6 +1587,55 @@ const getCourseReview = async (req, res = response) => {
   } catch (error) {}
 };
 
+const instructorSummaryCoursesReviews = async (req, res = response) => {
+	
+	//const { id } = req.usuario;
+	const id = 2;
+
+  const reviews = await Course.findAll({
+		attributes:["id","title"],
+		where:{
+			userId: id
+		},
+		include:{
+			model: courseReviews,
+			required:true,
+			where:{
+				courseStars:{
+					[Op.not]: null
+				}
+			},
+			include: [
+        {
+				  model: User,
+				  attributes: ["name", "email"],
+				  include: {
+					model: Profile,
+					attributes: ["image_perfil"],
+				  },
+				},
+				{
+					model: courseReviews,
+					as: "Children",
+					attributes: {
+					  exclude: ["courseId", "courseStars", "repliesCourseReview"],
+					},
+					include: {
+					  model: User,
+					  attributes: ["name", "email"],
+					  include: {
+						model: Profile,
+						attributes: ["image_perfil"],
+					  },
+					},
+				},
+			  ],
+		}
+	});
+	
+	res.json({reviews});
+}
+
 module.exports = {
   PostCourse,
   PostChapter,
@@ -1635,4 +1670,5 @@ module.exports = {
   postCourseReview,
   putCourseReview,
   getCourseReview,
+  instructorSummaryCoursesReviews
 };

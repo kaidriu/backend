@@ -57,16 +57,16 @@ const PostTracking = async (req, res = response) => {
         });
         res.json(validar);
     } else {
-        const Tracking = new Tracking({
+        const tracking = new Tracking({
             topicId: idT,
             enrollCourseId: Enroll_course.id,
             state_content_tacking: false
         })
-        await Tracking.save();
+        await tracking.save();
         await Enroll_course.update({
             last_topic: idT
         });
-        res.json(Tracking);
+        res.json(tracking);
     }
 
 
@@ -118,8 +118,6 @@ const GetEnroll = async (req, res = response) => {
 
     Enroll_course.dataValues['firsTopicId'] = chapter.topics[0].id
     
-    console.log(Enroll_course.dataValues);
-
     res.json(Enroll_course);
 }
 
@@ -370,15 +368,20 @@ const GetTrackingEnroll = async (req, res = response) => {
 
 const PutState = async (req,res=response)=>{
 
-    const {id}=req.body;
+    try {
+        const {id}=req.body;
 
-    const conten = await Tracking.findOne({
-        where:{id}
-    });
+        const conten = await Tracking.findOne({
+            where:{id}
+        });
 
-    await conten.update({state_content_tacking:true});
+        await conten.update({state_content_tacking:true});
 
-    res.json(conten)
+        res.json(conten)
+    } catch (error) {
+        res.status(400).send(error)
+    }
+    
 
 
 }
@@ -441,10 +444,6 @@ const qualificationTest = async (req,res=response)=>{
     const {idt}=req.params;
 
     const {data,qualification_test}=req.body;
-
-    console.log(idt);
-    console.log(qualification_test);
-
 
     const conten = await Tracking.findOne({
         where:{id:idt}

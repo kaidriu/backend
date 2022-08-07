@@ -217,7 +217,6 @@ const SaveOrder = async (req, res = response) => {
 
     await Order.save();
 
-    console.log('------------------------');
     // console.log(buyer_name);
     // console.log(req.body);
 
@@ -260,10 +259,6 @@ const payDeposit = async (req, res = response) => {
     const Order = new order({ userId: id, buyer_name, buyer_address, buyer_email, buyer_phone, payment_status, discount, file_transaction_url, total_order, buyer_countre, buyer_state, buyer_postcode, paymentMethodId });
 
     await Order.save();
-
-    console.log('------------------------');
-    // console.log(buyer_name);
-    // console.log(req.body);
 
     curso.map(async (resp) => {
 
@@ -475,8 +470,7 @@ const deleteCar = async (req, res = response) => {
 
     const { idch } = req.params;
     const { id } = req.usuario;
-    console.log('---------------------');
-    console.log(idch)
+
     const Carshopping = await Car.destroy({
         where: {
             // [Op.and]: [

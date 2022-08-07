@@ -1,7 +1,6 @@
 const {Router}=require('express');
 const { cursosPublicados, cursosRevision, sendRemark, changeStateCourse, getCoursesFromInstructor } = require('../controllers/Acourses');
 const {getUsers, getInstructors} = require('../controllers/Ausers');
-const {getPackages} = require('../controllers/Apackages');
 const { 
     HistoryPayments, 
     viewDeposit, 
@@ -12,7 +11,8 @@ const {
     putCommissions, 
     historialCommissionsGraphic, 
     summaryCoursesNoPayment,
-    summaryNoPaymentInstructor} = require('../controllers/Apayments');
+    summaryNoPaymentInstructor,
+    detailOrdersNoPaymentByCurso} = require('../controllers/Apayments');
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJWT } = require('../middlewares/validar-JWT');
 
@@ -39,7 +39,7 @@ router.get('/coursesByInstructor/:idt',[validarJWT,validarCampos],getCoursesFrom
 router.put('/sendremarks',[validarJWT,validarCampos], sendRemark)
 
 /*-----------PAQUETES--------------*/
-router.get('/packages',[validarJWT,validarCampos],getPackages)
+//router.get('/packages',[validarJWT,validarCampos],getPackages)
 
 
 /*-----------------------------------
@@ -52,6 +52,7 @@ router.put('/approveDeposit',[validarJWT,validarCampos],approveDeposit)
 router.put('/refuseDeposit',[validarJWT,validarCampos],refuseDeposit)
 router.get('/payments/summaryCoursesNoPaymentsByUserId/:idU',[validarJWT,validarCampos],summaryCoursesNoPayment)
 router.get('/payments/summary/instructors',[validarJWT,validarCampos],summaryNoPaymentInstructor)
+router.get('/payments/detailOrdersNoPaymentsByCourseId/:idC',[validarJWT,validarCampos],detailOrdersNoPaymentByCurso)
 
 
 

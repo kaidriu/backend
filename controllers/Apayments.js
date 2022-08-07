@@ -12,6 +12,7 @@ const commission = db.commission;
 const ubication = db.Ubication;
 const userDetails = db.userDetails;
 const type = db.UserType;
+const payment_method = db.payment_method;
 
 const HistoryPayments = async (req, res = response) => {
   const OrderDetails = await orderDetails.findAll({
@@ -145,7 +146,6 @@ const putCommissions = async (req, res = response) => {
     await Commissions.update({ DistributionMode: title, Percent: percent });
     res.json({ Commissions });
   } catch (error) {
-    console.log(error);
     res.status(400).send(error);
   }
 };
@@ -155,10 +155,7 @@ const historialCommissionsGraphic = async (req, res = response) => {
     attributes: [
       "commissionId",
       [Sequelize.fn("COUNT", Sequelize.col("order.id")), "compras"],
-      [
-        Sequelize.fn("SUM", Sequelize.col("order_details.total_order_details")),
-        "ventas",
-      ],
+      [Sequelize.fn("SUM", Sequelize.col("order_details.total_order_details")),"ventas"],
     ],
     include: [
       {
@@ -183,18 +180,38 @@ const historialCommissionsGraphic = async (req, res = response) => {
 };
 
 const summaryCoursesNoPayment = async (req, res = response) => {
-  const { idU } = req.params;
-
-  const CoursesUser = await courses.findAll({
+  	const { idU } = req.params;
+    
+	const courseOrders = await courses.findAll({
     attributes: [
-      [Sequelize.fn("array_agg", Sequelize.col("course.id")), "course.id"],
+      "id",
+      "title",
+	  [Sequelize.literal('(select COUNT("order_details"."id") from "order_details" where "order_details"."courseId"="course"."id")'), 'countOrdersNoPayment'],
+      [Sequelize.literal('(select SUM("order_details"."total_order_details") from "order_details" where "order_details"."courseId"="course"."id")'), 'amountOrdersNoPayment']
     ],
     where: {
       userId: idU,
     },
+    include:{
+      model: orderDetails,
+      attributes:[],
+      required:true,
+      where:{
+        accredited: false
+      },
+      include:{
+        model: orders,
+        required: true,
+        where: {
+          payment_status: "pagado",
+        },
+        attributes: [],
+      }
+    },
+    group:[Sequelize.col("course.id")]
   });
 
-  res.json({ CoursesUser });
+  res.json({ courseOrders });
 };
 
 const summaryNoPaymentInstructor = async (req, res = response) => {
@@ -286,6 +303,47 @@ const summaryNoPaymentInstructor = async (req, res = response) => {
   res.json({ instructores });
 };
 
+const detailOrdersNoPaymentByCurso = async (req, res = response) => {
+	const { idC } = req.params;
+
+	const OrderDetails = await orderDetails.findAll({
+		attributes: [
+			'discount_order_details', 'createdAt', 'total_order_details', 'discountCode_order_details',
+			'discountPercentage_order_details', 'accredited'
+		],
+		where: {
+			courseId: idC,
+			accredited: false
+		},
+		include: [
+			{
+				model: orders,
+				where: { payment_status: 'pagado' },
+				attributes: ['discount'],
+				include: [
+					{
+						model: user,
+						attributes: ['name', 'id', 'email'],
+						include: {
+							model: profile,
+							attributes: ['image_perfil'],
+						}
+					},
+					{
+						model: payment_method,
+						attributes: ['payment_method'],
+					}
+				]
+			},
+			{
+				model: commission,
+				attributes: ['Percent', 'DistributionMode']
+			}
+		],
+	});
+	res.json({OrderDetails})
+}
+
 module.exports = {
   HistoryPayments,
   viewDeposit,
@@ -297,4 +355,5 @@ module.exports = {
   historialCommissionsGraphic,
   summaryCoursesNoPayment,
   summaryNoPaymentInstructor,
+  detailOrdersNoPaymentByCurso
 };
