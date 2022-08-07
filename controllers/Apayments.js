@@ -13,6 +13,8 @@ const ubication = db.Ubication;
 const userDetails = db.userDetails;
 const type = db.UserType;
 const payment_method = db.payment_method;
+const subcategory = db.subcategory;
+const category = db.category;
 
 const HistoryPayments = async (req, res = response) => {
   const OrderDetails = await orderDetails.findAll({
@@ -186,13 +188,16 @@ const summaryCoursesNoPayment = async (req, res = response) => {
     attributes: [
       "id",
       "title",
-	  [Sequelize.literal('(select COUNT("order_details"."id") from "order_details" where "order_details"."courseId"="course"."id")'), 'countOrdersNoPayment'],
-      [Sequelize.literal('(select SUM("order_details"."total_order_details") from "order_details" where "order_details"."courseId"="course"."id")'), 'amountOrdersNoPayment']
+      "image_course",
+      "price",
+	    [Sequelize.literal(`(select COUNT("order_details"."id") from "order_details" inner join "orders" on "order_details"."orderId" = "orders"."id" where "orders"."payment_status"= 'pagado' AND "order_details"."courseId"="course"."id" AND "order_details"."accredited"= false)`), 'countOrdersNoPayment'],
+      [Sequelize.literal(`(select SUM("order_details"."total_order_details") from "order_details" inner join "orders" on "order_details"."orderId" = "orders"."id" where "orders"."payment_status"= 'pagado' AND "order_details"."courseId"="course"."id" AND "order_details"."accredited"= false)`), 'amountOrdersNoPayment'],
+      //[Sequelize.literal('(select COUNT("enroll_courses"."id") from "enroll_courses" where "enroll_courses"."courseId"="course"."id")'), 'countStudents'],
     ],
     where: {
       userId: idU,
     },
-    include:{
+    include:[{
       model: orderDetails,
       attributes:[],
       required:true,
@@ -208,6 +213,15 @@ const summaryCoursesNoPayment = async (req, res = response) => {
         attributes: [],
       }
     },
+    /* {
+      model: subcategory,
+      attributes: {exclude:["createdAt", "updatedAt"]},
+      include: {
+        model: category,
+        attributes: {exclude:["createdAt", "updatedAt"]},
+      },
+    }, */
+  ],
     group:[Sequelize.col("course.id")]
   });
 
@@ -219,7 +233,8 @@ const summaryNoPaymentInstructor = async (req, res = response) => {
         attributes:[
             "id",
             "image_perfil",
-            "phone"
+            "phone",
+            [Sequelize.literal('(select COUNT("courses"."id") from "courses" where "courses"."userId" = "user"."id")'), 'totalCourses']
         ],
         include:[
             {
@@ -227,9 +242,7 @@ const summaryNoPaymentInstructor = async (req, res = response) => {
                 attributes:[
                     "id",
                     "name",
-                    "email",
-					          [Sequelize.literal('(select COUNT("courses"."id") from "courses" where "courses"."userId" = "user"."id")'), 'totalCourses']
-
+                    "email"
                 ],
             },
             {

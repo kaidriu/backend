@@ -51,7 +51,7 @@ router.get('/viewDeposit/:payment_status',[validarJWT,validarCampos],viewDeposit
 router.put('/approveDeposit',[validarJWT,validarCampos],approveDeposit)
 router.put('/refuseDeposit',[validarJWT,validarCampos],refuseDeposit)
 router.get('/payments/summaryCoursesNoPaymentsByUserId/:idU',[validarJWT,validarCampos],summaryCoursesNoPayment)
-router.get('/payments/summary/instructors',[validarJWT,validarCampos],summaryNoPaymentInstructor)
+router.get('/payments/summaryInstructorsNoPayments',[validarJWT,validarCampos],summaryNoPaymentInstructor)
 router.get('/payments/detailOrdersNoPaymentsByCourseId/:idC',[validarJWT,validarCampos],detailOrdersNoPaymentByCurso)
 
 
