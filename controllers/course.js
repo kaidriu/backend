@@ -1589,8 +1589,7 @@ const getCourseReview = async (req, res = response) => {
 
 const instructorSummaryCoursesReviews = async (req, res = response) => {
 	
-	//const { id } = req.usuario;
-	const id = 2;
+	const { id } = req.usuario;
 
   const reviews = await Course.findAll({
 		attributes:["id","title"],
