@@ -1,5 +1,12 @@
 const {Router}=require('express');
-const { cursosPublicados, cursosRevision, sendRemark, changeStateCourse, getCoursesFromInstructor } = require('../controllers/Acourses');
+const { 
+    cursosPublicados, 
+    cursosRevision, 
+    sendRemark, 
+    changeStateCourse, 
+    getCoursesFromInstructor,
+    getPackages,
+    postPackages } = require('../controllers/Acourses');
 const {getUsers, getInstructors} = require('../controllers/Ausers');
 const { 
     HistoryPayments, 
@@ -39,7 +46,9 @@ router.get('/coursesByInstructor/:idt',[validarJWT,validarCampos],getCoursesFrom
 router.put('/sendremarks',[validarJWT,validarCampos], sendRemark)
 
 /*-----------PAQUETES--------------*/
-//router.get('/packages',[validarJWT,validarCampos],getPackages)
+router.get('/packages',[validarJWT,validarCampos],getPackages)
+router.post('/packages',[validarJWT,validarCampos],postPackages)
+
 
 
 /*-----------------------------------

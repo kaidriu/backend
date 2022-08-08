@@ -213,19 +213,36 @@ const summaryCoursesNoPayment = async (req, res = response) => {
         attributes: [],
       }
     },
-    /* {
+    {
       model: subcategory,
       attributes: {exclude:["createdAt", "updatedAt"]},
       include: {
         model: category,
         attributes: {exclude:["createdAt", "updatedAt"]},
       },
-    }, */
+    }
   ],
-    group:[Sequelize.col("course.id")]
+    group:[Sequelize.col("course.id"), Sequelize.col("subcategory.id"), Sequelize.col("subcategory->category.id")]
   });
 
-  res.json({ courseOrders });
+  const infoPayments = await userDetails.findOne({
+    attributes:['id', 'bank', 'account_type', 'account_number', 'account_paypal', 'owner_name'],
+    include:{
+        model: profile,
+        required:true,
+        attributes: [],
+        include:{
+          model:user,
+          attributes:[],
+          where:{
+            id: idU
+          }
+        }
+      }
+  });
+
+
+  res.json({ courseOrders, infoPayments});
 };
 
 const summaryNoPaymentInstructor = async (req, res = response) => {
@@ -234,7 +251,8 @@ const summaryNoPaymentInstructor = async (req, res = response) => {
             "id",
             "image_perfil",
             "phone",
-            [Sequelize.literal('(select COUNT("courses"."id") from "courses" where "courses"."userId" = "user"."id")'), 'totalCourses']
+            [Sequelize.literal('(select COUNT("courses"."id") from "courses" where "courses"."userId" = "user"."id")'), 'totalCourses'],
+            [Sequelize.literal(`(SELECT SUM("order_details"."total_order_details") FROM "order_details" INNER JOIN "courses" ON "order_details"."courseId" = "courses"."id" AND "courses"."userId" = "user"."id" INNER JOIN "orders" ON "order_details"."orderId" = "orders"."id" AND "orders"."payment_status" = 'pagado' WHERE "order_details"."accredited" = false)`), 'amount'],
         ],
         include:[
             {
@@ -264,9 +282,10 @@ const summaryNoPaymentInstructor = async (req, res = response) => {
                 attributes: [],
             },
         ],
+        order:[[Sequelize.col("amount"), 'DESC NULLS LAST']]
     });
 
-    let arrPromise = [];
+    /* let arrPromise = [];
   
     instructores.map((instructor)=>{
       let userId = instructor.dataValues.user.dataValues.id;
@@ -311,7 +330,7 @@ const summaryNoPaymentInstructor = async (req, res = response) => {
       );
     });
 
-    await Promise.all(arrPromise);
+    await Promise.all(arrPromise); */
 
   res.json({ instructores });
 };
@@ -321,7 +340,7 @@ const detailOrdersNoPaymentByCurso = async (req, res = response) => {
 
 	const OrderDetails = await orderDetails.findAll({
 		attributes: [
-			'discount_order_details', 'createdAt', 'total_order_details', 'discountCode_order_details',
+			'id','discount_order_details', 'createdAt', 'total_order_details', 'discountCode_order_details',
 			'discountPercentage_order_details', 'accredited'
 		],
 		where: {
@@ -355,6 +374,13 @@ const detailOrdersNoPaymentByCurso = async (req, res = response) => {
 		],
 	});
 	res.json({OrderDetails})
+}
+
+const payInstructor = async (req, res = response) => {
+  
+  const { idU, payMethod, percent } = req.body;
+  
+
 }
 
 module.exports = {

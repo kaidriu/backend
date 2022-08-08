@@ -99,10 +99,14 @@ const getCoursesFromInstructor = async (req, res = response) => {
 
 //PAQUETES DE CURSOS
 const getPackages = async (req, res=response) => {
+  
   const Packages = await packages.findAll({
+      attributes:{
+        exclude:["createdAt", "updatedAt"]
+      },
       include:[
           {
-              model: courses,
+              model: Curso,
               as: 'packageToCourse',
               attributes: [
                   "title",
@@ -160,5 +164,7 @@ module.exports = {
   cursosPublicados,
   sendRemark,
   changeStateCourse,
-  getCoursesFromInstructor
+  getCoursesFromInstructor,
+  getPackages,
+  postPackages
 };
