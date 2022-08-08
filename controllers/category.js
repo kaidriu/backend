@@ -6,6 +6,7 @@ const { Op } = require("sequelize");
 
 const Category = db.category;
 const Subcategory = db.subcategory;
+const errOpNotCompleted = "Servidor: No se pudo completar la operación. Error: ";
 
 
 const PostCategory = async(req,res=response)=>{
@@ -22,7 +23,7 @@ const PostCategory = async(req,res=response)=>{
 
 
 const DeleteCategory = async(req,res=response)=>{
-
+    try {
         const  {name_category} =req.params;
     
         const category = await Category.findOne({
@@ -31,9 +32,14 @@ const DeleteCategory = async(req,res=response)=>{
 
         await category.destroy();
 
-        res.json({
-            name_category
+        res.status(200).json({category});
+        
+    } catch (error) {
+        res.status(500).json({
+            msg: errOpNotCompleted + error
         })
+
+    }
 }    
 
 
@@ -94,8 +100,7 @@ const GetCategory = async(req,res=response)=>{
     );
 
     res.json(
-        
-        category
+        {category}
     )
 }
 
@@ -127,18 +132,23 @@ const PostSubCategory = async(req,res=response)=>{
 
 
 const DeleteSubCategory = async(req,res=response)=>{
+    try {
+        const  {name_subcategory} =req.params;
 
-    const  {name_subcategory} =req.params;
+        const subcategory = await Subcategory.findOne({
+                where: {name_subcategory}  
+            });
 
-    const subcategory = await Subcategory.findOne({
-            where: {name_subcategory}  
-        });
+        await subcategory.destroy();
 
-    await subcategory.destroy();
+        res.status(200).json({subcategory});
 
-    res.json({
-        subcategory
-    })
+    } catch (error) {
+        res.status(500).json({
+            msg: errOpNotCompleted + error
+        })
+
+    }
 } 
 
 

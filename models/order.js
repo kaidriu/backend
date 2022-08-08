@@ -24,6 +24,9 @@ module.exports = (sequelize, Sequelize) => {
       payment_status: {
         type: Sequelize.STRING
       },
+      payment_remark:{
+        type: Sequelize.TEXT
+      },
       discount: {
         type: Sequelize.DOUBLE
       },   

@@ -12,7 +12,7 @@ router.post('/subcategory',[validarJWT,validarCampos],PostSubCategory);
 router.delete('/deletecategory/:name_category',[validarJWT,validarCampos],DeleteCategory);
 router.delete('/deletesubcategory/:name_subcategory',[validarJWT,validarCampos],DeleteSubCategory);
 router.get('/getcategory/:name_category',[validarJWT,validarCampos],GetSubCategory);
-router.get('/getcategories',[validarJWT,validarCampos],GetCategory);
+router.get('/getcategories',GetCategory);
 router.put('/putcategories',[validarJWT,validarCampos],PutCategory);
 router.put('/putsubcategories',[validarJWT,validarCampos],PutSubcategory);
 

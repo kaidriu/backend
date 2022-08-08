@@ -92,9 +92,7 @@ const SolicitudInstructor = async (req, res = response) => {
 
 const getSolicitudInstructor = async (req, res = response) => {
 
-
     const desde = Number(req.query.desde) || 0;
-
 
     const [request, total] = await Promise.all([
 
@@ -186,9 +184,7 @@ const aceptarSolicitudInstructor = async (req, res = response) => {
 
     const { id, ProfileId } = req.params;
 
-
     const request = await Request.findOne({
-
         where: { id },
         attributes: { exclude: ['updatedAt', 'profileId'] },
         include: [

@@ -178,7 +178,7 @@ db.order.belongsTo(db.payment_method);
 db.payment_method.hasOne(db.order);
 
 db.order_details.belongsTo(db.order);
-db.order.hasOne(db.order_details, { onDelete: 'cascade', hooks: true, });
+db.order.hasMany(db.order_details, { onDelete: 'cascade', hooks: true, });
 
 db.order_details.belongsTo(db.course);
 db.course.hasOne(db.order_details);
