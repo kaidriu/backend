@@ -124,16 +124,19 @@ const postPackages = async (req, res=response) => {
 
   try {
       const { cant_course, price_package, percents_package} = req.body;
-
-      const Packages = new packages({
+      
+      if(cant_course > 1){
+        const Packages = new packages({
           cant_course,
           price_package,
           percents_package
-      });
+        });
 
-      await Packages.save();
-
-      res.json({Packages});        
+        await Packages.save();
+        res.json({Packages});
+      }else{
+        res.status(400).send("La cantidad de cursos por paquete no puede ser menor a 2");
+      }
   } catch (error) {
       res.status(400).send(error)
   }

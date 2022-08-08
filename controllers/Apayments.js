@@ -15,6 +15,7 @@ const type = db.UserType;
 const payment_method = db.payment_method;
 const subcategory = db.subcategory;
 const category = db.category;
+const instructorPaymentHistory = db.history_payment_inst
 
 const HistoryPayments = async (req, res = response) => {
   const OrderDetails = await orderDetails.findAll({
@@ -378,9 +379,16 @@ const detailOrdersNoPaymentByCurso = async (req, res = response) => {
 
 const payInstructor = async (req, res = response) => {
   
-  const { idU, payMethod, percent } = req.body;
+  const { idU, entity, count_payment, orderDetailsIds} = req.body;
   
+  const _instructorPaymentHistory = new instructorPaymentHistory({
+    userId: idU,
+    entity,
+    count_payment,
+    orderDetailsIds
+  });
 
+  res.json(_instructorPaymentHistory);
 }
 
 module.exports = {
@@ -394,5 +402,6 @@ module.exports = {
   historialCommissionsGraphic,
   summaryCoursesNoPayment,
   summaryNoPaymentInstructor,
-  detailOrdersNoPaymentByCurso
+  detailOrdersNoPaymentByCurso,
+  payInstructor
 };

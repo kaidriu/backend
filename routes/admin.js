@@ -19,7 +19,8 @@ const {
     historialCommissionsGraphic, 
     summaryCoursesNoPayment,
     summaryNoPaymentInstructor,
-    detailOrdersNoPaymentByCurso} = require('../controllers/Apayments');
+    detailOrdersNoPaymentByCurso,
+    payInstructor} = require('../controllers/Apayments');
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJWT } = require('../middlewares/validar-JWT');
 
@@ -62,6 +63,7 @@ router.put('/refuseDeposit',[validarJWT,validarCampos],refuseDeposit)
 router.get('/payments/summaryCoursesNoPaymentsByUserId/:idU',[validarJWT,validarCampos],summaryCoursesNoPayment)
 router.get('/payments/summaryInstructorsNoPayments',[validarJWT,validarCampos],summaryNoPaymentInstructor)
 router.get('/payments/detailOrdersNoPaymentsByCourseId/:idC',[validarJWT,validarCampos],detailOrdersNoPaymentByCurso)
+router.post('/payments/payInstructor',[validarJWT,validarCampos],payInstructor)
 
 
 

@@ -248,8 +248,8 @@ db.archive.hasOne(db.question);
 db.course.belongsToMany(db.packageCourse, { as: 'packageToCourse', through: 'packageCourse_course' })
 db.packageCourse.belongsToMany(db.course, { as: 'packageToCourse', through: 'packageCourse_course' })
 
-/* db.certificate.belongsToMany(db.entity, { as: 'certificateToEntity', through: 'throughEntityCertificate' })
-db.entity.belongsToMany(db.certificate, { as: 'entityToCertificate', through: 'throughEntityCertificate' }) */
+db.certificate.belongsToMany(db.entity_certificate, { as: 'certificateToEntity', through: 'throughEntityCertificate' })
+db.entity_certificate.belongsToMany(db.certificate, { as: 'entityToCertificate', through: 'throughEntityCertificate' })
 
 
 //certificates
