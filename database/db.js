@@ -88,9 +88,9 @@ db.packageCourse = require("../models/package_course")(sequelize, Sequelize);
 
 db.detail_package_order = require("../models/details_package_order")(sequelize, Sequelize);
 
+db.certificate = require("../models/certificate")(sequelize, Sequelize);
 
-
-
+db.entity_certificate = require("../models/entity_certificate.js")(sequelize, Sequelize);
 
 
 db.user.belongsTo(db.profile);
@@ -199,10 +199,10 @@ db.task.belongsTo(db.topic);
 db.topic.hasOne(db.task, {onDelete: 'cascade', hooks: true,});
 
 db.content_tracking.belongsTo(db.topic);
-db.topic.hasOne(db.content_tracking,{ onDelete: 'cascade', hooks: true, });
+db.topic.hasMany(db.content_tracking,{ onDelete: 'cascade', hooks: true, });
 
 db.content_tracking.belongsTo(db.enroll_course);
-db.enroll_course.hasOne(db.content_tracking);
+db.enroll_course.hasMany(db.content_tracking);
 
 
 db.header_chat.belongsTo(db.user, { as: 'from' });
@@ -247,6 +247,12 @@ db.archive.hasOne(db.question);
 
 db.course.belongsToMany(db.packageCourse, { as: 'packageToCourse', through: 'packageCourse_course' })
 db.packageCourse.belongsToMany(db.course, { as: 'packageToCourse', through: 'packageCourse_course' })
+
+db.certificate.belongsToMany(db.entity_certificate, { as: 'certificateToEntity', through: 'throughEntityCertificate' })
+db.entity_certificate.belongsToMany(db.certificate, { as: 'entityToCertificate', through: 'throughEntityCertificate' })
+
+
+//certificates
 
 
 

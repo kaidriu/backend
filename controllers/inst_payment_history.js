@@ -92,10 +92,10 @@ const HistoryPaymentsdetails = async (req, res = response) => {
 
     const { idC, valor, from, to } = req.params;
 
-    console.log("mira ---- >");
     console.log(valor);
 
     let OrderDetails = null;
+    
     let estado = 'por cobrar'
 
     if (valor == 'por cobrar')
@@ -103,18 +103,8 @@ const HistoryPaymentsdetails = async (req, res = response) => {
     else
         estado = true;
 
-    console.log("variables ------>");
-    console.log(estado);
-
     if (from === 'undefined' & to === 'undefined') {
         if (valor != 'todo') {
-            /* const fecha = new Date();
-            const año = fecha.getFullYear();
-            const mesActual = fecha.getMonth() + 1;
-    
-            const x = `${año}-${mesActual}-01`;
-            const y = `${año}-${mesActual}-31`; */
-
             OrderDetails = await orderDetails.findAll({
                 attributes: [
                     'discount_order_details', 'createdAt', 'total_order_details', 'discountCode_order_details',
@@ -340,7 +330,6 @@ const GraphicHistoryPayments = async (req, res = response) => {
     // const from = req.query.from;
     // const until = req.query.until;
 
-    console.log('--------------------------');
     // console.log(from);
     // console.log(to);
     console.log(id);
@@ -391,7 +380,6 @@ const GraphicHistoryPayments = async (req, res = response) => {
     } else {
 
         if (idC === 'null') {
-            console.log('--------nulo-------');
             const NoAccreditedSales = await orderDetails.findAll({
                 limit: 6,
                 attributes: [

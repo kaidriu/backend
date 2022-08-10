@@ -230,7 +230,7 @@ const CaptureOrder = async (req, res = response) => {
 
 
 
-    res.redirect("http://localhost:4200/order-completed");
+    res.redirect("https://cursos-production.up.railway.app/order-completed");
     // res.redirect("https://de-una-aprende.herokuapp.com/order-completed");
 
 }
@@ -247,7 +247,7 @@ const CancelOrder = async (req, res = response) => {
     await Order.destroy();
 
     // res.redirect("http://localhost:4200");
-    res.redirect("https://de-una-aprende.herokuapp.com");
+    res.redirect("https://cursos-production.up.railway.app");
 
 }
 
@@ -275,11 +275,16 @@ const SaveOrder = async (req, res = response) => {
 
     await Order.save();
 
+
     console.log('------------------------');
 
     let x = [];
 
     console.log(curso)
+
+    // console.log(buyer_name);
+    // console.log(req.body);
+
 
     curso.map(async (resp) => {
 
@@ -348,11 +353,13 @@ const payDeposit = async (req, res = response) => {
 
     await Order.save();
 
+
     console.log('------------------------');
     // console.log(buyer_name);
     // console.log(req.body);
 
     // curso.map(async (resp) => {
+
 
         // const Order_Details = new order_details({ total_order_details: resp.unit_amount.value, orderId: Order.id, courseId: resp.courseId })
 
@@ -449,7 +456,6 @@ const putDeposit = async (req, res = response) => {
             res.json(Order);
         })
     })
-
 
 }
 
@@ -555,6 +561,7 @@ const getCar = async (req, res = response) => {
             })
         }
     })
+
     console.log('🎈🎈🎈');
     console.log(cursos);
 
@@ -595,8 +602,7 @@ const deleteCar = async (req, res = response) => {
 
     const { idch } = req.params;
     const { id } = req.usuario;
-    console.log('---------------------');
-    console.log(idch)
+
     const Carshopping = await Car.destroy({
         where: {
             // [Op.and]: [

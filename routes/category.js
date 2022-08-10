@@ -1,5 +1,5 @@
 const {Router}=require('express');
-const { PostCategory, PostSubCategory, DeleteCategory, GetSubCategory, GetCategory, PutCategory, PutSubcategory, DeleteSubCategory } = require('../controllers/category');
+const { PostCategory, PostSubCategory, DeleteCategory, GetSubCategory, GetCategory, PutCategory, PutSubcategory, DeleteSubCategory, getCategoryAndSubcategory } = require('../controllers/category');
 
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJWT } = require('../middlewares/validar-JWT');
@@ -13,6 +13,7 @@ router.delete('/deletecategory/:name_category',[validarJWT,validarCampos],Delete
 router.delete('/deletesubcategory/:name_subcategory',[validarJWT,validarCampos],DeleteSubCategory);
 router.get('/getcategory/:name_category',[validarJWT,validarCampos],GetSubCategory);
 router.get('/getcategories',GetCategory);
+router.get('/getcategoriesandsubcategories',getCategoryAndSubcategory);
 router.put('/putcategories',[validarJWT,validarCampos],PutCategory);
 router.put('/putsubcategories',[validarJWT,validarCampos],PutSubcategory);
 
