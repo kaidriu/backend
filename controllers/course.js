@@ -825,7 +825,14 @@ const getMyPurchasedcourses = async (req, res = response) => {
       },
       {
         model: enroll_course,
-        where: { userId: id },
+        // where: { userId: id },
+        where: { 
+          [Op.and]: [
+            {userId: id},
+            { [Op.not]: [{status_enroll:'owner'}]}
+          ]
+            
+          },
         attributes: { 
           exclude: ["createdAt", "updatedAt"] 
         },

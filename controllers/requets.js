@@ -106,16 +106,29 @@ const getRequestInstructor = async (req, res = response) => {
         }
     })
 
-    if (ver) {
+    const aceptado = await Request.findOne({
+        where: {
+            [Op.and]: [
+                { profileId: id },
+                { state: 'aceptado' }
+            ]
+        }
+    })
 
-        res.status(200).json(true)
+    if (aceptado) {
+
+        res.status(200).json({estado: true })
 
     } else {
-
-        res.status(200).json(false)
+        if(ver){
+            res.status(200).json({proceso:true})
+        }else{
+            res.status(200).json({proceso:false})
+        }
+      
     }
 
-
+  
 
 }
 
