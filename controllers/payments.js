@@ -38,15 +38,27 @@ const CreateOrder = async (req, res = response) => {
 
         const payment_status = 'cancelado';
 
+        console.log(items)
+
         const Order = new order({ userId: id, buyer_name, buyer_address, buyer_email, buyer_phone, payment_status, discount, file_transaction_url, total_order, buyer_countre, buyer_state, buyer_postcode });
 
         await Order.save();
 
         items.map(async (resp) => {
 
-            const Order_Details = new order_details({ total_order_details: resp.unit_amount.value, orderId: Order.id, courseId: resp.courseId })
+            if (resp.pack.courses) {
 
-            await Order_Details.save();
+                const Order_Details = new order_details({ total_order_details: resp.pack.price, orderId: Order.id, detailPackageOrderId: resp.pack.id })
+                await Order_Details.save();
+
+            } else {
+                const Order_Details = new order_details({ total_order_details: resp.unit_amount.value, orderId: Order.id, courseId: resp.courseId })
+
+
+                await Order_Details.save();
+            }
+
+
 
         })
 
@@ -56,6 +68,34 @@ const CreateOrder = async (req, res = response) => {
 
 
 
+        let x = [];
+        let descrip = `Paquetes de cursos:
+        ` ;
+
+        items.map(async (resp) => {
+            if (resp.pack.courses) {
+
+                resp.pack.courses.map((resp2) => {
+                    descrip = descrip.concat(`
+               ◾ ${resp2.title}`);
+                })
+                x.push({
+                    name: `Paquete de ${resp.pack.packSize} cursos`,
+                    unit_amount: { currency_code: resp.unit_amount.currency_code, value: resp.pack.price },
+                    quantity: '1',
+                    description: descrip
+                })
+            } else {
+                x.push({
+                    name: resp.name,
+                    unit_amount: { currency_code: resp.unit_amount.currency_code, value: resp.unit_amount.value },
+                    quantity: '1',
+                })
+            }
+        })
+
+
+        console.log(x)
         const orders = {
             intent: 'CAPTURE',
             purchase_units: [
@@ -68,7 +108,7 @@ const CreateOrder = async (req, res = response) => {
                         }
                     },
                     description: "pago de curso deunaaprende",
-                    items: items
+                    items: x
                 }
 
             ],
@@ -142,17 +182,35 @@ const CaptureOrder = async (req, res = response) => {
 
     const Order_details = await order_details.findAll({
         attributes: ["id", "courseId"],
-        include: {
+        include: [{
             model: order,
             attributes: ["id"],
             where: { id: ido }
+        },
+        {
+            model: detail_package,
+            attributes: ["id", "courses_package_id"],
         }
-
+        ]
     })
 
+
+
     Order_details.map(async (resp) => {
-        const Enroll_course = new enroll_course({ enroll_date: fecha, status_enroll: 'empezar', courseId: resp.courseId, userId: id })
-        await Enroll_course.save();
+
+
+        if (resp.detail_package_order) {
+            resp.detail_package_order.courses_package_id.map(async (resp2) => {
+                const Enroll_course = new enroll_course({ enroll_date: fecha, status_enroll: 'empezar', courseId: resp2, userId: id })
+                await Enroll_course.save();
+            })
+
+        } else {
+            const Enroll_course = new enroll_course({ enroll_date: fecha, status_enroll: 'empezar', courseId: resp.courseId, userId: id })
+            await Enroll_course.save();
+        }
+
+
     })
 
     await Car.destroy({
@@ -172,7 +230,7 @@ const CaptureOrder = async (req, res = response) => {
 
 
 
-    res.redirect("http://localhost:4200/order-completed");
+    res.redirect("https://cursos-production.up.railway.app/order-completed");
     // res.redirect("https://de-una-aprende.herokuapp.com/order-completed");
 
 }
@@ -189,7 +247,7 @@ const CancelOrder = async (req, res = response) => {
     await Order.destroy();
 
     // res.redirect("http://localhost:4200");
-    res.redirect("https://de-una-aprende.herokuapp.com");
+    res.redirect("https://cursos-production.up.railway.app");
 
 }
 
@@ -217,19 +275,54 @@ const SaveOrder = async (req, res = response) => {
 
     await Order.save();
 
+
+    console.log('------------------------');
+
+    let x = [];
+
+    console.log(curso)
+
     // console.log(buyer_name);
     // console.log(req.body);
 
+
     curso.map(async (resp) => {
 
-        const Order_Details = new order_details({ total_order_details: resp.unit_amount.value, orderId: Order.id, courseId: resp.courseId })
+        if (resp.pack.courses) {
 
-        await Order_Details.save();
+            const Order_Details = new order_details({ total_order_details: resp.pack.price, orderId: Order.id, detailPackageOrderId: resp.pack.id })
+            await Order_Details.save();
+
+            resp.pack.courses.map(async (resp2) => {
+                // console.log(resp2);
+                console.log(resp2.id);
+                const Enroll_course = new enroll_course({ enroll_date: fecha, status_enroll: 'empezar', courseId: resp2.id, userId: id })
+                await Enroll_course.save();
+            })
+
+        } else {
+            const Order_Details = new order_details({ total_order_details: resp.unit_amount.value, orderId: Order.id, courseId: resp.courseId })
 
 
-        const Enroll_course = new enroll_course({ enroll_date: fecha, status_enroll: 'empezar', courseId: resp.courseId, userId: id })
-        await Enroll_course.save();
+            await Order_Details.save();
+
+            const Enroll_course = new enroll_course({ enroll_date: fecha, status_enroll: 'empezar', courseId: resp.courseId, userId: id })
+            await Enroll_course.save();
+        }
+
+
+        // const Order_Details = new order_details({ total_order_details: resp.unit_amount.value, orderId: Order.id, courseId: resp.courseId })
+
+        // await Order_Details.save();
+
+
+        // const Enroll_course = new enroll_course({ enroll_date: fecha, status_enroll: 'empezar', courseId: resp.courseId, userId: id })
+        // await Enroll_course.save();
     })
+
+
+
+
 
 
 
@@ -260,16 +353,52 @@ const payDeposit = async (req, res = response) => {
 
     await Order.save();
 
-    curso.map(async (resp) => {
 
-        const Order_Details = new order_details({ total_order_details: resp.unit_amount.value, orderId: Order.id, courseId: resp.courseId })
+    console.log('------------------------');
+    // console.log(buyer_name);
+    // console.log(req.body);
 
-        await Order_Details.save();
+    // curso.map(async (resp) => {
+
+
+        // const Order_Details = new order_details({ total_order_details: resp.unit_amount.value, orderId: Order.id, courseId: resp.courseId })
+
+        // await Order_Details.save();
 
 
         // const Enroll_course = new enroll_course({ enroll_date: fecha, status_enroll: 'empezar', courseId: resp.courseId, userId: id })
         // await Enroll_course.save();
+    // })
+
+    
+    curso.map(async (resp) => {
+
+        if (resp.pack.courses) {
+
+            const Order_Details = new order_details({ total_order_details: resp.pack.price, orderId: Order.id, detailPackageOrderId: resp.pack.id })
+            await Order_Details.save();
+
+            // resp.pack.courses.map(async (resp2) => {
+            //     // console.log(resp2);
+            //     console.log(resp2.id);
+            //     const Enroll_course = new enroll_course({ enroll_date: fecha, status_enroll: 'empezar', courseId: resp2.id, userId: id })
+            //     await Enroll_course.save();
+            // })
+
+        } else {
+            const Order_Details = new order_details({ total_order_details: resp.unit_amount.value, orderId: Order.id, courseId: resp.courseId })
+
+
+            await Order_Details.save();
+
+            // const Enroll_course = new enroll_course({ enroll_date: fecha, status_enroll: 'empezar', courseId: resp.courseId, userId: id })
+            // await Enroll_course.save();
+        }
+
+
+
     })
+
 
     await Car.destroy({
         where: {
@@ -404,7 +533,7 @@ const getCar = async (req, res = response) => {
             },
             {
                 model: detail_package,
-                attributes:['id','courses_package_id'],
+                attributes: ['id', 'courses_package_id'],
                 // attributes:['id', 
                 // [
                 //     sequelize.literal(
@@ -413,9 +542,9 @@ const getCar = async (req, res = response) => {
                 //     "tasks",
                 //   ]
                 // ],
-                include:{
-                    model:package,
-                    attributes:['id','cant_course','price_package'],
+                include: {
+                    model: package,
+                    attributes: ['id', 'cant_course', 'price_package'],
                 }
             }
         ]
@@ -423,42 +552,45 @@ const getCar = async (req, res = response) => {
 
 
     let cursos = [];
-    let carShopping=[];
-    Carshopping.map((resp,index)=>{
-        if(resp.detail_package_order){
+    let carShopping = [];
+    Carshopping.map((resp, index) => {
+        if (resp.detail_package_order) {
             cursos.push({
-                "pos":index,
-                "cursosIds":resp.detail_package_order.courses_package_id
+                "pos": index,
+                "cursosIds": resp.detail_package_order.courses_package_id
             })
         }
     })
-   
+
+    console.log('🎈🎈🎈');
+    console.log(cursos);
+
 
     for (let index = 0; index < cursos.length; index++) {
-        const {cursosIds,pos} = cursos[index];
+        const { cursosIds, pos } = cursos[index];
 
         let courses = await Course.findAll({
             where: {
-              id: {
-                [Op.in]: cursosIds,
-              },
-            },  
-            attributes: { exclude: ['id', 'uri_folder', 'createdAt', 'updatedAt', 'objectives', 'learning', 'link_presentation', 'mode', 'state', 'subcategoryId', 'userId', 'description', 'languaje'] },
+                id: {
+                    [Op.in]: cursosIds,
+                },
+            },
+            attributes: { exclude: ['uri_folder', 'createdAt', 'updatedAt', 'objectives', 'learning', 'link_presentation', 'mode', 'state', 'subcategoryId', 'userId', 'description', 'languaje'] },
+            include: {
+                model: User,
+                attributes: { exclude: ['id', 'password', 'updatedAt', 'createdAt', 'email', 'is_active', 'google', 'profileId'] },
                 include: {
-                    model: User,
-                    attributes: { exclude: ['id', 'password', 'updatedAt', 'createdAt', 'email', 'is_active', 'google', 'profileId'] },
-                    include: {
-                        model: Profile,
-                        attributes: { exclude: ['id', 'updatedAt', 'createdAt', 'userTypeId', 'ubicationId', 'userDetailId', 'education', 'phone', 'aboutMe', 'profession', 'gender', 'edad'] },
-                    }
+                    model: Profile,
+                    attributes: { exclude: ['id', 'updatedAt', 'createdAt', 'userTypeId', 'ubicationId', 'userDetailId', 'education', 'phone', 'aboutMe', 'profession', 'gender', 'edad'] },
                 }
-          });
-          console.log('🎈');
-          Carshopping[pos].detail_package_order.courses_package_id=courses;
+            }
+        });
+        console.log('🎈');
+        Carshopping[pos].detail_package_order.courses_package_id = courses;
         //   Carshopping.detail_package_order[pos].prueba=courses;
 
 
-          
+
     }
 
 
@@ -477,7 +609,7 @@ const deleteCar = async (req, res = response) => {
             //     { userId: id },
             //     { courseId: idch }
             // ]
-            id:idch
+            id: idch
         }
     });
 
@@ -613,90 +745,90 @@ const deleteallcar = async (req, res = response) => {
 }
 
 
-const getPackage = async (req,res=response)=>{
+const getPackage = async (req, res = response) => {
 
     const packageCourse = await package.findAll();
     res.json(packageCourse);
 
 }
 
-const getCoursesInPackage = async (req,res=response)=>{
-    const{id} = req.params;
+const getCoursesInPackage = async (req, res = response) => {
+    const { id } = req.params;
     const packageCourse = await package.findOne({
-        where:{
+        where: {
             id
         },
-        include:{
+        include: {
             model: Course, as: 'packageToCourse',
-            attributes:["title","description","image_course","id","updatedAt"],
+            attributes: ["title", "description", "image_course", "id", "updatedAt"],
             include:
-            [
-                {
-                    model: User,
-                    attributes: {
-                      exclude: [
-                        "id",
-                        "password",
-                        "updatedAt",
-                        "createdAt",
-                        "email",
-                        "is_active",
-                        "google",
-                        "profileId",
-                      ],
+                [
+                    {
+                        model: User,
+                        attributes: {
+                            exclude: [
+                                "id",
+                                "password",
+                                "updatedAt",
+                                "createdAt",
+                                "email",
+                                "is_active",
+                                "google",
+                                "profileId",
+                            ],
+                        },
+                        include: {
+                            model: Profile,
+                            attributes: {
+                                exclude: [
+                                    "id",
+                                    "updatedAt",
+                                    "createdAt",
+                                    "userTypeId",
+                                    "ubicationId",
+                                    "userDetailId",
+                                    "education",
+                                    "phone",
+                                    "aboutMe",
+                                    "profession",
+                                    "gender",
+                                    "edad",
+                                ],
+                            },
+                        },
                     },
-                    include: {
-                      model: Profile,
-                      attributes: {
-                        exclude: [
-                          "id",
-                          "updatedAt",
-                          "createdAt",
-                          "userTypeId",
-                          "ubicationId",
-                          "userDetailId",
-                          "education",
-                          "phone",
-                          "aboutMe",
-                          "profession",
-                          "gender",
-                          "edad",
-                        ],
-                      },
+                    {
+                        model: Subcategory,
+                        attributes: {
+                            exclude: ["updatedAt", "createdAt", "categoryId", "name_subcategory"],
+                        },
+                        include: {
+                            model: Category,
+                            attributes: { exclude: ["id", "updatedAt", "createdAt"] },
+                        },
                     },
-                  },
-                  {
-                    model: Subcategory,
-                    attributes: {
-                      exclude: ["updatedAt", "createdAt", "categoryId", "name_subcategory"],
-                    },
-                    include: {
-                      model: Category,
-                      attributes: { exclude: ["id", "updatedAt", "createdAt"] },
-                    },
-                  },
-            ]
+                ]
             // {
             //     model:User,
             //     attributes:["name"]
             // }
         }
     });
-    res.json({packageCourse});
+    res.json({ packageCourse });
 
 }
 
 
-const buyPackage =async (req,res=response)=>{
-    const{courses_package_id,packageCourseId} = req.body;
+const buyPackage = async (req, res = response) => {
+    const { courses_package_id, packageCourseId } = req.body;
     const { id } = req.usuario;
     console.log(courses_package_id);
-    const details_package = new detail_package({courses_package_id,packageCourseId })
+    const details_package = new detail_package({ courses_package_id, packageCourseId })
     await details_package.save();
 
-    const Carshopping = new Car({ userId: id, detailPackageOrderId: details_package.id});
+    const Carshopping = new Car({ userId: id, detailPackageOrderId: details_package.id });
     await Carshopping.save();
-    
+
     res.json(details_package);
 
 }

@@ -36,6 +36,7 @@ const Task = db.task;
 const enroll_course = db.enroll_course;
 const quizzes = db.quiz;
 const questions = db.question;
+const order_details = db.order_details;
 const options = db.option;
 const courseReviews = db.courseReview;
 const contentTracking = db.content_tracking;
@@ -609,7 +610,7 @@ const GeAllCourse = async (req, res = response) => {
     });
 
     let ids = [];
-    
+
     Enroll_course.map((resp) => {
       ids.push(resp.courseId);
     });
@@ -1399,6 +1400,294 @@ const Getenroll_course = async (req, res = response) => {
   res.json(Enroll_course);
 };
 
+
+
+
+const searchCourse = async (req, res = response) => {
+
+  let token = req.query.token;
+  let { categorias, idioma, modalidad , title} = JSON.parse(req.query.src);
+  // console.log(req.query);JSON.parse(req.query.src);
+  // const { categorias, idioma, modalidad } = req.query;
+
+  console.log('--------');
+  // console.log(JSON.parse(req.query.src));
+  // const { categorias, idioma, modalidad } = src;
+  console.log(title);
+
+  let name_category, languaje, mode;
+
+  // if (typeof (categorias) === 'string') {
+  //   name_category = {
+  //     [Op.iRegexp]: categorias
+  //   }
+  // } else if (typeof (categorias) === 'object') {
+  //   name_category = {
+  //     [Op.in]: categorias
+  //   }
+  // } else if (typeof (categorias) === 'undefined') {
+  //   name_category = {
+  //     [Op.not]: null
+  //   }
+  // }
+
+  if (categorias.length >=1) {
+    name_category = {
+      [Op.in]: categorias
+    }
+  } else if (categorias.length === 0) {
+    name_category = {
+      [Op.not]: null
+    }
+  }
+
+  
+  if (idioma.length >=1) {
+       languaje = {
+      [Op.in]: idioma
+    }
+  } else if (idioma.length === 0) {
+    languaje = {
+      [Op.not]: null
+    }
+  }
+  
+  if (modalidad.length >=1) {
+    mode = {
+      [Op.in]: modalidad
+    }
+  } else if (modalidad.length === 0) {
+    mode = {
+      [Op.not]: null
+    }
+  }
+
+  if(title===undefined){
+    title=''
+  }
+
+  // if (typeof (idioma) === 'string') {
+  //   languaje = {
+  //     [Op.iRegexp]: idioma
+  //   }
+  // } else if (typeof (idioma) === 'object') {
+  //   languaje = {
+  //     [Op.in]: idioma
+  //   }
+  // } else if (typeof (idioma) === 'undefined') {
+  //   languaje = {
+  //     [Op.not]: null
+  //   }
+  // }
+  // if (typeof (modalidad) === 'string') {
+  //   mode = {
+  //     [Op.iRegexp]: modalidad
+  //   }
+  // } else if (typeof (modalidad) === 'object') {
+  //   mode = {
+  //     [Op.in]: modalidad
+  //   }
+  // } else if (typeof (modalidad) === 'undefined') {
+  //   mode = {
+  //     [Op.not]: null
+  //   }
+  // }
+
+  console.log(name_category);
+  console.log(languaje);
+  console.log(mode);
+
+  if (token) {
+    const { uid } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
+
+    const Enroll_course = await enroll_course.findAll({
+      where: { userId: uid },
+      attributes: {
+        exclude: [
+          "updatedAt",
+          "createdAt",
+          "id",
+          "enroll_date",
+          "status_enroll",
+          "enroll_finish_date",
+          "userId",
+          "avg_score",
+        ],
+      },
+    });
+
+    let ids = [];
+
+    Enroll_course.map((resp) => {
+      ids.push(resp.courseId);
+    });
+    if(ids.length===0){
+      ids = [0]
+    }
+    console.log(ids.length);
+    // state: "publicado", [Op.not]: [{ id: ids }]
+    const curso = await Course.findAll({
+      where: [
+        { state: 'publicado' },
+        { mode: mode },
+        { languaje: languaje }, 
+        {[Op.not]: [{ id: ids }]},
+        {title:{
+          [Op.iRegexp]: title
+        }}
+      ],
+      attributes: { exclude: ["updatedAt", "createdAt", "subcategoryId"] },
+      include: [
+        {
+          model: User,
+          attributes: {
+            exclude: [
+              "id",
+              "password",
+              "updatedAt",
+              "createdAt",
+              "email",
+              "is_active",
+              "google",
+              "profileId",
+            ],
+          },
+          include: {
+            model: Profile,
+            attributes: {
+              exclude: [
+                "id",
+                "updatedAt",
+                "createdAt",
+                "userTypeId",
+                "ubicationId",
+                "userDetailId",
+                "education",
+                "phone",
+                "aboutMe",
+                "profession",
+                "gender",
+                "edad",
+              ],
+            },
+          },
+        },
+        {
+          model: Subcategory,
+          required: true,
+          attributes: {
+            exclude: [
+              "updatedAt",
+              "createdAt",
+              "categoryId",
+              "name_subcategory",
+            ],
+          },
+          include: {
+            model: Category,
+            attributes: { exclude: ["id", "updatedAt", "createdAt"] },
+            where: {
+              name_category: name_category
+            }
+          },
+        },
+        // {
+        //   model: enroll_course,
+        //   where: { userId: id },
+        //   attributes: { 
+        //     exclude: ["createdAt", "updatedAt"] 
+        //   },
+        //   // required: true,
+        // },
+      ],
+    });
+  
+    res.json({curso});
+  }else{
+    const curso = await Course.findAll({
+      where: [
+        { state: 'publicado' },
+        { mode: mode },
+        { languaje: languaje },
+        {title:{
+          [Op.iRegexp]: title
+        }}
+      ],
+      attributes: { exclude: ["updatedAt", "createdAt", "subcategoryId"] },
+      include: [
+        {
+          model: User,
+          attributes: {
+            exclude: [
+              "id",
+              "password",
+              "updatedAt",
+              "createdAt",
+              "email",
+              "is_active",
+              "google",
+              "profileId",
+            ],
+          },
+          include: {
+            model: Profile,
+            attributes: {
+              exclude: [
+                "id",
+                "updatedAt",
+                "createdAt",
+                "userTypeId",
+                "ubicationId",
+                "userDetailId",
+                "education",
+                "phone",
+                "aboutMe",
+                "profession",
+                "gender",
+                "edad",
+              ],
+            },
+          },
+        },
+        {
+          model: Subcategory,
+          required: true,
+          attributes: {
+            exclude: [
+              "updatedAt",
+              "createdAt",
+              "categoryId",
+              "name_subcategory",
+            ],
+          },
+          include: {
+            model: Category,
+            attributes: { exclude: ["id", "updatedAt", "createdAt"] },
+            where: {
+              name_category: name_category
+            }
+          },
+        },
+        // {
+        //   model: enroll_course,
+        //   where: { userId: id },
+        //   attributes: { 
+        //     exclude: ["createdAt", "updatedAt"] 
+        //   },
+        //   // required: true,
+        // },
+      ],
+    });
+  
+    res.json({curso});
+  }
+  
+
+  
+
+}
+
+
 const checkWeightActivity = async (req, res = response) => {
   const { idc } = req.params;
   const weight = req.query.weight;
@@ -1493,7 +1782,7 @@ const putCourseReview = async (req, res = response) => {
   } catch (error) {
     console.log(error);
   }
-  
+
 
 
 };
@@ -1504,7 +1793,7 @@ const getCourseReview = async (req, res = response) => {
     const idU = req.query.idU;
     let reviews;
     let stars;
-    if(idU == undefined){
+    if (idU == undefined) {
       reviews = await courseReviews.findAll({
         where: {
         	courseId: idC,
@@ -1538,7 +1827,7 @@ const getCourseReview = async (req, res = response) => {
           },
         ],
       });
-      
+
       stars = await courseReviews.findAll({
         attributes: [
           'courseStars',
@@ -1550,12 +1839,12 @@ const getCourseReview = async (req, res = response) => {
             [Op.not]: null,
           }
         },
-        group:[
+        group: [
           'courseStars'
         ]
       });
-      
-    }else{
+
+    } else {
       reviews = await courseReviews.findAll({
         where: {
           courseId: idC,
@@ -1591,8 +1880,8 @@ const getCourseReview = async (req, res = response) => {
         ],
       });
     }
-    res.json({reviews, stars});
-  } catch (error) {}
+    res.json({ reviews, stars });
+  } catch (error) { }
 };
 
 const instructorSummaryCoursesReviews = async (req, res = response) => {
@@ -1696,5 +1985,8 @@ module.exports = {
   putCourseReview,
   getCourseReview,
   instructorSummaryCoursesReviews,
-  verifyIfUserIsEnrollment
+  verifyIfUserIsEnrollment,
+  searchCourse,
+  instructorSummaryCoursesReviews
+
 };

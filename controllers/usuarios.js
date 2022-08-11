@@ -828,9 +828,7 @@ const usuariosPassword = async (req, res = response) => {
     const validarPassword = bcrypts.compareSync(password, usuario.password);
 
     if (!validarPassword) {
-        return res.status(400).json({
-            msg: `El passsword esta mal : ${password}`
-        })
+        return res.json(true)
     }
 
     const salt = bcrypts.genSaltSync();
@@ -839,7 +837,7 @@ const usuariosPassword = async (req, res = response) => {
     await usuario.update({ password: passwordnews });
 
     res.json({
-        msg: `Password Actualizado : ${passwordnews}`
+        msg: `Password Actualizado`
     })
 
 }

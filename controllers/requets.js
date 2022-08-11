@@ -90,6 +90,37 @@ const SolicitudInstructor = async (req, res = response) => {
 
 }
 
+const getRequestInstructor = async (req, res = response) => {
+
+    
+    const { id } = req.usuario;
+
+    // const usuario = await User.findByPk(id);
+
+    const ver = await Request.findOne({
+        where: {
+            [Op.and]: [
+                { profileId: id },
+                { state: 'pendiente' }
+            ]
+        }
+    })
+
+    if (ver) {
+
+        res.status(200).json(true)
+
+    } else {
+
+        res.status(200).json(false)
+    }
+
+
+
+}
+
+
+
 const getSolicitudInstructor = async (req, res = response) => {
 
     const desde = Number(req.query.desde) || 0;
@@ -328,5 +359,6 @@ module.exports = {
     denegarSolicitudInstructor,
     cantidadSolicitudesInstructor,
     aceptarSolicitudCurso,
-    denegarSolicitudCurso
+    denegarSolicitudCurso,
+    getRequestInstructor
 }
