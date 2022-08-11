@@ -17,6 +17,7 @@ const {
 } = require("../helpers/vimeo");
 const sequelize = require("sequelize");
 const { createFolderDrive, updateTitleFile } = require("../helpers/drive");
+const user = require("../models/user");
 
 const Request = db.requestI;
 const RequestC = db.requestC;
@@ -50,6 +51,9 @@ const PostCourse = async (req, res = response) => {
   const state = "proceso";
   const userId = id;
   const remark = [];
+
+  let f = new Date();
+  let fecha = f.getDate() + "/" + (f.getMonth() + 1) + "/" + f.getFullYear();
 
   // const subcategory = await Subcategory.findOne({
   //     where: {name_subcategory}
@@ -87,10 +91,14 @@ const PostCourse = async (req, res = response) => {
         ],
       });
 
+      const Enroll_course = new enroll_course({ enroll_date: fecha, status_enroll: 'owner', courseId: course.id, userId: userId })
+      await Enroll_course.save();
+
       res.json({
         requC,
       });
     });
+
     // curso.update({ title, description, objectives, image_course, link_presentation, mode, state, price, userId, subcategoryId, languaje, learning, uri_folder, description_large });
     // return res.json({
     //     curso
@@ -1635,6 +1643,24 @@ const instructorSummaryCoursesReviews = async (req, res = response) => {
 	res.json({reviews});
 }
 
+const verifyIfUserIsEnrollment = async (req, res = response) => {
+  const { idC } = req.params;
+  const { id } = req.usuario
+
+  const userEnroll = await enroll_course.findOne({
+    where: {
+      userId: id,
+      courseId: idC
+    }
+  });
+  
+  if(userEnroll){
+    res.json(true);
+  }else
+    res.json(false);
+
+}
+
 module.exports = {
   PostCourse,
   PostChapter,
@@ -1669,5 +1695,6 @@ module.exports = {
   postCourseReview,
   putCourseReview,
   getCourseReview,
-  instructorSummaryCoursesReviews
+  instructorSummaryCoursesReviews,
+  verifyIfUserIsEnrollment
 };

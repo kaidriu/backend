@@ -83,42 +83,54 @@ const GetEnroll = async (req, res = response) => {
 
     const { idC } = req.params;
     const { id } = req.usuario;
-
-    const Enroll_course = await enroll_course.findOne({
-        where: {
-            [Op.and]: [{
-                userId: id
-            },
-            {
-                courseId: idC
-            }
-            ]
-        }
-    });
-
-    let chapter = await Chapter.findOne({
-        attributes:[
-            [sequelize.fn('min', sequelize.col('chapter.number_chapter')), 'number_chapter']
-        ],
-        where:{
-            courseId: idC,
-        },
-        include: {
-            model:Topic,
-            limit:1,
-            attributes:[
-                'id',
-                'number_topic',
-            ],
-            order:[['number_topic', 'ASC']],
-        },
-        order:[[sequelize.col('chapter.number_chapter'), 'ASC']],
-        group:[sequelize.col('chapter.id')]
-    })
-
-    Enroll_course.dataValues['firsTopicId'] = chapter.topics[0].id
     
-    res.json(Enroll_course);
+    try {
+
+        const Enroll_course = await enroll_course.findOne({
+            where: {
+                [Op.and]: [{
+                    userId: id
+                },
+                {
+                    courseId: idC
+                }
+                ]
+            }
+        });
+    
+        let chapter = await Chapter.findOne({
+            attributes:[
+                [sequelize.fn('min', sequelize.col('chapter.number_chapter')), 'number_chapter']
+            ],
+            where:{
+                courseId: idC,
+            },
+            include: {
+                model:Topic,
+                limit:1,
+                attributes:[
+                    'id',
+                    'number_topic',
+                ],
+                order:[['number_topic', 'ASC']],
+            },
+            order:[[sequelize.col('chapter.number_chapter'), 'ASC']],
+            group:[sequelize.col('chapter.id')]
+        })
+
+        if(Enroll_course){
+            Enroll_course.dataValues['firsTopicId'] = chapter.topics[0].id
+            res.json(Enroll_course);
+        }else{
+            res.json({
+                msg: false
+            })
+        }  
+    } catch (error) {
+        res.status(400).send(error);
+    }
+
+    
 }
 
 

@@ -411,7 +411,7 @@ const getHistoryPaymentsInstructor = async (req, res = response) => {
       where: { userId: idU }
   });
 
-  res.json(history);
+  res.json({history});
 }
 
 
