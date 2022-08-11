@@ -18,6 +18,10 @@ const category = db.category;
 const instructorPaymentHistory = db.history_payment_inst
 const enroll_course = db.enroll_course;
 const detail_package = db.detail_package_order;
+const detailPackageOrders = db.detail_package_order;
+const packageCourse = db.packageCourse;
+
+
 const HistoryPayments = async (req, res = response) => {
   const OrderDetails = await orderDetails.findAll({
     attributes: {
@@ -47,7 +51,10 @@ const HistoryPayments = async (req, res = response) => {
 
   res.json(OrderDetails);
 };
-
+/**
+ * Revisar si se cuenta el valor de los cursos dentro de paquetes
+ * 
+ */
 const historyOrders = async (req, res = response) => {
   const _orders = await orders.findAll({
     attributes: ["id", "userId", "total_order", "updatedAt"],
@@ -75,10 +82,28 @@ const historyOrders = async (req, res = response) => {
             "commissionId",
           ],
         },
-        include: {
-          model: courses,
-          attributes: ["id", "title"],
-        },
+        include: [
+          {
+            model: courses,
+            attributes: ["id", "title"],
+          },
+          /* {
+            model: detailPackageOrders,
+              include:{
+                model: packageCourse,
+                include:{
+                  model: courses,
+                  as: 'packageToCourse',
+                  attributes: [
+                    "title",
+                    "createdAt",
+                    "id",
+                    "image_course",
+                  ] 
+                }
+              }
+			    } */
+		    ],
       },
       {
         model: user,
@@ -207,6 +232,7 @@ const historialCommissionsGraphic = async (req, res = response) => {
       },
       {
         model: commission,
+        required: true,
         attributes: ["DistributionMode", "Percent"],
       },
     ],
@@ -375,56 +401,95 @@ const summaryNoPaymentInstructor = async (req, res = response) => {
 const detailOrdersNoPaymentByCurso = async (req, res = response) => {
   const { idC } = req.params;
 
-  const OrderDetails = await orderDetails.findAll({
-    attributes: [
-      'id', 'discount_order_details', 'createdAt', 'total_order_details', 'discountCode_order_details',
-      'discountPercentage_order_details', 'accredited'
-    ],
-    where: {
-      courseId: idC,
-      accredited: false
-    },
-    include: [
-      {
-        model: orders,
-        where: { payment_status: 'pagado' },
-        attributes: ['discount'],
-        include: [
-          {
-            model: user,
-            attributes: ['name', 'id', 'email'],
-            include: {
-              model: profile,
-              attributes: ['image_perfil'],
-            }
-          },
-          {
-            model: payment_method,
-            attributes: ['payment_method'],
-          }
-        ]
-      },
-      {
-        model: commission,
-        attributes: ['Percent', 'DistributionMode']
-      }
-    ],
+	const OrderDetails = await orderDetails.findAll({
+		attributes: [
+			'id','discount_order_details', 'createdAt', 'total_order_details', 'discountCode_order_details',
+			'discountPercentage_order_details', 'accredited'
+		],
+		where: {
+			courseId: idC,
+			accredited: false
+		},
+		include: [
+			{
+				model: orders,
+				where: { payment_status: 'pagado' },
+				attributes: ['discount'],
+				include: [
+					{
+						model: user,
+						attributes: ['name', 'id', 'email'],
+						include: {
+							model: profile,
+							attributes: ['image_perfil'],
+						}
+					},
+					{
+						model: payment_method,
+						attributes: ['payment_method'],
+					}
+				]
+			},
+			{
+				model: commission,
+				attributes: ['Percent', 'DistributionMode']
+			}
+		],
+	});
+	res.json({OrderDetails})
+};
+
+const getHistoryPaymentsInstructor = async (req, res = response) => {
+
+  const { idU } = req.params;
+
+  const history = await instructorPaymentHistory.findAll({
+      // attributes: { exclude: [ "aboutMe", "linkCurriculum", "linkYT", "linkfb", "linkTW", "createdAt", "updatedAt", "linkIG"] },
+      where: { userId: idU }
   });
-  res.json({ OrderDetails })
+
+  res.json(history);
 }
 
+
 const payInstructor = async (req, res = response) => {
+  
+  const { userId, payment_method, entity, count_payment, total_instructor_payment_history} = req.body;
+	let {orderDetailsIds} = req.body;
+  	
+	if(typeof(orderDetailsIds)!=='object')
+		orderDetailsIds = [orderDetailsIds];
 
-  const { idU, entity, count_payment, orderDetailsIds } = req.body;
+	orderDetailsIds.map((str)=>{
+		str = parseInt(str);;
+	});
 
-  const _instructorPaymentHistory = new instructorPaymentHistory({
-    userId: idU,
-    entity,
-    count_payment,
-    orderDetailsIds
-  });
+	console.log(orderDetailsIds);
+
+	const _instructorPaymentHistory = new instructorPaymentHistory({
+		userId,
+		payment_method,
+		entity,
+		count_payment,
+		ordersDetailsIds: orderDetailsIds,
+		total_instructor_payment_history
+	});
+
+	
+
+  await Promise.all([
+	_instructorPaymentHistory.save(),
+	orderDetails.update(
+		{accredited: true},
+		{where: {
+			id: {
+				[Op.in]: orderDetailsIds,
+			  },
+		}})
+  ]);
 
   res.json(_instructorPaymentHistory);
+
 }
 
 module.exports = {
@@ -439,5 +504,6 @@ module.exports = {
   summaryCoursesNoPayment,
   summaryNoPaymentInstructor,
   detailOrdersNoPaymentByCurso,
-  payInstructor
+  payInstructor,
+  getHistoryPaymentsInstructor
 };

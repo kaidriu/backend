@@ -20,7 +20,8 @@ const {
     summaryCoursesNoPayment,
     summaryNoPaymentInstructor,
     detailOrdersNoPaymentByCurso,
-    payInstructor} = require('../controllers/Apayments');
+    payInstructor,
+    getHistoryPaymentsInstructor} = require('../controllers/Apayments');
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJWT } = require('../middlewares/validar-JWT');
 
@@ -64,6 +65,9 @@ router.get('/payments/summaryCoursesNoPaymentsByUserId/:idU',[validarJWT,validar
 router.get('/payments/summaryInstructorsNoPayments',[validarJWT,validarCampos],summaryNoPaymentInstructor)
 router.get('/payments/detailOrdersNoPaymentsByCourseId/:idC',[validarJWT,validarCampos],detailOrdersNoPaymentByCurso)
 router.post('/payments/payInstructor',[validarJWT,validarCampos],payInstructor)
+//Historial de Pagos
+router.get('/payments/historyPayments/:idU',[validarJWT,validarCampos],getHistoryPaymentsInstructor)
+
 
 
 

@@ -2,6 +2,7 @@ const { response } = require("express");
 
 const db = require("../database/db");
 const { Op } = require("sequelize");
+const { sequelize } = require("../database/db");
 
 const User = db.user;
 
@@ -117,18 +118,20 @@ const getPackages = async (req, res=response) => {
           }
       ]
   });
-  res.json({Packages}); 
+
+  res.json({Packages});
 }
 
 const postPackages = async (req, res=response) => {
 
   try {
-      const { cant_course, price_package, percents_package} = req.body;
+      const { cant_course, title_package, price_package, percents_package=0} = req.body;
       
-      if(cant_course > 1){
+      if(cant_course >= 2){
         const Packages = new packages({
           cant_course,
           price_package,
+          title_package,
           percents_package
         });
 
@@ -140,7 +143,7 @@ const postPackages = async (req, res=response) => {
   } catch (error) {
       res.status(400).send(error)
   }
-
+  
 }
 
 const putPackages = async (req, res=response) => {
