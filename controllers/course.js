@@ -126,20 +126,20 @@ const PutCourse = async (req, res = response) => {
   if (learning) {
 
     learning = learning.split(",");
-  }else{
-    learning=null;
+  } else {
+    learning = null;
   }
 
   if (objectives) {
     objectives = objectives.split(",");
-  }else{
-    objectives=null;
+  } else {
+    objectives = null;
   }
   if (labels) {
     console.log('🎎');
     labels = labels.split(",");
-  }else{
-    labels=null;
+  } else {
+    labels = null;
   }
 
 
@@ -204,7 +204,7 @@ const PutCourse = async (req, res = response) => {
   } else {
     console.log('sadasdasd');
     curso.update({
-      objectives,labels,learning,description_large, title, description, image_course, link_presentation, mode, state, price, userId, subcategoryId, languaje, uri_folder, enrollmentDataInitial, enrollmentTimeInitial, enrollmentDataFinal, enrollmentTimeFinal, courseDataInitial, courseTimeInitial, courseDataFinal, courseTimeFinal, linkCourse, discountCode, percentageDiscount
+      objectives, labels, learning, description_large, title, description, image_course, link_presentation, mode, state, price, userId, subcategoryId, languaje, uri_folder, enrollmentDataInitial, enrollmentTimeInitial, enrollmentDataFinal, enrollmentTimeFinal, courseDataInitial, courseTimeInitial, courseDataFinal, courseTimeFinal, linkCourse, discountCode, percentageDiscount
     });
     return res.json({
       curso,
@@ -620,11 +620,11 @@ const GeAllCourse = async (req, res = response) => {
       res.json({ curso });
     } else {
       const curso = await Course.findAll({
-        where: { 
-          state: "publicado", 
-        // [Op.not]: [{ id: ids }] 
-      
-      },
+        where: {
+          state: "publicado",
+          // [Op.not]: [{ id: ids }] 
+
+        },
         attributes: { exclude: ["updatedAt", "createdAt", "subcategoryId"] },
         include: [
           {
@@ -679,15 +679,26 @@ const GeAllCourse = async (req, res = response) => {
         ],
       });
 
-      curso.map(resp=>{
-        console.log(ids);
-        console.log(resp.id);
-        if((ids.includes(resp.id))){
-          console.log('🧥')
-          resp.comprado=true;
+      // curso.map(resp=>{
+      //   console.log(ids);
+      //   console.log(resp.id);
+      //   if((ids.includes(resp.id))){
+      //     console.log('🧥')
+      //     resp.state_cart=true;
+      //     resp.lol=true;
+      //     console.log(resp.lol);
+      //   }
+
+      // })
+
+      for (let index = 0; index < curso.length; index++) {
+        
+        if ((ids.includes(curso[index].id))) {
+          curso[index].dataValues.bought = true;
         }
-        console.log(resp);
-      })
+
+      }
+
       console.log(curso)
       res.json({ curso });
     }
@@ -747,6 +758,9 @@ const GeAllCourse = async (req, res = response) => {
         },
       ],
     });
+
+
+
     res.json({ curso });
   }
 };
