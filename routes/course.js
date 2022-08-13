@@ -31,7 +31,7 @@ router.get('/getmycourseswithcountstudents',[validarJWT,validarCampos],myCourses
 router.delete('/deletecourse/:idc',deleteCourse);
 
 
-router.get('/mypurchasedcourses',[validarJWT,validarCampos],getMyPurchasedcourses)
+router.get('/mypurchasedcourses', [validarJWT,validarCampos], getMyPurchasedcourses)
     
 
 

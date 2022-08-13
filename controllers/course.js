@@ -82,8 +82,8 @@ const PostCourse = async (req, res = response) => {
       await course.save();
 
       const requC = await Course.findOne({
-        where: {
-          id: course.id
+        where: { 
+          id: course.id 
         },
         include: [
           {
@@ -108,9 +108,32 @@ const PostCourse = async (req, res = response) => {
 };
 
 const PutCourse = async (req, res = response) => {
-  let { title, description, objectives, link_presentation, mode, precio, subcategoryId, learning, languaje, description_large, enrollmentDataInitial, enrollmentTimeInitial, enrollmentDataFinal, enrollmentTimeFinal, courseDataInitial, courseTimeInitial, courseDataFinal, courseTimeFinal, linkCourse, discountCode, percentageDiscount, labels, } = req.body;
-  console.log('🎈');
-  console.log(req.body)
+  let {
+    title,
+    description,
+    objectives,
+    link_presentation,
+    mode,
+    precio,
+    subcategoryId,
+    learning,
+    languaje,
+    description_large,
+    enrollmentDataInitial,
+    enrollmentTimeInitial,
+    enrollmentDataFinal,
+    enrollmentTimeFinal,
+    courseDataInitial,
+    courseTimeInitial,
+    courseDataFinal,
+    courseTimeFinal,
+    linkCourse,
+    discountCode,
+    percentageDiscount,
+    labels,
+  } = req.body;
+
+
   if (mode == "autoaprendizaje") {
     enrollmentDataInitial = null;
     enrollmentTimeInitial = null;
@@ -124,7 +147,6 @@ const PutCourse = async (req, res = response) => {
   }
 
   if (learning) {
-
     learning = learning.split(",");
   } else {
     learning = null;
@@ -136,16 +158,10 @@ const PutCourse = async (req, res = response) => {
     objectives = null;
   }
   if (labels) {
-    console.log('🎎');
     labels = labels.split(",");
   } else {
     labels = null;
   }
-
-
-  console.log(learning)
-  console.log(objectives)
-  console.log(labels)
 
   let price = parseFloat(precio);
   percentageDiscount = parseFloat(percentageDiscount);
@@ -163,10 +179,8 @@ const PutCourse = async (req, res = response) => {
   });
 
   if (!req.files || Object.keys(req.files).length === 0 || !req.files.image) {
-    console.log('🥼')
     image_course = curso.image_course;
   } else {
-    console.log('asadad');
     //borrar antigua foto
     const nombreArr = curso.image_course.split("/");
     const nombre = nombreArr[nombreArr.length - 1];
@@ -189,12 +203,36 @@ const PutCourse = async (req, res = response) => {
   let uri_folder = curso.uri_folder;
 
   if (curso.title != title) {
-    console.log('🎟')
     modifyFolder(uri_folder, title).then(() => {
       updateTitleFile(curso.id_drive, title).then(() => {
         uri_folder = curso.uri_folder;
         curso.update({
-          description_large, title, description, objectives, image_course, link_presentation, mode, state, price, userId, subcategoryId, languaje, learning, uri_folder, enrollmentDataInitial, enrollmentTimeInitial, enrollmentDataFinal, enrollmentTimeFinal, courseDataInitial, courseTimeInitial, courseDataFinal, courseTimeFinal, linkCourse, discountCode, percentageDiscount, labels,
+          description_large,
+          title,
+          description,
+          objectives,
+          image_course,
+          link_presentation,
+          mode,
+          state,
+          price,
+          userId,
+          subcategoryId,
+          languaje,
+          learning,
+          uri_folder,
+          enrollmentDataInitial,
+          enrollmentTimeInitial,
+          enrollmentDataFinal,
+          enrollmentTimeFinal,
+          courseDataInitial,
+          courseTimeInitial,
+          courseDataFinal,
+          courseTimeFinal,
+          linkCourse,
+          discountCode,
+          percentageDiscount,
+          labels,
         });
         return res.json({
           curso,
@@ -202,9 +240,33 @@ const PutCourse = async (req, res = response) => {
       });
     });
   } else {
-    console.log('sadasdasd');
     curso.update({
-      objectives, labels, learning, description_large, title, description, image_course, link_presentation, mode, state, price, userId, subcategoryId, languaje, uri_folder, enrollmentDataInitial, enrollmentTimeInitial, enrollmentDataFinal, enrollmentTimeFinal, courseDataInitial, courseTimeInitial, courseDataFinal, courseTimeFinal, linkCourse, discountCode, percentageDiscount
+      description_large,
+      title,
+      description,
+      objectives,
+      image_course,
+      link_presentation,
+      mode,
+      state,
+      price,
+      userId,
+      subcategoryId,
+      languaje,
+      learning,
+      uri_folder,
+      enrollmentDataInitial,
+      enrollmentTimeInitial,
+      enrollmentDataFinal,
+      enrollmentTimeFinal,
+      courseDataInitial,
+      courseTimeInitial,
+      courseDataFinal,
+      courseTimeFinal,
+      linkCourse,
+      discountCode,
+      percentageDiscount,
+      labels,
     });
     return res.json({
       curso,
@@ -308,7 +370,7 @@ const GetChapter = async (req, res = response) => {
   } catch (error) {
     res.status(400).send(error)
   }
-
+  
 };
 
 const PutChatper = async (req, res = response) => {
@@ -488,7 +550,7 @@ const GetTopic = async (req, res = response) => {
         required: true,
       },
     ],
-    order: [["number_chapter", "ASC"], [sequelize.col('topics.number_topic'), "ASC"]],
+    order: [["number_chapter", "ASC"], [ sequelize.col('topics.number_topic'),"ASC"]],
   });
 
   res.json(chapter);
@@ -768,13 +830,21 @@ const GeAllCourse = async (req, res = response) => {
 const getMyPurchasedcourses = async (req, res = response) => {
   const { id } = req.usuario;
 
-  const curso = await Course.findAll({
+  cursos = await Course.findAll({
     attributes: {
-      include: [
-        [sequelize.literal('(SELECT COUNT("topics"."id") FROM "chapters" LEFT OUTER JOIN "topics" ON "chapters"."id" = "topics"."chapterId" AND "chapters"."courseId"="course"."id")'), 'totalTopics'],
-        [sequelize.literal('(SELECT COUNT("content_trackings"."id") from "content_trackings" WHERE "content_trackings"."enrollCourseId" = "enroll_course"."id" AND "content_trackings"."state_content_tacking" IS TRUE)'), 'topicsDone']
+      include:[ 
+        [sequelize.literal(
+          `(SELECT ("topicsCourseFilter"."withTask" + "topicsCourseFilter"."withTest" + "topicsCourseFilter"."totals") as "sumTotalTopics" FROM (SELECT COUNT(*) FILTER (WHERE "tk"."id" IS NOT NULL) AS "withTask", 
+          COUNT(*) FILTER (WHERE "qz"."id" IS NOT NULL) AS "withTest", COUNT(*) AS "totals" FROM "topics" AS "tp" INNER JOIN "chapters" AS "cp" ON "tp"."chapterId" = "cp"."id" AND "cp"."courseId" = 1 
+          LEFT OUTER JOIN "tasks" AS "tk" ON "tp"."id" = "tk"."topicId" LEFT OUTER JOIN "quizzes" AS "qz" ON "tp"."id" = "qz"."topicId") AS "topicsCourseFilter")`
+          ), 'totalTopics'],
+        [sequelize.literal(
+          `(SELECT ("trackingCourseFilter"."withTest" + "trackingCourseFilter"."withTask" + "trackingCourseFilter"."viewed") AS "sumTopicsDone" FROM (SELECT COUNT(*) FILTER (WHERE "ct"."test_student" IS NOT NULL) AS "withTest", 
+            COUNT(*) FILTER (WHERE "ct"."link_task" IS NOT NULL) AS "withTask", COUNT(*) FILTER (WHERE "ct"."state_content_tacking" IS TRUE) AS "viewed" FROM "content_trackings" as "ct" WHERE "ct"."enrollCourseId" = 4) 
+            AS "trackingCourseFilter")`
+          ), 'topicsDone'],
       ],
-      exclude: []
+      exclude:[]
     },
     include: [
       {
@@ -797,7 +867,6 @@ const getMyPurchasedcourses = async (req, res = response) => {
       },
       {
         model: enroll_course,
-        // where: { userId: id },
         where: {
           [Op.and]: [
             { userId: id },
@@ -805,15 +874,17 @@ const getMyPurchasedcourses = async (req, res = response) => {
           ]
 
         },
-        attributes: {
-          exclude: ["createdAt", "updatedAt"]
+        attributes: { 
+          exclude: ["createdAt", "updatedAt"] 
         },
         required: true,
       },
     ],
-    order: [sequelize.col('enroll_course')]
+    order:[sequelize.col('enroll_course')]
   });
-  res.json({ curso });
+  
+  res.json( {cursos} );
+
 };
 
 const GetCourseid = async (req, res = response) => {
@@ -989,7 +1060,28 @@ const getAllCourseID = async (req, res = response) => {
 
   const curso = await Course.findOne({
     where: { id },
-    attributes: { exclude: ["createdAt", "updatedAt"] },
+    attributes: { 
+      include: [
+        [
+          sequelize.literal(
+            `(SELECT COUNT(*) FROM  courses WHERE courses."userId"="user".id AND courses."state"='publicado')`
+          ),
+          "cursos_totales",
+        ],
+        [
+          sequelize.literal(
+            `(SELECT COUNT(*) FROM "archives" WHERE "archives"."topicId" IN (SELECT "topics"."id" FROM "topics" WHERE "topics"."chapterId" IN (SELECT "chapters"."id" FROM "chapters" WHERE "chapters"."courseId" = "course"."id")))`
+          ),
+          "resources",
+        ],
+        [
+          sequelize.literal(
+            `(SELECT COUNT("enroll_courses"."id") FROM  "enroll_courses" WHERE "enroll_courses"."courseId"="course"."id")`
+          ),
+          "students",
+        ]
+      ],
+      exclude: ["createdAt"] },
     include: [
       {
         model: User,
@@ -1020,28 +1112,7 @@ const getAllCourseID = async (req, res = response) => {
         },
       },
     ],
-    // attributes: {
-    //     include: [[
-    //         sequelize.literal(`(SELECT COUNT(*) FROM  courses WHERE courses."userId"="user".id AND courses."state"='publicado')`), 'cursos_totales'
-    //     ]]
-    //     ,
-    //     exclude: ["createdAt", "updatedAt", "google", "is_active"]
-
-    // },
   });
-
-  // const chapter = await Chapter.findAll({
-  //     where: { courseId: curso.id },
-  //     attributes: {
-  //         include: [[
-  //             sequelize.literal(`(SELECT COUNT(*) FROM  topics where chapter."id" = "topics"."chapterId")`), 'temas_totales'
-  //         ]]
-  //         ,
-  //         exclude: ["createdAt", "updatedAt"]
-
-  //     }
-
-  // })
 
   res.json({ curso });
 };
@@ -1385,7 +1456,7 @@ const Getenroll_course = async (req, res = response) => {
 const searchCourse = async (req, res = response) => {
 
   let token = req.query.token;
-  let { categorias, idioma, modalidad, title } = JSON.parse(req.query.src);
+  let { categorias, idioma, modalidad , title} = JSON.parse(req.query.src);
   // console.log(req.query);JSON.parse(req.query.src);
   // const { categorias, idioma, modalidad } = req.query;
 
@@ -1410,7 +1481,7 @@ const searchCourse = async (req, res = response) => {
   //   }
   // }
 
-  if (categorias.length >= 1) {
+  if (categorias.length >=1) {
     name_category = {
       [Op.in]: categorias
     }
@@ -1420,9 +1491,9 @@ const searchCourse = async (req, res = response) => {
     }
   }
 
-
-  if (idioma.length >= 1) {
-    languaje = {
+  
+  if (idioma.length >=1) {
+       languaje = {
       [Op.in]: idioma
     }
   } else if (idioma.length === 0) {
@@ -1430,8 +1501,8 @@ const searchCourse = async (req, res = response) => {
       [Op.not]: null
     }
   }
-
-  if (modalidad.length >= 1) {
+  
+  if (modalidad.length >=1) {
     mode = {
       [Op.in]: modalidad
     }
@@ -1441,8 +1512,8 @@ const searchCourse = async (req, res = response) => {
     }
   }
 
-  if (title === undefined) {
-    title = ''
+  if(title===undefined){
+    title=''
   }
 
   // if (typeof (idioma) === 'string') {
@@ -1500,7 +1571,7 @@ const searchCourse = async (req, res = response) => {
     Enroll_course.map((resp) => {
       ids.push(resp.courseId);
     });
-    if (ids.length === 0) {
+    if(ids.length===0){
       ids = [0]
     }
     console.log(ids.length);
@@ -1509,13 +1580,11 @@ const searchCourse = async (req, res = response) => {
       where: [
         { state: 'publicado' },
         { mode: mode },
-        { languaje: languaje },
-        { [Op.not]: [{ id: ids }] },
-        {
-          title: {
-            [Op.iRegexp]: title
-          }
-        }
+        { languaje: languaje }, 
+        {[Op.not]: [{ id: ids }]},
+        {title:{
+          [Op.iRegexp]: title
+        }}
       ],
       attributes: { exclude: ["updatedAt", "createdAt", "subcategoryId"] },
       include: [
@@ -1582,19 +1651,17 @@ const searchCourse = async (req, res = response) => {
         // },
       ],
     });
-
-    res.json({ curso });
-  } else {
+  
+    res.json({curso});
+  }else{
     const curso = await Course.findAll({
       where: [
         { state: 'publicado' },
         { mode: mode },
         { languaje: languaje },
-        {
-          title: {
-            [Op.iRegexp]: title
-          }
-        }
+        {title:{
+          [Op.iRegexp]: title
+        }}
       ],
       attributes: { exclude: ["updatedAt", "createdAt", "subcategoryId"] },
       include: [
@@ -1661,12 +1728,12 @@ const searchCourse = async (req, res = response) => {
         // },
       ],
     });
-
-    res.json({ curso });
+  
+    res.json({curso});
   }
+  
 
-
-
+  
 
 }
 
@@ -1779,10 +1846,10 @@ const getCourseReview = async (req, res = response) => {
     if (idU == undefined) {
       reviews = await courseReviews.findAll({
         where: {
-          courseId: idC,
-          courseStars: {
-            [Op.not]: null,
-          }
+        	courseId: idC,
+        	courseStars: {
+            	[Op.not]: null,
+        	}
         },
         include: [
           {
@@ -1868,51 +1935,51 @@ const getCourseReview = async (req, res = response) => {
 };
 
 const instructorSummaryCoursesReviews = async (req, res = response) => {
-
-  const { id } = req.usuario;
+	
+	const { id } = req.usuario;
 
   const reviews = await Course.findAll({
-    attributes: ["id", "title"],
-    where: {
-      userId: id
-    },
-    include: {
-      model: courseReviews,
-      required: true,
-      where: {
-        courseStars: {
-          [Op.not]: null
-        }
-      },
-      include: [
+		attributes:["id","title"],
+		where:{
+			userId: id
+		},
+		include:{
+			model: courseReviews,
+			required:true,
+			where:{
+				courseStars:{
+					[Op.not]: null
+				}
+			},
+			include: [
         {
-          model: User,
-          attributes: ["name", "email"],
-          include: {
-            model: Profile,
-            attributes: ["image_perfil"],
-          },
-        },
-        {
-          model: courseReviews,
-          as: "Children",
-          attributes: {
-            exclude: ["courseId", "courseStars", "repliesCourseReview"],
-          },
-          include: {
-            model: User,
-            attributes: ["name", "email"],
-            include: {
-              model: Profile,
-              attributes: ["image_perfil"],
-            },
-          },
-        },
-      ],
-    }
-  });
-
-  res.json({ reviews });
+				  model: User,
+				  attributes: ["name", "email"],
+				  include: {
+					model: Profile,
+					attributes: ["image_perfil"],
+				  },
+				},
+				{
+					model: courseReviews,
+					as: "Children",
+					attributes: {
+					  exclude: ["courseId", "courseStars", "repliesCourseReview"],
+					},
+					include: {
+					  model: User,
+					  attributes: ["name", "email"],
+					  include: {
+						model: Profile,
+						attributes: ["image_perfil"],
+					  },
+					},
+				},
+			  ],
+		}
+	});
+	
+	res.json({reviews});
 }
 
 const verifyIfUserIsEnrollment = async (req, res = response) => {
@@ -1925,10 +1992,10 @@ const verifyIfUserIsEnrollment = async (req, res = response) => {
       courseId: idC
     }
   });
-
-  if (userEnroll) {
+  
+  if(userEnroll){
     res.json(true);
-  } else
+  }else
     res.json(false);
 
 }
