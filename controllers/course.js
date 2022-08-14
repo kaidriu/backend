@@ -830,21 +830,21 @@ const GeAllCourse = async (req, res = response) => {
 const getMyPurchasedcourses = async (req, res = response) => {
   const { id } = req.usuario;
 
-  cursos = await Course.findAll({
+  const curso = await Course.findAll({
     attributes: {
-      include:[ 
-        [sequelize.literal(
-          `(SELECT ("topicsCourseFilter"."withTask" + "topicsCourseFilter"."withTest" + "topicsCourseFilter"."totals") as "sumTotalTopics" FROM (SELECT COUNT(*) FILTER (WHERE "tk"."id" IS NOT NULL) AS "withTask", 
-          COUNT(*) FILTER (WHERE "qz"."id" IS NOT NULL) AS "withTest", COUNT(*) AS "totals" FROM "topics" AS "tp" INNER JOIN "chapters" AS "cp" ON "tp"."chapterId" = "cp"."id" AND "cp"."courseId" = 1 
-          LEFT OUTER JOIN "tasks" AS "tk" ON "tp"."id" = "tk"."topicId" LEFT OUTER JOIN "quizzes" AS "qz" ON "tp"."id" = "qz"."topicId") AS "topicsCourseFilter")`
-          ), 'totalTopics'],
-        [sequelize.literal(
-          `(SELECT ("trackingCourseFilter"."withTest" + "trackingCourseFilter"."withTask" + "trackingCourseFilter"."viewed") AS "sumTopicsDone" FROM (SELECT COUNT(*) FILTER (WHERE "ct"."test_student" IS NOT NULL) AS "withTest", 
-            COUNT(*) FILTER (WHERE "ct"."link_task" IS NOT NULL) AS "withTask", COUNT(*) FILTER (WHERE "ct"."state_content_tacking" IS TRUE) AS "viewed" FROM "content_trackings" as "ct" WHERE "ct"."enrollCourseId" = 4) 
-            AS "trackingCourseFilter")`
-          ), 'topicsDone'],
+      include: [
+          [sequelize.literal(
+            `(SELECT ("topicsCourseFilter"."withTask" + "topicsCourseFilter"."withTest" + "topicsCourseFilter"."totals") as "sumTotalTopics" FROM (SELECT COUNT(*) FILTER (WHERE "tk"."id" IS NOT NULL) AS "withTask", 
+            COUNT(*) FILTER (WHERE "qz"."id" IS NOT NULL) AS "withTest", COUNT(*) AS "totals" FROM "topics" AS "tp" INNER JOIN "chapters" AS "cp" ON "tp"."chapterId" = "cp"."id" AND "cp"."courseId" = "course"."id"
+            LEFT OUTER JOIN "tasks" AS "tk" ON "tp"."id" = "tk"."topicId" LEFT OUTER JOIN "quizzes" AS "qz" ON "tp"."id" = "qz"."topicId") AS "topicsCourseFilter")`
+            ), 'totalTopics'],
+          [sequelize.literal(
+            `(SELECT ("trackingCourseFilter"."withTest" + "trackingCourseFilter"."withTask" + "trackingCourseFilter"."viewed") AS "sumTopicsDone" FROM (SELECT COUNT(*) FILTER (WHERE "ct"."test_student" IS NOT NULL) AS "withTest", 
+              COUNT(*) FILTER (WHERE "ct"."link_task" IS NOT NULL) AS "withTask", COUNT(*) FILTER (WHERE "ct"."state_content_tacking" IS TRUE) AS "viewed" FROM "content_trackings" as "ct" WHERE "ct"."enrollCourseId" = "enroll_course"."id") 
+              AS "trackingCourseFilter")`
+            ), 'topicsDone'],
       ],
-      exclude:[]
+      exclude: []
     },
     include: [
       {
@@ -867,6 +867,7 @@ const getMyPurchasedcourses = async (req, res = response) => {
       },
       {
         model: enroll_course,
+        // where: { userId: id },
         where: {
           [Op.and]: [
             { userId: id },
@@ -874,16 +875,15 @@ const getMyPurchasedcourses = async (req, res = response) => {
           ]
 
         },
-        attributes: { 
-          exclude: ["createdAt", "updatedAt"] 
+        attributes: {
+          exclude: ["createdAt", "updatedAt"]
         },
         required: true,
       },
     ],
-    order:[sequelize.col('enroll_course')]
+    order: [sequelize.col('enroll_course')]
   });
-  
-  res.json( {cursos} );
+  res.json({ curso });
 
 };
 
