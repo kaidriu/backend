@@ -21,6 +21,9 @@ module.exports = (sequelize, Sequelize) => {
       },
       duration_video:{
         type: Sequelize.DOUBLE
+      },
+      topicIsEditable:{
+        type: Sequelize.BOOLEAN
       }
     });
     return Topic;

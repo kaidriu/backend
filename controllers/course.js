@@ -468,6 +468,7 @@ const PostTopic = async (req, res = response) => {
         chapterId: chapter.id,
         uri_video: uri,
         duration_video,
+        topicIsEditable: true,
       });
       // const topicc = new Topic({ title_topic })
 
@@ -475,6 +476,7 @@ const PostTopic = async (req, res = response) => {
 
       // res.json({ topic });
 
+      //revisar esto, creo esta de mas???
       const topic = await Topic.findOne({
         where: {
           [Op.and]: [
@@ -483,7 +485,7 @@ const PostTopic = async (req, res = response) => {
           ],
         },
       });
-
+      //
       res.json({ topic });
     });
   } else {
@@ -1173,6 +1175,8 @@ const puttopic = async (req, res = response) => {
     duration_video,
   } = req.body;
 
+  // Revisar, se crea un nuevo topic al momento de editarlo
+
   let idcap = parseInt(num_chapter);
   // const {archivo}=req.files;
   duration_video = parseFloat(duration_video);
@@ -1230,6 +1234,7 @@ const puttopic = async (req, res = response) => {
             chapterId: chapter.id,
             uri_video: uri,
             duration_video,
+            topicIsEditable: true
           });
           // const topicc = new Topic({ title_topic })
 
@@ -1237,6 +1242,7 @@ const puttopic = async (req, res = response) => {
 
           // res.json({ topic });
 
+          // revisar
           const topic = await Topic.findOne({
             where: {
               [Op.and]: [

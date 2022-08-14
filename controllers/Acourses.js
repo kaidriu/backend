@@ -64,10 +64,17 @@ const cursosPublicados = async (req, res = response) => {
 
 const sendRemark = async (req, res = response) => {
   const { idc, remarks } = req.body;
+  const t = await sequelize.transaction();
 
+  try {
+    
+  } catch (error) {
+    res.status(500).send(error)
+  }
+  
   const curso = await Curso.findOne({
     where: { id: idc },
-  });
+  },{transaction: t});
 
   curso.update({ remark: remarks });
   res.json("Cambios guardados");
@@ -80,9 +87,13 @@ const changeStateCourse = async (req, res = response) => {
     where: { id: idc },
   });
 
-  curso.update({ state });
+  if(state=='publicado'){
+    
+  }
 
-  res.json("Cambio realizado!");
+  await curso.update({ state });
+
+  res.json(state);
 };
 
 const getCoursesFromInstructor = async (req, res = response) => {
