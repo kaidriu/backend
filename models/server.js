@@ -21,8 +21,7 @@ class Server {
 
         this.server = createServer(this.app);
 
-
-        this.io     = require('socket.io')(this.server,{
+        this.io = require('socket.io')(this.server,{
             cors: {
                 origin: '*',
                 allowedHeaders: ["my-custom-header"],
@@ -47,17 +46,14 @@ class Server {
             instPaymentHistory: '/api/inspaymenthistory'
         }
 
-
         //middlewares
         this.middlewares();
-
 
         //bd
         this.bd();
 
         //routes
         this.routes();
-
 
     this.socket();
     }
@@ -113,7 +109,7 @@ class Server {
 
     bd() {
         // db.sequelize.sync();
-        //  db.sequelize.sync({ alter: true });
+        //db.sequelize.sync({ alter: true });
     }
 
 

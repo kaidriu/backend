@@ -42,7 +42,7 @@ router.get('/instructores',[validarJWT,validarCampos],getInstructors)
 
 router.get('/cursosrevision',[validarJWT,validarCampos],cursosRevision)
 router.get('/cursospublicados',[validarJWT,validarCampos],cursosPublicados)
-router.put('/change-state-course',[validarJWT,validarCampos], changeStateCourse)
+router.put('/change-state-course', changeStateCourse)
 router.get('/coursesByInstructor/:idt',[validarJWT,validarCampos],getCoursesFromInstructor)
 //observaciones de cursos
 router.put('/sendremarks',[validarJWT,validarCampos], sendRemark)

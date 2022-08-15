@@ -507,6 +507,7 @@ const PostTopic = async (req, res = response) => {
       recurso,
       chapterId: chapter.id,
       duration_video,
+      topicIsEditable: true,
     });
     // const topicc = new Topic({ title_topic })
 
@@ -530,9 +531,7 @@ const PostTopic = async (req, res = response) => {
 const GetTopic = async (req, res = response) => {
   const { id } = req.params;
 
-  const curso = await Course.findOne({
-    where: { id },
-  });
+  const curso = await Course.findByPk(id);
 
   const chapter = await Chapter.findAll({
     where: { courseId: curso.id },
