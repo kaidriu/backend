@@ -2005,6 +2005,25 @@ const verifyIfUserIsEnrollment = async (req, res = response) => {
 
 }
 
+const verifyIfUserIsOwner = async (req, res = response) => {
+  const { idC } = req.params;
+  const { id } = req.usuario
+
+  const userEnroll = await enroll_course.findOne({
+    where: {
+      userId: id,
+      courseId: idC,
+      status_enroll: 'owner'
+    }
+  });
+  
+  if(userEnroll){
+    res.json(true);
+  }else
+    res.json(false);
+
+}
+
 module.exports = {
   PostCourse,
   PostChapter,
@@ -2042,6 +2061,6 @@ module.exports = {
   instructorSummaryCoursesReviews,
   verifyIfUserIsEnrollment,
   searchCourse,
-  instructorSummaryCoursesReviews
-
+  instructorSummaryCoursesReviews,
+  verifyIfUserIsOwner
 };
