@@ -1,7 +1,7 @@
 const { response } = require("express");
 
 const db = require("../database/db");
-const { Op } = require("sequelize");
+const { Op, QueryTypes} = require("sequelize");
 const { sequelize } = require("../database/db");
 
 const User = db.user;
@@ -10,6 +10,8 @@ const Ubication = db.Ubication;
 const UserDetails = db.userDetails;
 const Type = db.UserType;
 const Curso = db.course;
+const Topic = db.topic;
+const Chapter = db.chapter;
 const Subcategory = db.subcategory;
 const Category = db.category;
 const packages = db.packageCourse;
@@ -64,25 +66,54 @@ const cursosPublicados = async (req, res = response) => {
 
 const sendRemark = async (req, res = response) => {
   const { idc, remarks } = req.body;
-
-  const curso = await Curso.findOne({
-    where: { id: idc },
-  });
+  
+  const curso = await Curso.findByPk(idc);
 
   curso.update({ remark: remarks });
   res.json("Cambios guardados");
 };
 
 const changeStateCourse = async (req, res = response) => {
+  
   const { idc, state } = req.body;
+  const t = await sequelize.transaction();
 
-  const curso = await Curso.findOne({
-    where: { id: idc },
-  });
+  try {  
+    
+    let actions = []; 
 
-  curso.update({ state });
+    actions.push(
+      Curso.findOne({
+        where: { id: idc },
+      }).then((curso)=>{
+        curso.update({ state },{ transaction: t})
+      })
+    );
 
-  res.json("Cambio realizado!");
+    if(state=='publicado'){
+      actions.push(
+        sequelize.query(
+          'UPDATE "topics" SET "topicIsEditable" = false FROM "chapters" WHERE "chapters"."courseId" = ? AND "topics"."chapterId" = "chapters"."id"',
+          {
+            replacements:[idc],
+            type: QueryTypes.SELECT,
+            transaction: t
+          }
+        )
+      )
+    }
+  
+    await Promise.all(actions);
+
+    await t.commit();
+
+    res.status(200).send({state});
+    
+  } catch (err) {
+    await t.rollback();
+    res.status(500).send({error: err.message})
+  }
+ 
 };
 
 const getCoursesFromInstructor = async (req, res = response) => {

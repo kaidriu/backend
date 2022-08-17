@@ -20,6 +20,7 @@ const enroll_course = db.enroll_course;
 const detail_package = db.detail_package_order;
 const detailPackageOrders = db.detail_package_order;
 const packageCourse = db.packageCourse;
+const bankAccount = db.bank_account;
 
 
 const HistoryPayments = async (req, res = response) => {
@@ -451,7 +452,6 @@ const getHistoryPaymentsInstructor = async (req, res = response) => {
   res.json({history});
 }
 
-
 const payInstructor = async (req, res = response) => {
   
   const { userId, payment_method, entity, count_payment, total_instructor_payment_history} = req.body;
@@ -492,6 +492,38 @@ const payInstructor = async (req, res = response) => {
 
 }
 
+const getBankAccounts = async (req, res = response) => {
+  const bank_accounts = await bankAccount.findAll();
+  res.json({bank_accounts}) 
+}
+
+const postBankAccount = async (req, res = response) => {
+  const {title, bank, type, number, owner_name, owner_document } = req.body;
+  
+  const newBankAccount = new bankAccount({title, bank, type, number, owner_name, owner_document})
+  await newBankAccount.save();
+  res.json({bankAccounts: newBankAccount});
+}
+
+const putBankAccount = async (req, res = response) => {
+  try {
+    const {id, title, bank, type, number, owner_name, owner_document } = req.body;
+  
+    const updateBankAccount = await bankAccount.findByPk(id);
+
+    if(!updateBankAccount){
+      throw new Error('No existe la cuenta')
+    }
+
+    await updateBankAccount.update({title, bank, type, number, owner_name, owner_document});
+
+    res.json({bankAccount: updateBankAccount});
+  } catch (error) {
+    res.status(404).json(error.message);
+  }
+  
+}
+
 module.exports = {
   HistoryPayments,
   viewDeposit,
@@ -505,5 +537,8 @@ module.exports = {
   summaryNoPaymentInstructor,
   detailOrdersNoPaymentByCurso,
   payInstructor,
-  getHistoryPaymentsInstructor
+  getHistoryPaymentsInstructor,
+  getBankAccounts,
+  postBankAccount,
+  putBankAccount
 };

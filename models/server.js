@@ -9,6 +9,7 @@ const genCertificate = require('../helpers/genCertificates');
 
 const { createServer } = require('http');
 const { socketController } = require('../sockets/controller');
+const notification = require('./notification');
 
 
 class Server {
@@ -21,8 +22,7 @@ class Server {
 
         this.server = createServer(this.app);
 
-
-        this.io     = require('socket.io')(this.server,{
+        this.io = require('socket.io')(this.server,{
             cors: {
                 origin: '*',
                 allowedHeaders: ["my-custom-header"],
@@ -44,20 +44,18 @@ class Server {
             messages: '/api/messages',
             tracking: '/api/tracking',
             enrollCourse: '/api/enrollcourse',
-            instPaymentHistory: '/api/inspaymenthistory'
+            instPaymentHistory: '/api/inspaymenthistory',
+            notifications: '/api/notifications'
         }
-
 
         //middlewares
         this.middlewares();
-
 
         //bd
         this.bd();
 
         //routes
         this.routes();
-
 
     this.socket();
     }
@@ -108,12 +106,13 @@ class Server {
         this.app.use(this.paths.tracking, require('../routes/content_traking'));
         this.app.use(this.paths.enrollCourse, require('../routes/enroll_courses'));
         this.app.use(this.paths.instPaymentHistory, require('../routes/inst_history_payment'));
+        this.app.use(this.paths.notifications, require('../routes/notification'));
     }
 
 
     bd() {
         // db.sequelize.sync();
-        //  db.sequelize.sync({ alter: true });
+        // db.sequelize.sync({ alter: true });
     }
 
 

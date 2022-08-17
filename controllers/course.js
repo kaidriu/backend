@@ -468,6 +468,7 @@ const PostTopic = async (req, res = response) => {
         chapterId: chapter.id,
         uri_video: uri,
         duration_video,
+        topicIsEditable: true,
       });
       // const topicc = new Topic({ title_topic })
 
@@ -475,6 +476,7 @@ const PostTopic = async (req, res = response) => {
 
       // res.json({ topic });
 
+      //revisar esto, creo esta de mas???
       const topic = await Topic.findOne({
         where: {
           [Op.and]: [
@@ -483,7 +485,7 @@ const PostTopic = async (req, res = response) => {
           ],
         },
       });
-
+      //
       res.json({ topic });
     });
   } else {
@@ -505,6 +507,7 @@ const PostTopic = async (req, res = response) => {
       recurso,
       chapterId: chapter.id,
       duration_video,
+      topicIsEditable: true,
     });
     // const topicc = new Topic({ title_topic })
 
@@ -528,9 +531,7 @@ const PostTopic = async (req, res = response) => {
 const GetTopic = async (req, res = response) => {
   const { id } = req.params;
 
-  const curso = await Course.findOne({
-    where: { id },
-  });
+  const curso = await Course.findByPk(id);
 
   const chapter = await Chapter.findAll({
     where: { courseId: curso.id },
@@ -835,7 +836,7 @@ const getMyPurchasedcourses = async (req, res = response) => {
       include: [
           [sequelize.literal(
             `(SELECT ("topicsCourseFilter"."withTask" + "topicsCourseFilter"."withTest" + "topicsCourseFilter"."totals") as "sumTotalTopics" FROM (SELECT COUNT(*) FILTER (WHERE "tk"."id" IS NOT NULL) AS "withTask", 
-            COUNT(*) FILTER (WHERE "qz"."id" IS NOT NULL) AS "withTest", COUNT(*) AS "totals" FROM "topics" AS "tp" INNER JOIN "chapters" AS "cp" ON "tp"."chapterId" = "cp"."id" AND "cp"."courseId" = "course"."id"
+            COUNT(*) FILTER (WHERE "qz"."id" IS NOT NULL) AS "withTest", COUNT(*) AS "totals" FROM "topics" AS "tp" INNER JOIN "chapters" AS "cp" ON "tp"."chapterId" = "cp"."id" AND "tp"."topicIsEditable" IS FALSE AND "cp"."courseId" = "course"."id"
             LEFT OUTER JOIN "tasks" AS "tk" ON "tp"."id" = "tk"."topicId" LEFT OUTER JOIN "quizzes" AS "qz" ON "tp"."id" = "qz"."topicId") AS "topicsCourseFilter")`
             ), 'totalTopics'],
           [sequelize.literal(
@@ -871,7 +872,11 @@ const getMyPurchasedcourses = async (req, res = response) => {
         where: {
           [Op.and]: [
             { userId: id },
-            { [Op.not]: [{ status_enroll: 'owner' }] }
+            { 
+              status_enroll: {
+              [Op.notIn]: ['owner','admin']
+              }
+            },
           ]
 
         },
@@ -1173,6 +1178,8 @@ const puttopic = async (req, res = response) => {
     duration_video,
   } = req.body;
 
+  // Revisar, se crea un nuevo topic al momento de editarlo
+
   let idcap = parseInt(num_chapter);
   // const {archivo}=req.files;
   duration_video = parseFloat(duration_video);
@@ -1230,6 +1237,7 @@ const puttopic = async (req, res = response) => {
             chapterId: chapter.id,
             uri_video: uri,
             duration_video,
+            topicIsEditable: true
           });
           // const topicc = new Topic({ title_topic })
 
@@ -1237,6 +1245,7 @@ const puttopic = async (req, res = response) => {
 
           // res.json({ topic });
 
+          // revisar
           const topic = await Topic.findOne({
             where: {
               [Op.and]: [
@@ -1418,15 +1427,16 @@ const PutQuestion = async (req, res = response) => {
 };
 
 const DeleteQuestion = async (req, res = response) => {
+  
   const { idq } = req.params;
-
+  
   const question = await Question_Course.findOne({
     where: { id: idq },
   });
 
   await question.destroy();
-
   res.json(question);
+
 };
 
 const GetQuestion = async (req, res = response) => {
@@ -2000,6 +2010,44 @@ const verifyIfUserIsEnrollment = async (req, res = response) => {
 
 }
 
+const verifyIfUserIsOwner = async (req, res = response) => {
+  const { idC } = req.params;
+  const { id } = req.usuario
+
+  const userEnroll = await enroll_course.findOne({
+    where: {
+      userId: id,
+      courseId: idC,
+      status_enroll: 'owner'
+    }
+  });
+  
+  if(userEnroll){
+    res.json(true);
+  }else
+    res.json(false);
+
+}
+
+const verifyIfUserIsAdmin = async (req, res = response) => {
+  const { idC } = req.params;
+  const { id } = req.usuario
+
+  const userEnroll = await enroll_course.findOne({
+    where: {
+      userId: id,
+      courseId: idC,
+      status_enroll: 'admin'
+    }
+  });
+  
+  if(userEnroll){
+    res.json(true);
+  }else
+    res.json(false);
+
+}
+
 module.exports = {
   PostCourse,
   PostChapter,
@@ -2037,6 +2085,7 @@ module.exports = {
   instructorSummaryCoursesReviews,
   verifyIfUserIsEnrollment,
   searchCourse,
-  instructorSummaryCoursesReviews
-
+  instructorSummaryCoursesReviews,
+  verifyIfUserIsOwner,
+  verifyIfUserIsAdmin
 };

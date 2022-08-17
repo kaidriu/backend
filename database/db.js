@@ -95,6 +95,13 @@ db.certificate = require("../models/certificate")(sequelize, Sequelize);
 
 db.entity_certificate = require("../models/entity_certificate.js")(sequelize, Sequelize);
 
+db.bank_account = require("../models/bank_accounts.js")(sequelize, Sequelize);
+
+db.notification_type = require("../models/notification_type")(sequelize, Sequelize);
+
+db.notification = require("../models/notification")(sequelize, Sequelize);
+
+
 
 db.user.belongsTo(db.profile);
 db.profile.hasOne(db.user);
@@ -256,6 +263,13 @@ db.entity_certificate.belongsToMany(db.certificate, { as: 'entityToCertificate',
 
 
 //certificates
+
+// notifications
+db.notification.belongsTo(db.notification_type);
+db.notification.belongsTo(db.user);
+db.notification.belongsTo(db.course);
+db.user.hasMany(db.notification);
+
 
 
 

@@ -206,22 +206,26 @@ const DeleteAnswer = async (req, res = response) => {
 const DeleteQuestion = async (req, res = response) => {
 
     try {
+
         const { idq } = req.params;
 
         const question = await questions.findByPk(idq);
+
         const Archive = await archive.findByPk(question.archiveId);
 
-        deleteFile(Archive.id_drive_archive).then(async (resp) => {
-            await Archive.destroy();
-        });
-
+        if(Archive){
+            deleteFile(Archive.id_drive_archive).then(async (resp) => {
+                await Archive.destroy();
+            });
+        }
+        
         await question.destroy();
 
         res.status(200).json(question)
     } catch (error) {
-        res.status(400).send(error)
+        console.log(error);
+        res.status(400).send(error.message)
     }
-
 
 }
 
