@@ -21,6 +21,7 @@ const Car = db.shoppingcar;
 const Favorite = db.favorite;
 const package = db.packageCourse;
 const detail_package = db.detail_package_order;
+const bankAccount = db.bank_account;
 
 const cloudinary = require('cloudinary').v2
 cloudinary.config(process.env.CLOUDINARY_URL);
@@ -833,6 +834,11 @@ const buyPackage = async (req, res = response) => {
 
 }
 
+const getBankAccounts = async (req, res = response) => {
+    const bank_accounts = await bankAccount.findAll();
+    res.json({bank_accounts}) 
+}
+
 module.exports = {
     CreateOrder,
     CancelOrder,
@@ -851,5 +857,6 @@ module.exports = {
     deleteFavoriteInArray,
     getPackage,
     getCoursesInPackage,
-    buyPackage
+    buyPackage,
+    getBankAccounts
 }

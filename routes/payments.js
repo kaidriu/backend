@@ -1,5 +1,5 @@
 const {Router}=require('express');
-const { CreateOrder, CaptureOrder, CancelOrder, addCar, getCar, deleteCar, addFav, getFav, deleteFav, SaveOrder, deleteallcar, payDeposit, viewDeposit, putDeposit, deleteFavoriteInArray, getPackage, getCoursesInPackage, buyPackage } = require('../controllers/payments');
+const { getBankAccounts, CreateOrder, CaptureOrder, CancelOrder, addCar, getCar, deleteCar, addFav, getFav, deleteFav, SaveOrder, deleteallcar, payDeposit, viewDeposit, putDeposit, deleteFavoriteInArray, getPackage, getCoursesInPackage, buyPackage } = require('../controllers/payments');
 
 
 const { validarCampos } = require('../middlewares/validar-campos');
@@ -45,6 +45,9 @@ router.post('/saveorder',[validarJWT,validarCampos],SaveOrder);
 router.post('/payDeposit',[validarJWT,validarCampos],payDeposit);
 router.get('/viewDeposit',[validarJWT,validarCampos],viewDeposit);
 router.put('/putDeposit/:id',[validarJWT,validarCampos],putDeposit);
+
+// Info
+router.get('/bank_accounts', getBankAccounts);
 
 
     

@@ -26,7 +26,7 @@ const router = Router();
 const sequelize = require("sequelize");
 const profile = require('../models/profile');
 const user = require('../models/user');
-const { Sequelize } = require('../database/db');
+const { Sequelize, message } = require('../database/db');
 
 
 
@@ -638,7 +638,6 @@ const usuariosPut = async (req, res = response) => {
         if (!req.files || Object.keys(req.files).length === 0 || !req.files.archivo) {
             image_perfil = perfil.image_perfil;
 
-
         } else {
             //borrar antigua foto
             const nombreArr = perfil.image_perfil.split('/');
@@ -646,9 +645,6 @@ const usuariosPut = async (req, res = response) => {
             const [public_id] = nombre.split('.');
             cloudinary.uploader.destroy(public_id);
 
-
-
-            // image = await subirArchivo(req.files,undefined,'publicacion');
             const { tempFilePath } = req.files.archivo;
             const { secure_url } = await cloudinary.uploader.upload(tempFilePath, { width: 500, height: 500, crop: "scale" });
             image_perfil = secure_url;
@@ -656,18 +652,9 @@ const usuariosPut = async (req, res = response) => {
         }
         const { name, country, state, aboutMe, profession, phone, edad, gender } = req.body;
 
-
-
-        // const perfil = await Profile.findByPk(id);
-
         await perfil.update({ edad, gender, image_perfil, profession, aboutMe, phone })
 
         const usuario = await User.findByPk(id);
-
-        // if(password){
-        //     const salt = bcrypts.genSaltSync();
-        //     password = await bcrypts.hash(password,salt);
-        // }
 
         await usuario.update({ name });
 
@@ -679,8 +666,6 @@ const usuariosPut = async (req, res = response) => {
             perfil
         })
 
-
-
     } catch (error) {
         console.log(error);
         res.status(500).json({
@@ -688,8 +673,6 @@ const usuariosPut = async (req, res = response) => {
         })
 
     }
-
-
 
 }
 
@@ -757,65 +740,88 @@ const usuariosPutTypes = async (req, res = response) => {
 
 
 const usuariosPutInstructor = async (req, res = response) => {
-
+    // Fix: Se tiene que agregar promise all y transacciones
     try {
-
-
-
         const { id } = req.usuario;
-        const { aboutMe, linkCurriculum, linkYT, linkfb, linkTW, linkIG } = req.body;
 
+        console.log(id);
 
-        const ver = await Profile.findOne({
+        const perfil = await Profile.findOne({
+            where:{
+                id,
+            },
             include: [
                 {
                     model: Type,
                     where: {
                         nametype: "instructor"
                     },
-                    attributes: { exclude: ['createdAt', 'updatedAt', 'id'] },
+                    attributes:[],
                 }
             ]
         })
 
-        if (!ver) {
-
-            res.status(400).json({
-                msg: "El usuario no es instructor"
-            })
-
-        } else {
-            const instructor = await UserDetails.findOne({
-                where: { id }
-            });
-
-
-            await instructor.update({ aboutMe, linkCurriculum, linkYT, linkfb, linkTW, linkIG })
-
-
-            res.json({
-                instructor
-            })
-
-
-
+        if (!perfil) {
+            throw new Error("El usuario no es instructor")
         }
 
+        const { 
+            linkYT, linkfb, linkTw, linkIG,
+            name, profession, phone, category, presentationVideo,
+        } = req.body;
 
+        let {labels} = req.body
 
+        if (labels) {
+            labels = labels.split(",");
+          } else {
+            labels = null;
+          }
+        let image_perfil = '';
 
+        if (!req.files || Object.keys(req.files).length === 0 || !req.files.archivo) {
+            image_perfil = perfil.image_perfil;
+        } else {
+            //borrar antigua foto
+            const nombreArr = perfil.image_perfil.split('/');
+            const nombre = nombreArr[nombreArr.length - 1];
+            const [public_id] = nombre.split('.');
+            cloudinary.uploader.destroy(public_id);
 
+            const { tempFilePath } = req.files.archivo;
+            const { secure_url } = await cloudinary.uploader.upload(tempFilePath, { width: 500, height: 500, crop: "scale" });
+            image_perfil = secure_url;
+            console.log(secure_url);
+        }
 
+        await perfil.update({ image_perfil, profession, phone })
+  
+        const instructor = await UserDetails.findByPk(id);
+
+        await instructor.update({ linkYT, linkfb, linkTW: linkTw, linkIG, user_labels: labels })
+        
+        const usuario = await User.findByPk(id);
+
+        await usuario.update({ name });
+
+        const requestInstructor = await Request.findOne({
+            where: {
+                profileId: id
+            }
+        });
+
+        await requestInstructor.update({ linkYT: presentationVideo, category});
+
+        res.json({
+            instructor
+        })
+        
     } catch (error) {
         console.log(error);
         res.status(500).json({
-            msg: `Hable con el administrador`
+            error: error.message 
         })
-
     }
-
-
-
 }
 
 
@@ -842,6 +848,53 @@ const usuariosPassword = async (req, res = response) => {
 
 }
 
+const usuariosGetInstructor = async (req, res = response) => {
+    try {
+        const { id } = req.usuario;
+        const perfil = await Profile.findOne({
+            where:{
+                id,
+            },
+            attributes:["image_perfil", "profession", "phone"],
+            include: [
+                {
+                    model: Type,
+                    where: {
+                        nametype: "instructor"
+                    },
+                    attributes:[],
+                },
+                {
+                    model: UserDetails,
+                    attributes: ["linkYT", "linkfb", "linkTW", "linkIG", "user_labels"]
+                },
+                {
+                    model: User,
+                    attributes:["name", "email"]
+                },
+                {
+                    model: Request,
+                    attributes:["linkYT", "category"]
+                }
+            ]
+        })
+
+        if (!perfil) {
+            throw new Error("El usuario no es instructor")
+        }
+
+        res.json({
+            perfil
+        })
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            error: error.message 
+        })
+    }
+}
+
 
 module.exports = {
     usuariosPost,
@@ -858,5 +911,6 @@ module.exports = {
     GetAllInstructor,
     GetOneInstructor,
     getcoursysId,
-    getMyStudents
+    getMyStudents,
+    usuariosGetInstructor
 }   

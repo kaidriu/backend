@@ -7,7 +7,7 @@ const {
     getCoursesFromInstructor,
     getPackages,
     postPackages } = require('../controllers/Acourses');
-const {getUsers, getInstructors} = require('../controllers/Ausers');
+const {getUsers, getInstructors, inspectCourse} = require('../controllers/Ausers');
 const { 
     HistoryPayments, 
     viewDeposit, 
@@ -21,7 +21,10 @@ const {
     summaryNoPaymentInstructor,
     detailOrdersNoPaymentByCurso,
     payInstructor,
-    getHistoryPaymentsInstructor} = require('../controllers/Apayments');
+    getHistoryPaymentsInstructor,
+    getBankAccounts,
+    postBankAccount,
+    putBankAccount} = require('../controllers/Apayments');
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJWT } = require('../middlewares/validar-JWT');
 
@@ -34,6 +37,7 @@ const router = Router();
 
 router.get('/usuarios',[validarJWT,validarCampos],getUsers)
 router.get('/instructores',[validarJWT,validarCampos],getInstructors)
+router.post('/inspectCourse',[validarJWT,validarCampos],inspectCourse)
 
 
 /*-----------------------------------
@@ -67,6 +71,10 @@ router.get('/payments/detailOrdersNoPaymentsByCourseId/:idC',[validarJWT,validar
 router.post('/payments/payInstructor',[validarJWT,validarCampos],payInstructor)
 //Historial de Pagos
 router.get('/payments/historyPayments/:idU',[validarJWT,validarCampos],getHistoryPaymentsInstructor)
+// Información
+router.get('/bankAccounts',[validarJWT,validarCampos],getBankAccounts)
+router.post('/bankAccount',[validarJWT,validarCampos],postBankAccount)
+router.put('/bankAccount',[validarJWT,validarCampos], putBankAccount)
 
 
 
@@ -77,6 +85,7 @@ router.get('/payments/historyPayments/:idU',[validarJWT,validarCampos],getHistor
 router.get('/commissions',[validarJWT,validarCampos],getCommissions)
 router.put('/commissions',[validarJWT,validarCampos],putCommissions)
 router.get('/commissions/historial/graphic',[validarJWT,validarCampos],historialCommissionsGraphic)
+
 
 
 

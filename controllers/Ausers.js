@@ -9,6 +9,8 @@ const Profile = db.profile;
 const Ubication = db.Ubication;
 const UserDetails = db.userDetails;
 const Type = db.UserType;
+const Course = db.course;
+const EnrollCourse = db.enroll_course;
 
 
 const getInstructors = async (req, res = response) => {
@@ -86,8 +88,30 @@ const getUsers = async (req, res = response) => {
 
 }
 
+const inspectCourse = async (req, res = response) => {
+    const {id} = req.usuario;
+    const {idC} = req.body;
+    let f = new Date(); //Obtienes la fecha
+    let fecha = f.getDate() + "/" + (f.getMonth() + 1) + "/" + f.getFullYear();
+
+    let tempEnroll = await EnrollCourse.findOne({
+        where: {
+            courseId: idC,
+            userId: id
+        }
+    });
+
+    if(!tempEnroll){
+        tempEnroll = new EnrollCourse({ enroll_date: fecha, status_enroll: 'admin', courseId: idC, userId: id });
+        await tempEnroll.save();
+    }
+
+    res.json({tempEnroll});
+}
+
 
 module.exports = {
 getUsers,
-getInstructors
+getInstructors,
+inspectCourse
 }

@@ -8,6 +8,9 @@ module.exports = (sequelize, Sequelize) => {
         linkCurriculum: {
             type : Sequelize.STRING
         },
+        user_labels:{
+            type: Sequelize.ARRAY(Sequelize.TEXT)
+        },
         linkYT:{
             type: Sequelize.STRING
         },
