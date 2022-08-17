@@ -20,7 +20,7 @@ const SolicitudInstructor = async (req, res = response) => {
     const { id } = req.usuario;
 
     // const usuario = await User.findByPk(id);
-
+    
     const ver = await Request.findOne({
         where: {
             [Op.and]: [

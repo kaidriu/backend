@@ -413,8 +413,12 @@ const GetAllInstructor = async (req, res = response) => {
                 },
                 {
                     model: UserDetails,
-                    attributes: { exclude: ['createdAt', 'updatedAt', 'id'] },
+                    attributes: { include: ['user_labels' ], exclude: ['createdAt', 'updatedAt', 'id']},
                 },
+                {
+                    model:Request,
+                    attributes :['category']
+                }
             ]
         })
 
