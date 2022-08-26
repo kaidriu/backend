@@ -15,6 +15,8 @@ const Chapter = db.chapter;
 const Subcategory = db.subcategory;
 const Category = db.category;
 const packages = db.packageCourse;
+const Enroll_course = db.enroll_course;
+
 
 
 const cursosRevision = async (req, res = response) => {
@@ -63,6 +65,80 @@ const cursosPublicados = async (req, res = response) => {
   res.json({cursos});
 
 };
+
+const aceptarSolicitudCurso = async (req, res = response) => {
+
+  const { idc } = req.body;
+  const t = await sequelize.transaction();
+
+  try {  
+    
+    let actions = []; 
+
+    actions.push(
+      Curso.findOne({
+        where: { id: idc },
+      }).then((curso)=>{
+        curso.update({ state },{ transaction: t})
+      })
+    );
+
+    
+    actions.push(
+        sequelize.query(
+          'UPDATE "topics" SET "topicIsEditable" = false FROM "chapters" WHERE "chapters"."courseId" = ? AND "topics"."chapterId" = "chapters"."id"',
+          {
+            replacements:[idc],
+            type: QueryTypes.SELECT,
+            transaction: t
+          }
+        )
+    )
+    
+  
+    await Promise.all(actions);
+
+    await t.commit();
+
+    res.status(200).send({state});
+    
+  } catch (err) {
+    await t.rollback();
+    res.status(500).send({error: err.message})
+  }
+
+}
+
+const denegarSolicitudCurso = async (req, res = response) => {
+
+  const { idc } = req.params;
+
+  const Curso = await Course.findOne({
+      where: { id: idc },
+      include: {
+        model: Chapter,
+        attributes: ["id"],
+        include: {
+          model: Topic,
+          attributes: ["id"],
+          where:{
+            topicIsEditable: false
+          }
+        },
+      },
+  });
+
+  /* if (Curso.chapter == '') {
+    
+  } */
+
+  console.log(Curso);
+
+  //await Curso.update({ state: 'proceso' })
+
+  res.json({ Curso }) 
+
+}
 
 const sendRemark = async (req, res = response) => {
   const { idc, remarks } = req.body;
@@ -203,5 +279,7 @@ module.exports = {
   changeStateCourse,
   getCoursesFromInstructor,
   getPackages,
-  postPackages
+  postPackages,
+  aceptarSolicitudCurso, 
+  denegarSolicitudCurso,
 };

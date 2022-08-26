@@ -6,7 +6,10 @@ const {
     changeStateCourse, 
     getCoursesFromInstructor,
     getPackages,
-    postPackages } = require('../controllers/Acourses');
+    postPackages,
+    aceptarSolicitudCurso, 
+    denegarSolicitudCurso } = require('../controllers/Acourses');
+    
 const {getUsers, getInstructors, inspectCourse} = require('../controllers/Ausers');
 const { 
     HistoryPayments, 
@@ -48,6 +51,12 @@ router.get('/cursosrevision',[validarJWT,validarCampos],cursosRevision)
 router.get('/cursospublicados',[validarJWT,validarCampos],cursosPublicados)
 router.put('/change-state-course', changeStateCourse)
 router.get('/coursesByInstructor/:idt',[validarJWT,validarCampos],getCoursesFromInstructor)
+
+
+router.put('/aceptarcourse/:idc',[validarJWT,validarCampos],aceptarSolicitudCurso);
+
+router.put('/denegarcourse/:idc',[validarJWT,validarCampos],denegarSolicitudCurso);
+
 //observaciones de cursos
 router.put('/sendremarks',[validarJWT,validarCampos], sendRemark)
 

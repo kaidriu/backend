@@ -157,18 +157,14 @@ const PutCourse = async (req, res = response) => {
   } else {
     objectives = null;
   }
-  if (labels) {
-    labels = labels.split(",");
-  } else {
-    labels = null;
-  }
+  
 
   let price = parseFloat(precio);
   percentageDiscount = parseFloat(percentageDiscount);
 
   const { id } = req.usuario;
 
-  const state = "proceso";
+  
   const userId = id;
 
   const { idc } = req.params;
@@ -177,6 +173,14 @@ const PutCourse = async (req, res = response) => {
   const curso = await Course.findOne({
     where: { id: idc },
   });
+
+  const state = curso.state;
+  if (labels) {
+    labels = labels.split(",");
+  } else {
+    labels = curso.labels;
+  }
+
 
   if (!req.files || Object.keys(req.files).length === 0 || !req.files.image) {
     image_course = curso.image_course;
@@ -457,6 +461,7 @@ const PostTopic = async (req, res = response) => {
       description_topic,
       course.uri_folder
     ).then(async (resp) => {
+      console.log('hola');
       const { uri } = resp;
 
       const topicc = new Topic({
