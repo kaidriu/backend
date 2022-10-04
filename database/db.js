@@ -49,7 +49,6 @@ db.title = require("../models/title")(sequelize, Sequelize);
 db.userDetails = require("../models/userdetails")(sequelize, Sequelize);
 
 db.requestI = require("../models/requestInstructor")(sequelize, Sequelize);
-db.requestC = require("../models/requestCourse")(sequelize, Sequelize);
 
 db.course = require("../models/course")(sequelize, Sequelize);
 db.chapter = require("../models/chapter")(sequelize, Sequelize);
@@ -120,12 +119,6 @@ db.user.hasMany(db.title);
 
 db.requestI.belongsTo(db.profile);
 db.profile.hasOne(db.requestI);
-
-db.requestC.belongsTo(db.profile);
-db.profile.hasOne(db.requestC);
-
-db.requestC.belongsTo(db.profile);
-db.profile.hasOne(db.requestC);
 
 db.course.belongsTo(db.user);
 db.user.hasMany(db.course);
