@@ -57,11 +57,12 @@ const HistoryPayments = async (req, res = response) => {
  * 
  */
 const historyOrders = async (req, res = response) => {
+  
   const _orders = await orders.findAll({
     attributes: ["id", "userId", "total_order", "updatedAt"],
     where: {
       payment_status: "pagado",
-      file_transaction_url: { [Op.not]: null },
+      paymentMethodId: { [Op.not]: null },
     },
     include: [
       {
@@ -112,7 +113,7 @@ const historyOrders = async (req, res = response) => {
       },
     ],
   });
-
+console.log(_orders);
   res.json(_orders);
 };
 
@@ -145,6 +146,8 @@ const viewDeposit = async (req, res = response) => {
     // group: [Sequelize.col('order.id'),Sequelize.col('order_detail.id')]
     // where:{userId:id}
   });
+
+  console.log(Order);
 
   res.json({ Order });
 };

@@ -6,7 +6,16 @@ const {
     changeStateCourse, 
     getCoursesFromInstructor,
     getPackages,
-    postPackages } = require('../controllers/Acourses');
+    postPackages,
+    aceptarSolicitudCurso, 
+    denegarSolicitudCurso, 
+    PostCategory, 
+    PostSubCategory, 
+    DeleteCategory, 
+    PutCategory, 
+    PutSubcategory, 
+    DeleteSubCategory} = require('../controllers/Acourses');
+    
 const {getUsers, getInstructors, inspectCourse} = require('../controllers/Ausers');
 const { 
     HistoryPayments, 
@@ -48,8 +57,22 @@ router.get('/cursosrevision',[validarJWT,validarCampos],cursosRevision)
 router.get('/cursospublicados',[validarJWT,validarCampos],cursosPublicados)
 router.put('/change-state-course', changeStateCourse)
 router.get('/coursesByInstructor/:idt',[validarJWT,validarCampos],getCoursesFromInstructor)
+
+
+router.put('/aceptarcourse/:idc',[validarJWT,validarCampos],aceptarSolicitudCurso);
+
+router.put('/rejectCourseRequest/:idc',[validarJWT,validarCampos],denegarSolicitudCurso);
+
 //observaciones de cursos
 router.put('/sendremarks',[validarJWT,validarCampos], sendRemark)
+
+/*------------CATEGORÍAS---------------*/
+router.post('/category',[validarJWT,validarCampos],PostCategory);
+router.post('/subcategory',[validarJWT,validarCampos],PostSubCategory);
+router.delete('/deletecategory/:idc',[validarJWT,validarCampos],DeleteCategory);
+router.delete('/deletesubcategory/:ids',[validarJWT,validarCampos],DeleteSubCategory);
+router.put('/putcategories',[validarJWT,validarCampos],PutCategory);
+router.put('/putsubcategories',[validarJWT,validarCampos],PutSubcategory);
 
 /*-----------PAQUETES--------------*/
 router.get('/packages',[validarJWT,validarCampos],getPackages)

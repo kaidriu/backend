@@ -336,33 +336,7 @@ const cantidadSolicitudesInstructor = async (req, res = response) => {
     })
 }
 
-const aceptarSolicitudCurso = async (req, res = response) => {
 
-    const { idc } = req.params;
-
-    const Curso = await Course.findOne({
-        where: { id: idc }
-    })
-
-    console.log(Curso);
-    await Curso.update({ state: 'publicado' })
-
-    res.json({ Curso })
-}
-
-const denegarSolicitudCurso = async (req, res = response) => {
-
-    const { idc } = req.params;
-
-    const Curso = await Course.findOne({
-        where: { id: idc }
-    })
-
-    await Curso.update({ state: 'proceso' })
-
-    res.json({ Curso }) 
-
-}
 
 module.exports = {
     SolicitudInstructor,
@@ -371,7 +345,5 @@ module.exports = {
     aceptarSolicitudInstructor,
     denegarSolicitudInstructor,
     cantidadSolicitudesInstructor,
-    aceptarSolicitudCurso,
-    denegarSolicitudCurso,
     getRequestInstructor
 }
