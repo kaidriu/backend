@@ -22,6 +22,7 @@ const Favorite = db.favorite;
 const package = db.packageCourse;
 const detail_package = db.detail_package_order;
 const bankAccount = db.bank_account;
+const paymentMethod = db.payment_method;
 
 const cloudinary = require('cloudinary').v2
 cloudinary.config(process.env.CLOUDINARY_URL);
@@ -41,7 +42,7 @@ const CreateOrder = async (req, res = response) => {
 
         console.log(items)
 
-        const Order = new order({ userId: id, buyer_name, buyer_address, buyer_email, buyer_phone, payment_status, discount, file_transaction_url, total_order, buyer_countre, buyer_state, buyer_postcode });
+        const Order = new order({ userId: id, buyer_name, buyer_address, buyer_email, buyer_phone, payment_status, discount, file_transaction_url, total_order, buyer_countre, buyer_state, buyer_postcode ,paymentMethodId:1});
 
         await Order.save();
 
@@ -272,7 +273,7 @@ const SaveOrder = async (req, res = response) => {
 
     const payment_status = 'pagado';
 
-    const Order = new order({ userId: id, buyer_name, buyer_address, buyer_email, buyer_phone, payment_status, discount, file_transaction_url, total_order, buyer_countre, buyer_state, buyer_postcode });
+    const Order = new order({ userId: id, buyer_name, buyer_address, buyer_email, buyer_phone, payment_status, discount, file_transaction_url, total_order, buyer_countre, buyer_state, buyer_postcode ,paymentMethodId:2});
 
     await Order.save();
 
@@ -431,6 +432,37 @@ const viewDeposit = async (req, res = response) => {
         //         attributes:["title"],
         //     }
         // }
+        // where:{userId:id}
+    })
+
+
+    res.json({ Order });
+}
+
+const viewFactura = async (req, res = response) => {
+
+    const { id } = req.usuario;
+    const Order = await order.findAll({
+        attributes: ["id", "payment_status", "file_transaction_url", "createdAt", "total_order"],
+        where:
+        {
+            [Op.and]: [
+                { userId: id },
+                { payment_status: 'pagado' }
+            ]
+        },
+        include:[{
+            model:order_details,
+            attributes:["total_order_details","createdAt"],
+            include:[{
+                model:Course,
+                attributes:["title"],
+            }]
+        },
+        {
+            model:paymentMethod
+        }
+    ]
         // where:{userId:id}
     })
 
@@ -858,5 +890,6 @@ module.exports = {
     getPackage,
     getCoursesInPackage,
     buyPackage,
-    getBankAccounts
+    getBankAccounts,
+    viewFactura
 }

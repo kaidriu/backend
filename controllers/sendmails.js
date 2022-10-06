@@ -28,6 +28,7 @@ const recoverPassword = async(req,res=response)=>{
         tls: {
             ciphers:'SSLv3'
          },
+         secure: true,
         auth: {
             user: 'deunaaprende@gmail.com',
             pass: 'Solsito28*'
@@ -184,7 +185,7 @@ const recoverPassword = async(req,res=response)=>{
                                     <td bgcolor="#ffffff" align="center" style="padding: 20px 30px 60px 30px;">
                                         <table border="0" cellspacing="0" cellpadding="0">
                                             <tr>
-                                                <td align="center" style="border-radius: 3px;" bgcolor="#2C2D3F"><a href="https://cursos-production.up.railway.app/order-completed/changepassword/${name}/${email}" target="_blank" style="font-size: 20px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; color: #ffffff; text-decoration: none; padding: 15px 25px; border-radius: 2px; border: 1px solid #2C2D3F; display: inline-block;">Recuperar Contraseña</a></td>
+                                                <td align="center" style="border-radius: 3px;" bgcolor="#2C2D3F"><a href="https://localhost:4200/order-completed/changepassword/${name}/${email}" target="_blank" style="font-size: 20px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; color: #ffffff; text-decoration: none; padding: 15px 25px; border-radius: 2px; border: 1px solid #2C2D3F; display: inline-block;">Recuperar Contraseña</a></td>
                                             </tr>
                                         </table>
                                     </td>
