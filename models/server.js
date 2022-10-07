@@ -112,7 +112,7 @@ class Server {
 
     bd() {
         // db.sequelize.sync();
-        // db.sequelize.sync({ alter: true });
+        //db.sequelize.sync({ alter: true });
     }
 
 

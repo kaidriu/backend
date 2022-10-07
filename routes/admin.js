@@ -44,7 +44,7 @@ const router = Router();
 --------------USERS------------------
 -------------------------------------*/
 
-router.get('/usuarios',[validarJWT,validarCampos],getUsers)
+router.get('/users',[validarJWT,validarCampos],getUsers)
 router.get('/instructores',[validarJWT,validarCampos],getInstructors)
 router.post('/inspectCourse',[validarJWT,validarCampos],inspectCourse)
 
@@ -109,6 +109,10 @@ router.get('/commissions',[validarJWT,validarCampos],getCommissions)
 router.put('/commissions',[validarJWT,validarCampos],putCommissions)
 router.get('/commissions/historial/graphic',[validarJWT,validarCampos],historialCommissionsGraphic)
 
+
+/*-----------------------------------
+--------------PROMOCIONES-----------------
+-------------------------------------*/
 
 
 

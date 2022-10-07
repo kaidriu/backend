@@ -112,8 +112,8 @@ const historyOrders = async (req, res = response) => {
         attributes: ["name", "email"],
       },
     ],
+    order: [["id", "DESC"]],
   });
-console.log(_orders);
   res.json(_orders);
 };
 

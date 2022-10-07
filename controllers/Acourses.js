@@ -5,7 +5,7 @@ const { Op, QueryTypes} = require("sequelize");
 const { sequelize } = require("../database/db");
 
 const User = db.user;
-const errOpNotCompleted = "Servidor: No se pudo completar la operación. Error: ";
+const errOpNotCompleted = "Servidor: No se pudo completar la operación.";
 
 const Ubication = db.Ubication;
 const UserDetails = db.userDetails;
@@ -83,22 +83,23 @@ const getCoursesFromInstructor = async (req, res = response) => {
 
 const aceptarSolicitudCurso = async (req, res = response) => {
 
-  const { idc } = req.params;
   const t = await sequelize.transaction();
 
   try {  
-    
+    const { idc } = req.params;
+
     let actions = []; 
+
+    const state = 'publicado';
 
     actions.push(
       Curso.findOne({
         where: { id: idc },
-      }).then((curso)=>{
-        curso.update({ state: 'publicado' },{ transaction: t})
+      },{ transaction: t}).then((curso)=>{
+        curso.update({ state })
       })
     );
 
-    
     actions.push(
         sequelize.query(
           'UPDATE "topics" SET "topicIsEditable" = false FROM "chapters" WHERE "chapters"."courseId" = ? AND "topics"."chapterId" = "chapters"."id"',
@@ -108,19 +109,21 @@ const aceptarSolicitudCurso = async (req, res = response) => {
             transaction: t
           }
         )
-    )
-    
+    );
   
     await Promise.all(actions);
 
     await t.commit();
 
-    res.status(200).send({state});
+    res.status(200).json({state});
     
   } catch (err) {
-    await t.rollback();
+
     console.log(err.message);
-    res.status(500).send({error: err.message})
+
+    await t.rollback();
+    
+    res.status(500).json({error: err.message})
   }
 
 }
@@ -231,12 +234,14 @@ const postPackages = async (req, res=response) => {
         });
 
         await Packages.save();
-        res.json({Packages});
+        res.status(200).json({Packages});
       }else{
         res.status(400).send("La cantidad de cursos por paquete no puede ser menor a 2");
       }
   } catch (error) {
-      res.status(400).send(error)
+    res.status(500).json({
+      msg: errOpNotCompleted + error
+    });
   }
   
 }
@@ -255,22 +260,40 @@ const putPackages = async (req, res=response) => {
 
       res.json({Packages});        
   } catch (error) {
-      res.status(400).send(error)
+    res.status(500).json({
+      msg: errOpNotCompleted,
+      error
+    });
   }
 }
 
 //CATEGORÍAS
 
 const PostCategory = async (req, res = response) => {
-  const { name_category } = req.body;
-  const category = new Category({ name_category });
 
-  await category.save();
+  try {
+    const { name_category } = req.body;
 
-  res.json({
+    const category = new Category({ name_category });
+
+    await category.save();
+
+    res.json({
       category
-  })
+  });
 
+
+  } catch (error) {
+
+    res.status(500).json({
+      msg: errOpNotCompleted, 
+      error
+    });
+  
+  }
+  
+
+  
 }
 
 const DeleteCategory = async (req, res = response) => {
@@ -310,7 +333,8 @@ const DeleteCategory = async (req, res = response) => {
 
   } catch (error) {
       res.status(500).json({
-          msg: errOpNotCompleted + error
+          msg: errOpNotCompleted,
+          error
       })
 
   }
@@ -318,43 +342,55 @@ const DeleteCategory = async (req, res = response) => {
 
 const PutCategory = async (req, res = response) => {
 
-  const { name_category, new_name_category } = req.body;
+  try {
+    
+    const { id_category, new_name_category } = req.body;
 
-  const category = await Category.findOne({
-      where: { name_category }
-  });
-
-  await category.update({ name_category: new_name_category });
-
-  res.json({
-      category
-  })
+    const category = await Category.findByPk(id_category);
+  
+    await category.update({ name_category: new_name_category });
+  
+    res.json({
+        category
+    })     
+  } catch (error) {
+    res.status(500).json({
+      msg: errOpNotCompleted,
+      error
+    });
+  }
 }
 
 const PostSubCategory = async (req, res = response) => {
 
-  const { name_category, name_subcategory } = req.body;
+  try {
 
-  const category = await Category.findOne({
-      where: { name_category }
-  });
+    const { id_category, name_subcategory } = req.body;
 
-  if (!category) {
-      res.json({
-          msg: "No existe esa categoria"
-      })
+    const category = await Category.findByPk(id_category);
 
-  } else {
-      const categoryId = category.id;
+    if (!category) {
+      res.status(400).json({
+        msg: "No existe esa categoria"
+      });
+    } else {
 
-      const subcategory = new Subcategory({ name_subcategory, categoryId });
+      const subcategory = new Subcategory({ name_subcategory, categoryId: id_category });
 
       await subcategory.save();
 
-      res.json({
-          subcategory
-      })
+      res.status(200).json({
+        subcategory
+      });
+    }
+    
+  } catch (error) {
+    res.status(500).json({
+      msg: errOpNotCompleted,
+      error
+    });
   }
+
 }
 
 const DeleteSubCategory = async (req, res = response) => {
@@ -380,7 +416,8 @@ const DeleteSubCategory = async (req, res = response) => {
 
   } catch (error) {
       res.status(500).json({
-          msg: errOpNotCompleted + error
+          msg: errOpNotCompleted,
+          error
       })
 
   }
@@ -388,11 +425,9 @@ const DeleteSubCategory = async (req, res = response) => {
 
 const PutSubcategory = async (req, res = response) => {
 
-  const { name_subcategory, new_name_subcategory } = req.body;
+  const { id_subcategory, new_name_subcategory } = req.body;
 
-  const subcategory = await Subcategory.findOne({
-      where: { name_subcategory }
-  });
+  const subcategory = await Subcategory.findByPk(id_subcategory);
 
   await subcategory.update({ name_subcategory: new_name_subcategory });
 

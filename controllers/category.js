@@ -7,23 +7,44 @@ const { Op } = require("sequelize");
 const Category = db.category;
 const Subcategory = db.subcategory;
 const sequelize = require("sequelize");
+const errOpNotCompleted = "Servidor: No se pudo completar la operación.";
+
 
 const GetSubCategory = async (req, res = response) => {
 
-    const { name_category } = req.params;
+    try {
+        const { name_category } = req.params;
 
-    const category = await Category.findOne({
-        where: { name_category }
-    });
+        const category = await Category.findOne({
+            where: { name_category }
+        });
 
-    const subcategory = await Subcategory.findAll({
-        where: { categoryId: category.id },
-        attributes: { exclude: ['categoryId', 'createdAt', 'updatedAt'] },
-    });
+        if(category){
 
-    res.json({
-        subcategory
-    })
+            const subcategory = await Subcategory.findAll({
+                where: { categoryId: category.id },
+                attributes: { exclude: ['categoryId', 'createdAt', 'updatedAt'] },
+            });
+
+            res.json({
+                subcategory
+            })
+
+        }else{
+
+            res.status(400).json({
+                msg: 'No existe la categoría',
+              });
+
+        }
+
+    } catch (error) {
+        res.status(500).json({
+          msg: errOpNotCompleted,
+          error
+        });
+      }
+    
 }
 
 const GetCategory = async (req, res = response) => {

@@ -51,40 +51,29 @@ const getInstructors = async (req, res = response) => {
 
 const getUsers = async (req, res = response) => {
 
-    const [usuarios] = await Promise.all([
-        Profile.findAll({
+    const users = await Profile.findAll({
             order: [['id', 'ASC']],
-            attributes: { exclude: ['createdAt', 'updatedAt', 'ubicationId', 'userTypeId', 'userDetailId'] },
+            attributes: ['id', 'image_perfil', 'edad'],
             include: [
                 {
                     model: User,
-                    attributes: { exclude: ['password', 'createdAt', 'updatedAt', 'id'] },
+                    attributes: ['name', 'email', 'createdAt'],
                 },
                 {
                     model: Ubication,
-                    attributes: { exclude: ['createdAt', 'updatedAt', 'id'] },
+                    attributes: ['country'],
                 },
-                {
-                    model: UserDetails,
-                    attributes: { exclude: ['createdAt', 'updatedAt', 'id'] },
-                },
-                {
-                    model: Type,
-                    where: {
-                        nametype: 'usuario'
-                    },
-                    attributes: { exclude: ['createdAt', 'updatedAt', 'id'] },
-                }
             ],
-
-
-        }),
-
-    ])
+            where: {
+                userTypeId: {
+                    [Op.not]: 2
+                }
+            }
+        });
 
     res.json({
-        usuarios
-    })
+        users
+    });
 
 }
 

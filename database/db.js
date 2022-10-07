@@ -100,6 +100,7 @@ db.notification_type = require("../models/notification_type")(sequelize, Sequeli
 
 db.notification = require("../models/notification")(sequelize, Sequelize);
 
+db.discount = require("../models/discount")(sequelize, Sequelize);
 
 
 db.user.belongsTo(db.profile);

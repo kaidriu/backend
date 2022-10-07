@@ -1,0 +1,9 @@
+const { response } = require("express");
+const db = require("../database/db");
+const { Op } = require("sequelize");
+const { Sequelize } = require("../database/db");
+const courses = db.course;
+const orderDetails = db.order_details;
+const user = db.user;
+const subcategory = db.subcategory;
+const category = db.category;
