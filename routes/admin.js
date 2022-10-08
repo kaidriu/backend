@@ -17,6 +17,7 @@ const {
     DeleteSubCategory} = require('../controllers/Acourses');
     
 const {getUsers, getInstructors, inspectCourse} = require('../controllers/Ausers');
+const {postDiscount, putDiscount, getDiscounts} = require('../controllers/Apromotions');
 const { 
     HistoryPayments, 
     viewDeposit, 
@@ -113,7 +114,9 @@ router.get('/commissions/historial/graphic',[validarJWT,validarCampos],historial
 /*-----------------------------------
 --------------PROMOCIONES-----------------
 -------------------------------------*/
-
+router.post('/discount',[validarJWT,validarCampos],postDiscount);
+router.put('/discount',[validarJWT,validarCampos],putDiscount);
+router.get('/discounts',[validarJWT,validarCampos],getDiscounts);
 
 
 module.exports=router;  
