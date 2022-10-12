@@ -15,7 +15,13 @@ const postDiscount = async (req, res = response) => {
 
     try {
 
-        const { title, from, to, percentage, state, subcategoriesIds } = req.body;
+        const { title, from, to, percentage, subcategoriesIds } = req.body;
+
+        let state = 'pendiente'
+
+        if (new Date(from) < Date.now()) {
+            state = 'activo';             
+        }
 
         const discount = new Discount({title, from, to, percentage, state, subcategoriesIds});
 
@@ -54,7 +60,25 @@ const putDiscount = async (req, res = response) => {
 const getDiscounts = async (req, res = response) => {
     try {
 
-        const discounts = await Discount.findAll();
+        const {finished} = req.query;
+
+        let whereState;
+
+        if(finished == 'true'){
+            whereState = {
+                [Op.in] : ['finalizado']
+            }
+        }else {
+            whereState = {
+                [Op.not] : ['finalizado']
+            }
+        }
+
+        const discounts = await Discount.findAll({
+            where: {
+                state: whereState
+            }
+        });
 
         let queryPromises = [];
 
@@ -85,8 +109,35 @@ const getDiscounts = async (req, res = response) => {
     }
 }
 
+const deleteDiscount = async (req, res = response) => {
+    try {
+
+        const { idD } = req.params;
+
+        const discount = await Discount.findByPk(idD);
+
+        let from = new Date(discount.from);
+
+        if (from < Date.now() || discount.state != 'pendiente') {
+            throw new Error('No se puede eliminar el registro');
+        }
+
+        discount.destroy();
+        
+        res.status(200).json({ok: true}); 
+
+    }catch (error) {
+        res.status(500).json({
+            msg: 'error: ',
+            error: error.message
+        });
+    }
+}
+
+
 module.exports = {
     postDiscount,
     putDiscount,
-    getDiscounts
+    getDiscounts,
+    deleteDiscount
 }
