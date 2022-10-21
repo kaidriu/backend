@@ -10,7 +10,7 @@ const genCertificate = require('../helpers/genCertificates');
 const { createServer } = require('http');
 const { socketController } = require('../sockets/controller');
 const notification = require('./notification');
-
+const { Op } = require('sequelize');
 
 class Server {
 
@@ -57,11 +57,29 @@ class Server {
         //routes
         this.routes();
 
+        /* ----------------------------------- 
+        DESCOMENTAR PARA QUE FUNCIONEN LAS PROMOCIONES
+        --------------------------------------
+        */
+
+        //this.daemons();
+
     this.socket();
     }
 
     socket(){
         this.io.on('connection', ( socket ) => socketController(socket, this.io ) )
+    }
+
+    daemons(){
+        setInterval(()=>{
+            db.sequelize.query(
+                `UPDATE "discounts" SET "state" = 'activo' WHERE "discounts"."from" <= NOW() AND "discounts"."to" >= NOW() AND STATE != 'activo'`,
+            );
+            db.sequelize.query(
+                `UPDATE "discounts" SET "state" = 'finalizado' WHERE "discounts"."to" <= NOW() AND STATE != 'finalizado'`,
+            );
+        }, 60000);
     }
 
     static get instance() {
@@ -111,8 +129,8 @@ class Server {
 
 
     bd() {
-        // db.sequelize.sync();
-        // db.sequelize.sync({ alter: true });
+        //db.sequelize.sync();
+        //db.sequelize.sync({ alter: true });
     }
 
 

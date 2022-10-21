@@ -42,8 +42,12 @@ const uploadFile = function (file, title, type, id_folder) {
                 resolve(file.data.id);
             }
         })
-    }
-    )
+    })
+    
+}
+
+const uploadPackageImage = function(file, title, type){
+    return uploadFile(file, title, type, '1CAltdz69DwMACNUrKSnEQGgBAlITMYZq');
 }
 
 const uploadFilePayOrder = function (file, title, type) {
@@ -186,5 +190,6 @@ module.exports = {
     uploadFile,
     updateTitleFile,
     createFolderDriveStudents,
-    uploadFilePayOrder
+    uploadFilePayOrder,
+    uploadPackageImage
 }

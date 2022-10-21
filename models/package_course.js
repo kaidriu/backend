@@ -12,6 +12,12 @@ module.exports = (sequelize,Sequelize) =>{
         },
         percents_package:{
             type:Sequelize.DOUBLE
+        },
+        image_url: {
+            type:Sequelize.STRING
+        },
+        state: {
+            type:Sequelize.STRING
         }
     })
     return package_course;

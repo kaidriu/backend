@@ -15,9 +15,13 @@ const postDiscount = async (req, res = response) => {
 
     try {
 
-        const { title, from, to, percentage, subcategoriesIds } = req.body;
+        const { title, from, to, percentage } = req.body;
 
-        let state = 'pendiente'
+        let { subcategoriesIds } = req.body;
+
+        subcategoriesIds = JSON.parse(subcategoriesIds);
+
+        let state = 'pendiente';
 
         if (new Date(from) < Date.now()) {
             state = 'activo';             
@@ -30,7 +34,6 @@ const postDiscount = async (req, res = response) => {
         res.status(200).json({discount});
 
     }catch (error) {
-        
         res.status(500).json({
             msg: 'error: ',
             error: error.message
@@ -92,7 +95,7 @@ const getDiscounts = async (req, res = response) => {
                         }
                     }
                 }).then((subcategories)=>{
-                    discount.dataValues.subcategories = subcategories
+                    discount.dataValues.subcategories = subcategories; 
                 })
             );
         });
@@ -107,6 +110,38 @@ const getDiscounts = async (req, res = response) => {
             error: error.message
         });
     }
+}
+
+const getDiscountCategories = async (req, res = response) => {
+    
+    try {
+        const {idD} = req.params;
+
+        const discount = await Discount.findByPk(idD);
+
+        const categories = await category.findAll({
+            attributes:['id', 'name_category'],
+            include: {
+                model: subcategory,
+                required: true,
+                attributes:['id', 'name_subcategory'],
+                where: {
+                    id: {
+                        [Op.in] : discount.subcategoriesIds
+                    }
+                }
+            }
+        });
+
+        res.status(200).json({categories});
+        
+    } catch (error) {
+        res.status(500).json({
+            msg: 'error: ',
+            error: error.message
+        });
+    }
+
 }
 
 const deleteDiscount = async (req, res = response) => {
@@ -139,5 +174,6 @@ module.exports = {
     postDiscount,
     putDiscount,
     getDiscounts,
-    deleteDiscount
+    deleteDiscount,
+    getDiscountCategories
 }

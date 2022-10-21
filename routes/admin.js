@@ -7,6 +7,8 @@ const {
     getCoursesFromInstructor,
     getPackages,
     postPackages,
+    putPackages,
+    getCoursesPackages,
     aceptarSolicitudCurso, 
     denegarSolicitudCurso, 
     PostCategory, 
@@ -17,7 +19,7 @@ const {
     DeleteSubCategory} = require('../controllers/Acourses');
     
 const {getUsers, getInstructors, inspectCourse} = require('../controllers/Ausers');
-const {postDiscount, putDiscount, getDiscounts, deleteDiscount} = require('../controllers/Apromotions');
+const {postDiscount, putDiscount, getDiscounts, deleteDiscount, getDiscountCategories} = require('../controllers/Apromotions');
 const { 
     HistoryPayments, 
     viewDeposit, 
@@ -76,9 +78,11 @@ router.put('/putcategories',[validarJWT,validarCampos],PutCategory);
 router.put('/putsubcategories',[validarJWT,validarCampos],PutSubcategory);
 
 /*-----------PAQUETES--------------*/
-router.get('/packages',[validarJWT,validarCampos],getPackages)
-router.post('/packages',[validarJWT,validarCampos],postPackages)
+router.get('/packages',[validarJWT,validarCampos],getPackages);
+router.get('/coursesPackage/:idP',[validarJWT,validarCampos],getCoursesPackages);
 
+router.post('/packages',[validarJWT,validarCampos],postPackages);
+router.put('/packages',[validarJWT,validarCampos],putPackages);
 
 
 /*-----------------------------------
@@ -118,6 +122,7 @@ router.post('/discount',[validarJWT,validarCampos],postDiscount);
 router.put('/discount',[validarJWT,validarCampos],putDiscount);
 router.get('/discounts',[validarJWT,validarCampos],getDiscounts);
 router.delete('/discount/:idD',[validarJWT,validarCampos],deleteDiscount);
+router.get('/discount/:idD',[validarJWT,validarCampos],getDiscountCategories);
 
 
 module.exports=router;  
