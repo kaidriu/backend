@@ -3,11 +3,11 @@ const { response } = require("express");
 const db = require("../database/db");
 const { Op, QueryTypes} = require("sequelize");
 const { sequelize } = require("../database/db");
-const { uploadPackageImage, generatePublicUrl } = require('../helpers/drive');
+const { uploadPackageImage, generatePublicUrl, deleteFile, getIdFromUrl } = require('../helpers/drive');
 const course = require("../models/course");
 
 const User = db.user;
-const errOpNotCompleted = "Servidor: No se pudo completar la operación.";
+const errOpNotCompleted = "Servidor: No se pudo completar la operación. ";
 
 const Ubication = db.Ubication;
 const UserDetails = db.userDetails;
@@ -19,6 +19,7 @@ const Subcategory = db.subcategory;
 const Category = db.category;
 const packages = db.packageCourse;
 const Enroll_course = db.enroll_course;
+const packagesOrdersDetails = db.detail_package_order;
 
 
 const cursosRevision = async (req, res = response) => {
@@ -64,7 +65,7 @@ const cursosPublicados = async (req, res = response) => {
       ],
       include: {
         model: packages,
-        as: 'packageToCourse',
+        as: 'PackageToCourse',
         attributes: [],
         where: {
           id: packageId
@@ -238,18 +239,6 @@ const getPackages = async (req, res=response) => {
       attributes:{
         exclude:["createdAt", "updatedAt"]
       },
-      /* include:[
-          {
-              model: Curso,
-              as: 'packageToCourse',
-              attributes: [
-                  "title",
-                  "createdAt",
-                  "id",
-                  "image_course",
-              ]
-          }
-      ], */
       order: [["createdAt", "DESC"]],
     });
 
@@ -270,7 +259,7 @@ const getCoursesPackages = async (req, res=response) => {
     ],
     include: {
       model: packages,
-      as: 'packageToCourse',
+      as: 'PackageToCourse',
       attributes: [],
       where: {
         id: idP
@@ -321,21 +310,36 @@ const postPackages = async (req, res=response) => {
 
 const putPackages = async (req, res=response) => {
   try {
-      const { id, cant_course, title_package, state, price_package, percents_package=0} = req.body;      
+      const { id, cant_course, title_package, state, price_package, coursesIds, percents_package=0} = req.body;
+
 
       const Packages = await packages.findByPk(id);
 
+      if (coursesIds) {
+
+        let IdsCourses = JSON.parse(coursesIds)
+
+        const courses = await Curso.findAll({ where: { id: { [Op.in]: IdsCourses } } });
+        
+        await Packages.setCourseToPackage(courses);
+      }
+
       if (req.files) {
+
         const { archivo } = req.files;
         const { tempFilePath } = archivo;
 
+        if(Packages.image_url){
+          await deleteFile( getIdFromUrl(Packages.image_url) );
+        }
+
         await uploadPackageImage(tempFilePath, archivo.name, archivo.mimetype).then(async (resp) => {
           await generatePublicUrl(resp).then(async (fileURLs) => {
-            await Packages. update({image_url: fileURLs.webContentLink});
+            await Packages.update({image_url: fileURLs.webContentLink});
           })
         });          
       }
-      
+
       await Packages.update({
           cant_course,
           title_package,
@@ -352,6 +356,40 @@ const putPackages = async (req, res=response) => {
     });
   }
 }
+
+const deletePackage = async (req, res=response) => {
+  try {
+
+      const { idP } = req.params;
+
+      const orders = await packagesOrdersDetails.count({
+        where: {
+          packageCourseId: idP
+        }
+      });
+
+      if (orders > 0) {
+        throw new Error('Este paquete ya tiene ventas registradas');
+      }
+
+      const Packages = await packages.findByPk(idP);
+
+      if(Packages.image_url){
+        await deleteFile( getIdFromUrl(Packages.image_url) );
+      }
+
+      await Packages.destroy();
+
+      res.json({Packages});
+
+  } catch (error) {
+    res.status(400).json({
+      msg: errOpNotCompleted, error
+    });
+  }
+}
+
+
 
 //CATEGORÍAS
 
@@ -427,6 +465,27 @@ const DeleteCategory = async (req, res = response) => {
 }
 
 const PutCategory = async (req, res = response) => {
+
+  try {
+    
+    const { id_category, new_name_category } = req.body;
+
+    const category = await Category.findByPk(id_category);
+  
+    await category.update({ name_category: new_name_category });
+  
+    res.json({
+        category
+    })     
+  } catch (error) {
+    res.status(500).json({
+      msg: errOpNotCompleted,
+      error
+    });
+  }
+}
+
+const putCoursesPackages = async (req, res = response) => {
 
   try {
     
@@ -531,6 +590,7 @@ module.exports = {
   getCoursesFromInstructor,
   getPackages,
   postPackages,
+  deletePackage,
   aceptarSolicitudCurso, 
   denegarSolicitudCurso,
   PostCategory,
@@ -540,5 +600,6 @@ module.exports = {
   PutCategory,
   PutSubcategory,
   putPackages,
-  getCoursesPackages
+  getCoursesPackages,
+  putCoursesPackages
 };

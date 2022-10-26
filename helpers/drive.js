@@ -50,6 +50,10 @@ const uploadPackageImage = function(file, title, type){
     return uploadFile(file, title, type, '1CAltdz69DwMACNUrKSnEQGgBAlITMYZq');
 }
 
+const uploadBannerImage = function(file, title, type){
+    return uploadFile(file, title, type, '1cz1eXsjlh-PY6RhZHbJpZdiRJkzordt8');
+}
+
 const uploadFilePayOrder = function (file, title, type) {
 
     return new Promise((resolve) => {
@@ -178,6 +182,10 @@ const generatePublicUrl = function (id) {
     )
 }
 
+const getIdFromUrl = function (url) {
+    return url.split('=')[1].split('&')[0];
+}
+
 auth.getClient().then(
     (resp) => {
         google.options({ auth: resp });
@@ -191,5 +199,7 @@ module.exports = {
     updateTitleFile,
     createFolderDriveStudents,
     uploadFilePayOrder,
-    uploadPackageImage
+    uploadPackageImage,
+    uploadBannerImage,
+    getIdFromUrl
 }

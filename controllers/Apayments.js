@@ -89,22 +89,6 @@ const historyOrders = async (req, res = response) => {
             model: courses,
             attributes: ["id", "title"],
           },
-          /* {
-            model: detailPackageOrders,
-              include:{
-                model: packageCourse,
-                include:{
-                  model: courses,
-                  as: 'packageToCourse',
-                  attributes: [
-                    "title",
-                    "createdAt",
-                    "id",
-                    "image_course",
-                  ] 
-                }
-              }
-			    } */
 		    ],
       },
       {

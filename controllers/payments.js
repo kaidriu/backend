@@ -792,7 +792,7 @@ const getCoursesInPackage = async (req, res = response) => {
             id
         },
         include: {
-            model: Course, as: 'packageToCourse',
+            model: Course, as: 'CourseToPackage',
             attributes: ["title", "description", "image_course", "id", "updatedAt"],
             include:
                 [

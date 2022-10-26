@@ -8,6 +8,7 @@ const {
     getPackages,
     postPackages,
     putPackages,
+    deletePackage,
     getCoursesPackages,
     aceptarSolicitudCurso, 
     denegarSolicitudCurso, 
@@ -16,7 +17,8 @@ const {
     DeleteCategory, 
     PutCategory, 
     PutSubcategory, 
-    DeleteSubCategory} = require('../controllers/Acourses');
+    DeleteSubCategory,
+    putCoursesPackages} = require('../controllers/Acourses');
     
 const {getUsers, getInstructors, inspectCourse} = require('../controllers/Ausers');
 const {postDiscount, putDiscount, getDiscounts, deleteDiscount, getDiscountCategories} = require('../controllers/Apromotions');
@@ -33,12 +35,11 @@ const {
     summaryNoPaymentInstructor,
     detailOrdersNoPaymentByCurso,
     payInstructor,
-    getHistoryPaymentsInstructor,
-    getBankAccounts,
-    postBankAccount,
-    putBankAccount} = require('../controllers/Apayments');
+    getHistoryPaymentsInstructor} = require('../controllers/Apayments');
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJWT } = require('../middlewares/validar-JWT');
+
+const settings = require('../controllers/Asettings');
 
 const router = Router();
 
@@ -79,10 +80,13 @@ router.put('/putsubcategories',[validarJWT,validarCampos],PutSubcategory);
 
 /*-----------PAQUETES--------------*/
 router.get('/packages',[validarJWT,validarCampos],getPackages);
+
 router.get('/coursesPackage/:idP',[validarJWT,validarCampos],getCoursesPackages);
+router.put('/coursesPackage',[validarJWT,validarCampos],putCoursesPackages);
 
 router.post('/packages',[validarJWT,validarCampos],postPackages);
 router.put('/packages',[validarJWT,validarCampos],putPackages);
+router.delete('/package/:idP',[validarJWT,validarCampos],deletePackage);
 
 
 /*-----------------------------------
@@ -99,10 +103,6 @@ router.get('/payments/detailOrdersNoPaymentsByCourseId/:idC',[validarJWT,validar
 router.post('/payments/payInstructor',[validarJWT,validarCampos],payInstructor)
 //Historial de Pagos
 router.get('/payments/historyPayments/:idU',[validarJWT,validarCampos],getHistoryPaymentsInstructor)
-// Información
-router.get('/bankAccounts',[validarJWT,validarCampos],getBankAccounts)
-router.post('/bankAccount',[validarJWT,validarCampos],postBankAccount)
-router.put('/bankAccount',[validarJWT,validarCampos], putBankAccount)
 
 
 
@@ -123,6 +123,21 @@ router.put('/discount',[validarJWT,validarCampos],putDiscount);
 router.get('/discounts',[validarJWT,validarCampos],getDiscounts);
 router.delete('/discount/:idD',[validarJWT,validarCampos],deleteDiscount);
 router.get('/discount/:idD',[validarJWT,validarCampos],getDiscountCategories);
+
+/*-----------------------------------
+--------------SETTINGS-----------------
+-------------------------------------*/
+
+//BANK ACCOUNTS
+router.get('/bankAccount',[validarJWT,validarCampos],settings.getBankAccounts);
+router.post('/bankAccount',[validarJWT,validarCampos], settings.postBankAccount);
+router.put('/bankAccount',[validarJWT,validarCampos],settings.putBankAccount);
+router.delete('/bankAccount/:id',[validarJWT,validarCampos],settings.deleteBankAccount);
+
+//BANNERS
+router.get('/banner',[validarJWT,validarCampos],settings.getBanners);
+router.post('/banner',[validarJWT,validarCampos],settings.postBanner);
+router.delete('/banner/:id',[validarJWT,validarCampos],settings.deleteBanner);
 
 
 module.exports=router;  
