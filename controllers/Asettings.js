@@ -12,7 +12,7 @@ const banner = db.banner;
 const getBankAccounts = async (req, res = response) => {
     try {
 
-        const bankAccounts = await bankAccount.findAll();
+        const bankAccounts = await bankAccount.findAll({order: ['id']});
 
         res.status(200).json(bankAccounts);
         
@@ -48,13 +48,14 @@ const putBankAccount = async (req, res = response) => {
 
         const { id, owner_name, owner_document, number, bank_name, state } = req.body;
 
-        const BankAccount = bankAccount.findByPk(id);
+        const BankAccount = await bankAccount.findByPk(id);
 
         await BankAccount.update({owner_name, owner_document, number, bank_name, state});
 
         res.status(200).json({BankAccount});
         
     } catch (error) {
+        console.log(error);
         res.status(400).json({
             msg: 'error: ',
             error: error.message

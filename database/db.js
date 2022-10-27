@@ -104,6 +104,10 @@ db.discount = require("../models/discount")(sequelize, Sequelize);
 
 db.banner = require("../models/banner")(sequelize, Sequelize);
 
+db.module = require("../models/module")(sequelize, Sequelize);
+
+db.admin = require("../models/admin")(sequelize, Sequelize);
+
 
 
 db.user.belongsTo(db.profile);
@@ -244,8 +248,9 @@ db.user.hasMany(db.courseReview);
 db.courseReview.belongsTo(db.course);
 db.course.hasMany(db.courseReview);
 
-db.courseReview.belongsToMany(db.courseReview, { as: 'Children', through: 'repliesCourseReview' })
+db.courseReview.belongsToMany(db.courseReview, { as: 'Children', through: 'repliesCourseReview' });
 
+db.admin.hasOne(db.user);
 
 //questions
 db.question.belongsTo(db.archive);
