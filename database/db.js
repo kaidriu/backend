@@ -106,9 +106,6 @@ db.banner = require("../models/banner")(sequelize, Sequelize);
 
 db.module = require("../models/module")(sequelize, Sequelize);
 
-db.admin = require("../models/admin")(sequelize, Sequelize);
-
-
 
 db.user.belongsTo(db.profile);
 db.profile.hasOne(db.user);
@@ -250,19 +247,18 @@ db.course.hasMany(db.courseReview);
 
 db.courseReview.belongsToMany(db.courseReview, { as: 'Children', through: 'repliesCourseReview' });
 
-db.admin.hasOne(db.user);
-
 //questions
 db.question.belongsTo(db.archive);
 db.archive.hasOne(db.question);
 
 
-db.course.belongsToMany(db.packageCourse, { as: 'PackageToCourse', through: 'packageCourse_course' })
-db.packageCourse.belongsToMany(db.course, { as: 'CourseToPackage', through: 'packageCourse_course' })
+db.course.belongsToMany(db.packageCourse, { as: 'PackageToCourse', through: 'packageCourse_course' });
+db.packageCourse.belongsToMany(db.course, { as: 'CourseToPackage', through: 'packageCourse_course' });
 
-db.certificate.belongsToMany(db.entity_certificate, { as: 'certificSateToEntity', through: 'throughEntityCertificate' })
-db.entity_certificate.belongsToMany(db.certificate, { as: 'entityToCertificate', through: 'throughEntityCertificate' })
+db.certificate.belongsToMany(db.entity_certificate, { as: 'certificSateToEntity', through: 'throughEntityCertificate' });
+db.entity_certificate.belongsToMany(db.certificate, { as: 'entityToCertificate', through: 'throughEntityCertificate' });
 
+db.user.belongsToMany(db.module, { as: 'UserToModule', through: 'permits' });
 
 //certificates
 

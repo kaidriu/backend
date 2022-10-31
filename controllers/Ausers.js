@@ -2,6 +2,7 @@ const { response } = require('express');
 const db = require('../database/db');
 const { Op } = require("sequelize");
 const profile = require('../models/profile');
+const { adsense } = require('googleapis/build/src/apis/adsense');
 
 
 const User = db.user;
@@ -51,13 +52,42 @@ const getInstructors = async (req, res = response) => {
 
 const getUsers = async (req, res = response) => {
 
+    let { filter } = req.query;
+
+    let limit;
+
+    let where;
+
+    if (filter) {
+
+        console.log(filter);
+
+        filter = `${filter}`
+
+        limit = 10;
+        
+        where = {
+            [Op.or]:{
+                name: {
+                    [Op.iRegexp]: filter
+                },
+                email: {
+                    [Op.iRegexp]: filter
+                },
+            }
+        }
+    }
+
     const users = await Profile.findAll({
             order: [['id', 'ASC']],
+            limit: limit,
             attributes: ['id', 'image_perfil', 'edad'],
             include: [
                 {
                     model: User,
+                    required: true,
                     attributes: ['name', 'email', 'createdAt'],
+                    where: where
                 },
                 {
                     model: Ubication,
@@ -67,7 +97,7 @@ const getUsers = async (req, res = response) => {
             where: {
                 userTypeId: {
                     [Op.not]: 2
-                }
+                },
             }
         });
 
