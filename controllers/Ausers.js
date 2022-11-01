@@ -1,7 +1,6 @@
 const { response } = require('express');
 const db = require('../database/db');
-const { Op } = require("sequelize");
-const profile = require('../models/profile');
+const { Op, where } = require("sequelize");
 const { adsense } = require('googleapis/build/src/apis/adsense');
 
 
@@ -12,6 +11,9 @@ const UserDetails = db.userDetails;
 const Type = db.UserType;
 const Course = db.course;
 const EnrollCourse = db.enroll_course;
+const Module = db.module;
+const UserTypes = db.UserType;
+
 
 
 const getInstructors = async (req, res = response) => {
@@ -128,9 +130,101 @@ const inspectCourse = async (req, res = response) => {
     res.json({tempEnroll});
 }
 
+const postAdmin = async (req, res = response) => {
+
+    const { id } = req.body;
+
+    console.log(id);
+    
+    const user = await User.findOne({
+        where: {id},
+        include: {
+            model: Profile,
+            required: true, 
+            attributes: [],
+            include: {
+                model: UserTypes,
+                where: {
+                    nametype: {
+                        [Op.not]: 'Administrador'
+                    }
+                }
+            }
+        }
+    });
+
+    if(!user){
+        throw new Error('Este usuario no existe o ya es administrador');
+    }
+
+    const userType = await UserTypes.findOne({where: {nametype: 'administrador' }});
+
+    const profile = await Profile.findByPk(user.profileId);
+
+    const firstModule = await Module.findByPk(0);
+
+    await profile.update({userTypeId: userType.id});
+
+    await user.addPermits(firstModule);
+
+    res.json({user});
+}
+
+const putPermits = async (req, res = response) => {
+    const {id, modules} = req.body;
+    
+    
+    const adminModules = JSON.parse(modules);
+    
+    const user = await User.findByPk(id);
+
+    const userType = await UserTypes.findOne({where: {nametype: 'administrador' }});
+
+    const profile = await Profile.findByPk(user.profileId);
+
+    await profile.update({userTypeId: userType.id});
+
+    await user.setPermits(adminModules);
+
+    res.json({user});
+}
+
+
+const getAdmins = async (req, res = response) => {
+    const admins = await Profile.findAll({
+        order: [['id', 'ASC']],
+        attributes: ['id', 'image_perfil'],
+        include: [
+            {
+                model: User,
+                required: true,
+                attributes: ['name', 'email'],
+                include: {
+                    model: Module,
+                    as: 'Permits',
+                    attributes:['id', 'name']
+                }
+            },
+            {
+                model: UserTypes,
+                required: true,
+                attributes: [],
+                where: {
+                    nametype: 'administrador'
+                }
+            }
+        ],
+    });
+
+    res.json({admins});
+}
+
 
 module.exports = {
 getUsers,
 getInstructors,
-inspectCourse
+inspectCourse,
+postAdmin,
+putPermits,
+getAdmins
 }

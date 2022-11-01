@@ -1,45 +1,15 @@
-const {Router}=require('express');
-const { 
-    cursosPublicados, 
-    cursosRevision, 
-    sendRemark, 
-    changeStateCourse, 
-    getCoursesFromInstructor,
-    getPackages,
-    postPackages,
-    putPackages,
-    deletePackage,
-    getCoursesPackages,
-    aceptarSolicitudCurso, 
-    denegarSolicitudCurso, 
-    PostCategory, 
-    PostSubCategory, 
-    DeleteCategory, 
-    PutCategory, 
-    PutSubcategory, 
-    DeleteSubCategory,
-    putCoursesPackages} = require('../controllers/Acourses');
-    
-const {getUsers, getInstructors, inspectCourse} = require('../controllers/Ausers');
-const {postDiscount, putDiscount, getDiscounts, deleteDiscount, getDiscountCategories} = require('../controllers/Apromotions');
-const { 
-    HistoryPayments, 
-    viewDeposit, 
-    approveDeposit, 
-    refuseDeposit, 
-    historyOrders, 
-    getCommissions, 
-    putCommissions, 
-    historialCommissionsGraphic, 
-    summaryCoursesNoPayment,
-    summaryNoPaymentInstructor,
-    detailOrdersNoPaymentByCurso,
-    payInstructor,
-    getHistoryPaymentsInstructor} = require('../controllers/Apayments');
+const { Router }=require('express');
+
+const aCourses = require('../controllers/Acourses');
+const aUsers = require('../controllers/Ausers');
+const aPromotions = require('../controllers/Apromotions');
+const aPayments = require('../controllers/Apayments');
+const settings = require('../controllers/Asettings');
+
+
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJWT } = require('../middlewares/validar-JWT');
 
-const settings = require('../controllers/Asettings');
 
 const router = Router();
 
@@ -48,61 +18,68 @@ const router = Router();
 --------------USERS------------------
 -------------------------------------*/
 
-router.get('/users',[validarJWT,validarCampos],getUsers)
-router.get('/instructores',[validarJWT,validarCampos],getInstructors)
-router.post('/inspectCourse',[validarJWT,validarCampos],inspectCourse)
+router.get('/users',[validarJWT,validarCampos],aUsers.getUsers);
+router.get('/instructores',[validarJWT,validarCampos],aUsers.getInstructors);
+router.post('/inspectCourse',[validarJWT,validarCampos],aUsers.inspectCourse);
+
+router.get('/admins',[validarJWT,validarCampos], aUsers.getAdmins);
+router.post('/admin',[validarJWT,validarCampos], aUsers.postAdmin);
+router.put('/permits',[validarJWT,validarCampos], aUsers.putPermits);
+
+
+router.post('/inspectCourse',[validarJWT,validarCampos],aUsers.inspectCourse);
 
 
 /*-----------------------------------
 --------------CURSOS-----------------
 -------------------------------------*/
 
-router.get('/cursosrevision',[validarJWT,validarCampos],cursosRevision)
-router.get('/cursospublicados',[validarJWT,validarCampos],cursosPublicados)
-router.put('/change-state-course', changeStateCourse)
-router.get('/coursesByInstructor/:idt',[validarJWT,validarCampos],getCoursesFromInstructor)
+router.get('/cursosrevision',[validarJWT,validarCampos],aCourses.cursosRevision);
+router.get('/cursospublicados',[validarJWT,validarCampos],aCourses.cursosPublicados);
+router.put('/change-state-course', aCourses.changeStateCourse);
+router.get('/coursesByInstructor/:idt',[validarJWT,validarCampos],aCourses.getCoursesFromInstructor);
 
 
-router.put('/aceptarcourse/:idc',[validarJWT,validarCampos],aceptarSolicitudCurso);
+router.put('/aceptarcourse/:idc',[validarJWT,validarCampos],aCourses.aceptarSolicitudCurso);
 
-router.put('/rejectCourseRequest/:idc',[validarJWT,validarCampos],denegarSolicitudCurso);
+router.put('/rejectCourseRequest/:idc',[validarJWT,validarCampos],aCourses.denegarSolicitudCurso);
 
 //observaciones de cursos
-router.put('/sendremarks',[validarJWT,validarCampos], sendRemark)
+router.put('/sendremarks',[validarJWT,validarCampos], aCourses.sendRemark);
 
 /*------------CATEGORÍAS---------------*/
-router.post('/category',[validarJWT,validarCampos],PostCategory);
-router.post('/subcategory',[validarJWT,validarCampos],PostSubCategory);
-router.delete('/deletecategory/:idc',[validarJWT,validarCampos],DeleteCategory);
-router.delete('/deletesubcategory/:ids',[validarJWT,validarCampos],DeleteSubCategory);
-router.put('/putcategories',[validarJWT,validarCampos],PutCategory);
-router.put('/putsubcategories',[validarJWT,validarCampos],PutSubcategory);
+router.post('/category',[validarJWT,validarCampos], aCourses.PostCategory);
+router.post('/subcategory',[validarJWT,validarCampos], aCourses.PostSubCategory);
+router.delete('/deletecategory/:idc',[validarJWT,validarCampos], aCourses.DeleteCategory);
+router.delete('/deletesubcategory/:ids',[validarJWT,validarCampos], aCourses.DeleteSubCategory);
+router.put('/putcategories',[validarJWT,validarCampos], aCourses.PutCategory);
+router.put('/putsubcategories',[validarJWT,validarCampos], aCourses.PutSubcategory);
 
 /*-----------PAQUETES--------------*/
-router.get('/packages',[validarJWT,validarCampos],getPackages);
+router.get('/packages',[validarJWT,validarCampos], aCourses.getPackages);
 
-router.get('/coursesPackage/:idP',[validarJWT,validarCampos],getCoursesPackages);
-router.put('/coursesPackage',[validarJWT,validarCampos],putCoursesPackages);
+router.get('/coursesPackage/:idP',[validarJWT,validarCampos], aCourses.getCoursesPackages);
+router.put('/coursesPackage',[validarJWT,validarCampos], aCourses.putCoursesPackages);
 
-router.post('/packages',[validarJWT,validarCampos],postPackages);
-router.put('/packages',[validarJWT,validarCampos],putPackages);
-router.delete('/package/:idP',[validarJWT,validarCampos],deletePackage);
+router.post('/packages',[validarJWT,validarCampos], aCourses.postPackages);
+router.put('/packages',[validarJWT,validarCampos], aCourses.putPackages);
+router.delete('/package/:idP',[validarJWT,validarCampos], aCourses.deletePackage);
 
 
 /*-----------------------------------
 --------------PAGOS-----------------
 -------------------------------------*/
-router.get('/allPayments',[validarJWT,validarCampos],HistoryPayments)
-router.get('/orders',[validarJWT,validarCampos],historyOrders)
-router.get('/viewDeposit/:payment_status',[validarJWT,validarCampos],viewDeposit)
-router.put('/approveDeposit',[validarJWT,validarCampos],approveDeposit)
-router.put('/refuseDeposit',[validarJWT,validarCampos],refuseDeposit)
-router.get('/payments/summaryCoursesNoPaymentsByUserId/:idU',[validarJWT,validarCampos],summaryCoursesNoPayment)
-router.get('/payments/summaryInstructorsNoPayments',[validarJWT,validarCampos],summaryNoPaymentInstructor)
-router.get('/payments/detailOrdersNoPaymentsByCourseId/:idC',[validarJWT,validarCampos],detailOrdersNoPaymentByCurso)
-router.post('/payments/payInstructor',[validarJWT,validarCampos],payInstructor)
+router.get('/allPayments',[validarJWT,validarCampos], aPayments.HistoryPayments);
+router.get('/orders',[validarJWT,validarCampos], aPayments.historyOrders);
+router.get('/viewDeposit/:payment_status',[validarJWT,validarCampos], aPayments.viewDeposit);
+router.put('/approveDeposit',[validarJWT,validarCampos], aPayments.approveDeposit);
+router.put('/refuseDeposit',[validarJWT,validarCampos], aPayments.refuseDeposit);
+router.get('/payments/summaryCoursesNoPaymentsByUserId/:idU',[validarJWT,validarCampos], aPayments.summaryCoursesNoPayment);
+router.get('/payments/summaryInstructorsNoPayments',[validarJWT,validarCampos], aPayments.summaryNoPaymentInstructor);
+router.get('/payments/detailOrdersNoPaymentsByCourseId/:idC',[validarJWT,validarCampos], aPayments.detailOrdersNoPaymentByCurso);
+router.post('/payments/payInstructor',[validarJWT,validarCampos], aPayments.payInstructor);
 //Historial de Pagos
-router.get('/payments/historyPayments/:idU',[validarJWT,validarCampos],getHistoryPaymentsInstructor)
+router.get('/payments/historyPayments/:idU',[validarJWT,validarCampos], aPayments.getHistoryPaymentsInstructor);
 
 
 
@@ -110,19 +87,19 @@ router.get('/payments/historyPayments/:idU',[validarJWT,validarCampos],getHistor
 /*-----------------------------------
 --------------COMISIONES-----------------
 -------------------------------------*/
-router.get('/commissions',[validarJWT,validarCampos],getCommissions)
-router.put('/commissions',[validarJWT,validarCampos],putCommissions)
-router.get('/commissions/historial/graphic',[validarJWT,validarCampos],historialCommissionsGraphic)
+router.get('/commissions',[validarJWT,validarCampos], aPayments.getCommissions);
+router.put('/commissions',[validarJWT,validarCampos], aPayments.putCommissions);
+router.get('/commissions/historial/graphic',[validarJWT,validarCampos], aPayments.historialCommissionsGraphic);
 
 
 /*-----------------------------------
 --------------PROMOCIONES-----------------
 -------------------------------------*/
-router.post('/discount',[validarJWT,validarCampos],postDiscount);
-router.put('/discount',[validarJWT,validarCampos],putDiscount);
-router.get('/discounts',[validarJWT,validarCampos],getDiscounts);
-router.delete('/discount/:idD',[validarJWT,validarCampos],deleteDiscount);
-router.get('/discount/:idD',[validarJWT,validarCampos],getDiscountCategories);
+router.post('/discount',[validarJWT,validarCampos], aPromotions.postDiscount);
+router.put('/discount',[validarJWT,validarCampos], aPromotions.putDiscount);
+router.get('/discounts',[validarJWT,validarCampos], aPromotions.getDiscounts);
+router.delete('/discount/:idD',[validarJWT,validarCampos], aPromotions.deleteDiscount);
+router.get('/discount/:idD',[validarJWT,validarCampos], aPromotions.getDiscountCategories);
 
 /*-----------------------------------
 --------------SETTINGS-----------------
@@ -135,9 +112,9 @@ router.put('/bankAccount',[validarJWT,validarCampos],settings.putBankAccount);
 router.delete('/bankAccount/:id',[validarJWT,validarCampos],settings.deleteBankAccount);
 
 //BANNERS
-router.get('/banner',[validarJWT,validarCampos],settings.getBanners);
-router.post('/banner',[validarJWT,validarCampos],settings.postBanner);
-router.delete('/banner/:id',[validarJWT,validarCampos],settings.deleteBanner);
+router.get('/banner',[validarJWT,validarCampos], settings.getBanners);
+router.post('/banner',[validarJWT,validarCampos], settings.postBanner);
+router.delete('/banner/:id',[validarJWT,validarCampos], settings.deleteBanner);
 
 
 module.exports=router;  
