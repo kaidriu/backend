@@ -24,6 +24,7 @@ router.post('/inspectCourse',[validarJWT,validarCampos],aUsers.inspectCourse);
 
 router.get('/admins',[validarJWT,validarCampos], aUsers.getAdmins);
 router.post('/admin',[validarJWT,validarCampos], aUsers.postAdmin);
+router.delete('/admin/:id',[validarJWT,validarCampos], aUsers.deleteAdmin);
 router.put('/permits',[validarJWT,validarCampos], aUsers.putPermits);
 
 

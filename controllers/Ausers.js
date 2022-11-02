@@ -13,6 +13,7 @@ const Course = db.course;
 const EnrollCourse = db.enroll_course;
 const Module = db.module;
 const UserTypes = db.UserType;
+const RequestInstructor = db.requestI; 
 
 
 
@@ -171,10 +172,9 @@ const postAdmin = async (req, res = response) => {
 }
 
 const putPermits = async (req, res = response) => {
-    const {id, modules} = req.body;
+    const {id, permits} = req.body;
     
-    
-    const adminModules = JSON.parse(modules);
+    const modules = JSON.parse(permits);
     
     const user = await User.findByPk(id);
 
@@ -184,9 +184,37 @@ const putPermits = async (req, res = response) => {
 
     await profile.update({userTypeId: userType.id});
 
+    const adminModules = await Module.findAll({where: { id: {[Op.in]: modules} }});
+
     await user.setPermits(adminModules);
 
     res.json({user});
+}
+
+const deleteAdmin = async (req, res = response) => {
+
+    const {id} = req.params;
+
+    const user = await User.findByPk(id);
+
+    const profile = await Profile.findByPk(user.profileId);
+
+    await user.setPermits([]);
+
+    //Verificar antiguo rol
+    const requestI = await RequestInstructor.findOne({ where: { profileId:  profile.id, state: 'aceptado'} });
+
+    let nametype = 'usuario'; 
+
+    if (requestI)
+        nametype = 'instructor';
+
+    const userType = await UserTypes.findOne({where: { nametype }});
+ 
+    await profile.update({userTypeId: userType.id});
+
+    res.json({user})
+
 }
 
 
@@ -226,5 +254,6 @@ getInstructors,
 inspectCourse,
 postAdmin,
 putPermits,
-getAdmins
+getAdmins,
+deleteAdmin
 }
