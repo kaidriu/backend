@@ -26,6 +26,7 @@ router.get('/admins',[validarJWT,validarCampos], aUsers.getAdmins);
 router.post('/admin',[validarJWT,validarCampos], aUsers.postAdmin);
 router.delete('/admin/:id',[validarJWT,validarCampos], aUsers.deleteAdmin);
 router.put('/permits',[validarJWT,validarCampos], aUsers.putPermits);
+router.get('/permits',[validarJWT,validarCampos], aUsers.getMyPermits);
 
 
 router.post('/inspectCourse',[validarJWT,validarCampos],aUsers.inspectCourse);
@@ -49,6 +50,9 @@ router.put('/rejectCourseRequest/:idc',[validarJWT,validarCampos],aCourses.deneg
 router.put('/sendremarks',[validarJWT,validarCampos], aCourses.sendRemark);
 
 /*------------CATEGORÍAS---------------*/
+router.get('/categories',[validarJWT,validarCampos], aCourses.getCategory);
+router.get('/subcategory',[validarJWT,validarCampos], aCourses.getSubCategory);
+
 router.post('/category',[validarJWT,validarCampos], aCourses.PostCategory);
 router.post('/subcategory',[validarJWT,validarCampos], aCourses.PostSubCategory);
 router.delete('/deletecategory/:idc',[validarJWT,validarCampos], aCourses.DeleteCategory);

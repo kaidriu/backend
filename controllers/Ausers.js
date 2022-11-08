@@ -171,6 +171,40 @@ const postAdmin = async (req, res = response) => {
     res.json({user});
 }
 
+const getMyPermits = async (req, res = response) => {
+
+    const { id } = req.usuario;
+
+    const { module } = req.query;
+
+    const permits  = await User.findOne({
+        attributes: ['id', 'name', 'email'],
+        where: { id },
+        include: {
+            model: Module,
+            as: 'Permits',
+            attributes:['id', 'name']
+        }
+    });
+
+    console.log(module);
+    
+    if ( module ) {
+
+        let result = permits.dataValues.Permits.find((permit) => permit.dataValues.id == module);
+
+        if (result) {
+            res.json(true);
+        }else {
+            res.json(false);
+        }
+
+    }else{
+        res.json({permits});
+    }
+    
+}
+
 const putPermits = async (req, res = response) => {
     const {id, permits} = req.body;
     
@@ -255,5 +289,6 @@ inspectCourse,
 postAdmin,
 putPermits,
 getAdmins,
-deleteAdmin
+deleteAdmin,
+getMyPermits
 }

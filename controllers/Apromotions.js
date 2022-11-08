@@ -39,7 +39,11 @@ const postDiscount = async (req, res = response) => {
 const putDiscount = async (req, res = response) => {
     try {
 
-        const { id, title, from, to, percentage, state, subcategoriesIds} = req.body;
+        const { id, title, from, to, percentage, state} = req.body;
+
+        let { subcategoriesIds } = req.body;
+
+        subcategoriesIds = JSON.parse(subcategoriesIds);
 
         const discount = await Discount.findByPk(id);
 
@@ -48,6 +52,7 @@ const putDiscount = async (req, res = response) => {
         res.status(200).json({discount});
 
     }catch (error) {
+        console.log(error);
         res.status(500).json({
             msg: 'error: ',
             error: error.message

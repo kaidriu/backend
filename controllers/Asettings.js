@@ -27,9 +27,9 @@ const getBankAccounts = async (req, res = response) => {
 const postBankAccount = async (req, res = response) => {
     try {
 
-        const { owner_name, owner_document, number, bank_name, state = 'activo' } = req.body;
+        const { owner_name, owner_document, number, bank_name, bank_type, bank_country, owner_email, state = 'activo' } = req.body;
 
-        const BankAccount = new bankAccount({ owner_name, owner_document, number, bank_name, state });
+        const BankAccount = new bankAccount({ owner_name, owner_document, number, bank_name, bank_type, bank_country, owner_email, state });
 
         await BankAccount.save();
     
@@ -46,11 +46,11 @@ const postBankAccount = async (req, res = response) => {
 const putBankAccount = async (req, res = response) => {
     try {
 
-        const { id, owner_name, owner_document, number, bank_name, state } = req.body;
+        const { id, owner_name, owner_document, number, bank_name, bank_type, bank_country, owner_email, state } = req.body;
 
         const BankAccount = await bankAccount.findByPk(id);
 
-        await BankAccount.update({owner_name, owner_document, number, bank_name, state});
+        await BankAccount.update({owner_name, owner_document, number, bank_name, bank_type, bank_country, owner_email, state});
 
         res.status(200).json({BankAccount});
         

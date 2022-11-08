@@ -3,7 +3,10 @@ module.exports = (sequelize , Sequelize) =>{
         bank_name: {
             type : Sequelize.STRING
         },
-        type: {
+        bank_type: {
+            type : Sequelize.STRING
+        },
+        bank_country: {
             type : Sequelize.STRING
         },
         number: {
@@ -13,6 +16,9 @@ module.exports = (sequelize , Sequelize) =>{
             type : Sequelize.STRING
         },
         owner_document: {
+            type : Sequelize.STRING
+        },
+        owner_email: {
             type : Sequelize.STRING
         },
         state: {

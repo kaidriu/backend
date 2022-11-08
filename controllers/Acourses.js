@@ -393,6 +393,53 @@ const deletePackage = async (req, res=response) => {
 
 //CATEGORÍAS
 
+const getCategory = async (req, res = response) => {
+  try {
+    const { id } = req.query;
+
+    let where;
+    
+    if(id){
+      where = { id }
+    }
+
+    const category = await Category.findAll({
+      where: where
+    });
+
+    res.json({category});
+     
+  } catch (error) {
+    res.status(400).json({
+      msg: errOpNotCompleted, error
+    });
+  }
+}
+
+const getSubCategory = async (req, res = response) => {
+  try {
+    const { id } = req.query;
+    let where;
+    
+    if(id){
+      where = { categoryId: id }
+    }
+
+    const subcategory = await Subcategory.findAll({
+      where: where
+    });
+
+    res.json({subcategory});
+    
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({
+      msg: errOpNotCompleted, error
+    });
+  }
+}
+
+
 const PostCategory = async (req, res = response) => {
 
   try {
@@ -593,6 +640,8 @@ module.exports = {
   deletePackage,
   aceptarSolicitudCurso, 
   denegarSolicitudCurso,
+  getCategory,
+  getSubCategory,
   PostCategory,
   PostSubCategory,
   DeleteCategory,
