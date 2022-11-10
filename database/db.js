@@ -8,7 +8,7 @@ const Sequelize = require("sequelize");
   dialectOptions: {
     ssl: true
   },
-  port: 5432,
+  port: dbConfig.PORT,
   pool: {
     max: dbConfig.pool.max,
     min: dbConfig.pool.min,

@@ -12,10 +12,11 @@ module.exports = {
   // USER: "postgres",
   // PASSWORD: "nE7N9STUzqMBzhKCJp6o",
   // DB: "railway", 
-  HOST: "dpg-cbqga7k41ls3vg194gug-a.oregon-postgres.render.com",
+  HOST: "dpg-cdm6n7qrrk0d9h04u56g-a.oregon-postgres.render.com",
   USER: "slatter",
-  PASSWORD: "byuS4gmRsKyCN874wOuVifcBhabCU4ZA",
-  DB: "db_curos_smhv", 
+  PASSWORD: "AFmX9OnaccGIRUzX2aFnIw7SwX8cfaOs",
+  DB: "db_curos_smhv_eymm",
+  PORT: 5432, 
 
   // // BD LOCAL
   // HOST: "localhost",

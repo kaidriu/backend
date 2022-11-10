@@ -1,21 +1,24 @@
 const { Router} = require('express');
-const { getHistory, Putpaymentsinstructor, HistoryPayments, GraphicHistoryPayments, getHistoryInstructor, HistoryPaymentsdetails, GraphicHistoryPaymentsdetails, getDetailTransfers } = require('../controllers/inst_payment_history');
+const payments = require('../controllers/inst_payment_history');
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJWT } = require('../middlewares/validar-JWT');
 const router = Router();
 
 
-router.get('/getpayments',[validarJWT,validarCampos],getHistory);
-router.put('/savepayments',[validarJWT,validarCampos],Putpaymentsinstructor);
-router.get('/historypayments',[validarJWT,validarCampos],HistoryPayments);
-router.get('/graphichistorypayments/:from/:to/:idC',[validarJWT,validarCampos],GraphicHistoryPayments);
-router.get('/gethistoryintructor',[validarJWT,validarCampos],getHistoryInstructor);
+router.get('/getpayments',[validarJWT,validarCampos], payments.getHistory);
+router.put('/savepayments',[validarJWT,validarCampos],payments.Putpaymentsinstructor);
+router.get('/historypayments',[validarJWT,validarCampos],payments.HistoryPayments);
+router.get('/graphichistorypayments/:from/:to/:idC',[validarJWT,validarCampos],payments.GraphicHistoryPayments);
+router.get('/gethistoryintructor',[validarJWT,validarCampos],payments.getHistoryInstructor);
 
-router.get('/historypaymentsdetails/:idC/:valor/:from/:to',[validarJWT,validarCampos],HistoryPaymentsdetails);
+router.get('/historypaymentsdetails/:idC/:valor/:from/:to',[validarJWT,validarCampos],payments.HistoryPaymentsdetails);
 
-router.get('/graphichistorypaymentsdetails/:idC',[validarJWT,validarCampos],GraphicHistoryPaymentsdetails);
+router.get('/graphichistorypaymentsdetails/:idC',[validarJWT,validarCampos],payments.GraphicHistoryPaymentsdetails);
 
-router.get('/getDetailsTransfers/:idT',[validarJWT,validarCampos],getDetailTransfers);
+router.get('/getDetailsTransfers/:idT',[validarJWT,validarCampos],payments.getDetailTransfers);
+
+router.get('/summaryCoursesNoPayments',[validarJWT,validarCampos], payments.summaryCoursesNoPayment);
+
 
 //getDetailTransfers
 

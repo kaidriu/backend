@@ -9,6 +9,9 @@ const user = db.user;
 const profile = db.profile;
 const orderDetails = db.order_details;
 const orders = db.order;
+const subcategory = db.subcategory;
+const category = db.category;
+const userDetails = db.userDetails;
 const payment_method = db.payment_method;
 const courses = db.course;
 const historypayment = db.history_payment_inst;
@@ -84,7 +87,7 @@ const HistoryPayments = async (req, res = response) => {
         group: [Sequelize.col('order_details.courseId'), Sequelize.col('course.id')]
     });
 
-    res.json(OrderDetails);
+    res.json({OrderDetails});
 
 }
 
@@ -554,6 +557,70 @@ const getDetailTransfers = async (req, res = response) => {
 
 }
 
+const summaryCoursesNoPayment = async (req, res = response) => {
+    const { id: idU } = req.usuario;
+  
+    const courseOrders = await courses.findAll({
+      attributes: [
+        "id",
+        "title",
+        "image_course",
+        "price",
+        [Sequelize.literal(`(select COUNT("order_details"."id") from "order_details" inner join "orders" on "order_details"."orderId" = "orders"."id" where "orders"."payment_status"= 'pagado' AND "order_details"."courseId"="course"."id" AND "order_details"."accredited"= false)`), 'countOrdersNoPayment'],
+        [Sequelize.literal(`(select SUM("order_details"."total_order_details") from "order_details" inner join "orders" on "order_details"."orderId" = "orders"."id" where "orders"."payment_status"= 'pagado' AND "order_details"."courseId"="course"."id" AND "order_details"."accredited"= false)`), 'amountOrdersNoPayment'],
+        //[Sequelize.literal('(select COUNT("enroll_courses"."id") from "enroll_courses" where "enroll_courses"."courseId"="course"."id")'), 'countStudents'],
+      ],
+      where: {
+        userId: idU,
+      },
+      include: [{
+        model: orderDetails,
+        attributes: [],
+        required: true,
+        where: {
+          accredited: false
+        },
+        include: {
+          model: orders,
+          required: true,
+          where: {
+            payment_status: "pagado",
+          },
+          attributes: [],
+        }
+      },
+      {
+        model: subcategory,
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+        include: {
+          model: category,
+          attributes: { exclude: ["createdAt", "updatedAt"] },
+        },
+      }
+      ],
+      group: [Sequelize.col("course.id"), Sequelize.col("subcategory.id"), Sequelize.col("subcategory->category.id")]
+    });
+  
+    const infoPayments = await userDetails.findOne({
+      attributes: ['id', 'bank', 'account_type', 'account_number', 'account_paypal', 'owner_name'],
+      include: {
+        model: profile,
+        required: true,
+        attributes: [],
+        include: {
+          model: user,
+          attributes: [],
+          where: {
+            id: idU
+          }
+        }
+      }
+    });
+  
+  
+    res.json({ courseOrders, infoPayments });
+  };
+
 module.exports = {
     getHistory,
     Putpaymentsinstructor,
@@ -562,5 +629,6 @@ module.exports = {
     getHistoryInstructor,
     HistoryPaymentsdetails,
     GraphicHistoryPaymentsdetails,
-    getDetailTransfers
+    getDetailTransfers,
+    summaryCoursesNoPayment
 }
