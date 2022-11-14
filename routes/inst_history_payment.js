@@ -19,6 +19,10 @@ router.get('/getDetailsTransfers/:idT',[validarJWT,validarCampos],payments.getDe
 
 router.get('/summaryCoursesNoPayments',[validarJWT,validarCampos], payments.summaryCoursesNoPayment);
 
+router.get('/detailOrdersNoPaymentsByCourseId/:idC',[validarJWT,validarCampos], payments.detailOrdersNoPaymentByCurso);
+
+router.post('/requestOrdersPayment',[validarJWT,validarCampos],payments.requestOrdersPayment);
+
 
 //getDetailTransfers
 

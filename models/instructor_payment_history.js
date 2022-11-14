@@ -15,6 +15,9 @@ module.exports = (sequelize, Sequelize) => {
       ordersDetailsIds: {
         type: Sequelize.ARRAY(Sequelize.INTEGER)
       },
+      state: {
+        type: Sequelize.BOOLEAN,
+      }
     });
     return instructor_payment_history;
   };

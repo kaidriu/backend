@@ -557,6 +557,47 @@ const getDetailTransfers = async (req, res = response) => {
 
 }
 
+const detailOrdersNoPaymentByCurso = async (req, res = response) => {
+  const { idC } = req.params;
+
+	const OrderDetails = await orderDetails.findAll({
+		attributes: [
+			'id','discount_order_details', 'createdAt', 'total_order_details', 'discountCode_order_details',
+			'discountPercentage_order_details', 'accredited'
+		],
+		where: {
+			courseId: idC,
+			accredited: false
+		},
+		include: [
+			{
+				model: orders,
+				where: { payment_status: 'pagado' },
+				attributes: ['discount'],
+				include: [
+					{
+						model: user,
+						attributes: ['name', 'id', 'email'],
+						include: {
+							model: profile,
+							attributes: ['image_perfil'],
+						}
+					},
+					{
+						model: payment_method,
+						attributes: ['payment_method'],
+					}
+				]
+			},
+			{
+				model: commission,
+				attributes: ['Percent', 'DistributionMode']
+			}
+		],
+	});
+	res.json({OrderDetails})
+};
+
 const summaryCoursesNoPayment = async (req, res = response) => {
     const { id: idU } = req.usuario;
   
@@ -621,6 +662,44 @@ const summaryCoursesNoPayment = async (req, res = response) => {
     res.json({ courseOrders, infoPayments });
   };
 
+const requestOrdersPayment = async (req, res = response) => {
+  
+    const { total_instructor_payment_history} = req.body;
+      let {orderDetailsIds} = req.body;
+        
+      if(typeof(orderDetailsIds)!=='object')
+          orderDetailsIds = [orderDetailsIds];
+  
+      orderDetailsIds.map((str)=>{
+          str = parseInt(str);;
+      });
+  
+      console.log(orderDetailsIds);
+  
+    const _instructorPaymentHistory = new instructorPaymentHistory({
+        userId,
+        payment_method,
+        entity,
+        count_payment,
+        ordersDetailsIds: orderDetailsIds,
+        total_instructor_payment_history
+    });
+  
+    await Promise.all([
+      _instructorPaymentHistory.save(),
+      orderDetails.update(
+          {accredited: true},
+          {where: {
+              id: {
+                  [Op.in]: orderDetailsIds,
+                },
+          }})
+    ]);
+  
+    res.json(_instructorPaymentHistory);
+  
+  }
+
 module.exports = {
     getHistory,
     Putpaymentsinstructor,
@@ -630,5 +709,7 @@ module.exports = {
     HistoryPaymentsdetails,
     GraphicHistoryPaymentsdetails,
     getDetailTransfers,
-    summaryCoursesNoPayment
+    summaryCoursesNoPayment,
+    detailOrdersNoPaymentByCurso,
+    requestOrdersPayment
 }

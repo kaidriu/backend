@@ -55,8 +55,6 @@ const CreateOrder = async (req, res = response) => {
 
             } else {
                 const Order_Details = new order_details({ total_order_details: resp.unit_amount.value, orderId: Order.id, courseId: resp.courseId })
-
-
                 await Order_Details.save();
             }
 
@@ -273,7 +271,9 @@ const SaveOrder = async (req, res = response) => {
 
     const payment_status = 'pagado';
 
-    const Order = new order({ userId: id, buyer_name, buyer_address, buyer_email, buyer_phone, payment_status, discount, file_transaction_url, total_order, buyer_countre, buyer_state, buyer_postcode ,paymentMethodId:2});
+    const payment_method = await paymentMethod.findOne({where: {payment_method: 'payphone'}});
+
+    const Order = new order({ userId: id, buyer_name, buyer_address, buyer_email, buyer_phone, payment_status, discount, file_transaction_url, total_order, buyer_countre, buyer_state, buyer_postcode ,paymentMethodId:payment_method.id});
 
     await Order.save();
 

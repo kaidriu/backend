@@ -442,7 +442,8 @@ const getHistoryPaymentsInstructor = async (req, res = response) => {
 const payInstructor = async (req, res = response) => {
   
   const { userId, payment_method, entity, count_payment, total_instructor_payment_history} = req.body;
-	let {orderDetailsIds} = req.body;
+
+	let { orderDetailsIds } = req.body;
   	
 	if(typeof(orderDetailsIds)!=='object')
 		orderDetailsIds = [orderDetailsIds];
@@ -461,8 +462,6 @@ const payInstructor = async (req, res = response) => {
 		ordersDetailsIds: orderDetailsIds,
 		total_instructor_payment_history
 	});
-
-	
 
   await Promise.all([
 	_instructorPaymentHistory.save(),
