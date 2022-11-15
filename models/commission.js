@@ -10,7 +10,9 @@ module.exports=(sequelize,Sequelize)=>{
         Percent:{
             type:Sequelize.DOUBLE
         },
-
+        status:{
+            type: Sequelize.BOOLEAN
+        }
     });
     return Commission;
 

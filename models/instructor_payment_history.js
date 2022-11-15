@@ -15,6 +15,12 @@ module.exports = (sequelize, Sequelize) => {
       ordersDetailsIds: {
         type: Sequelize.ARRAY(Sequelize.INTEGER)
       },
+      ruc: {
+        type: Sequelize.STRING
+      },
+      business_name:{
+        type: Sequelize.STRING
+      },
       state: {
         type: Sequelize.BOOLEAN,
       }

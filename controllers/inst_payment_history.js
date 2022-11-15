@@ -16,8 +16,6 @@ const payment_method = db.payment_method;
 const courses = db.course;
 const historypayment = db.history_payment_inst;
 const commission = db.commission;
-const instructor_payment_history = db.instructor_payment_history;
-
 
 const getHistory = async (req, res = response) => {
 
@@ -663,41 +661,46 @@ const summaryCoursesNoPayment = async (req, res = response) => {
   };
 
 const requestOrdersPayment = async (req, res = response) => {
+
+    const { id } = req.usuario;
   
-    const { total_instructor_payment_history} = req.body;
-      let {orderDetailsIds} = req.body;
+    const { ruc, business_name } = req.body;
+
+    let {orderDetailsIds} = req.body;
         
-      if(typeof(orderDetailsIds)!=='object')
-          orderDetailsIds = [orderDetailsIds];
+    orderDetailsIds = JSON.parse(orderDetailsIds);
   
-      orderDetailsIds.map((str)=>{
-          str = parseInt(str);;
-      });
+    /* orderDetailsIds.map((str)=>{
+        str = parseInt(str);;
+    }); */
   
-      console.log(orderDetailsIds);
+    console.log(orderDetailsIds);
+
+    let _orderDetails = await orderDetails.findAll({where: {id: {[Op.in]: orderDetailsIds}}, raw: true, include:{model: commission}});
+
+    let total_instructor_payment_history = _orderDetails.reduce((value, currentValue) => value + currentValue.total_order_details * (1 - currentValue["commission.Percent"]), 0);
   
-    const _instructorPaymentHistory = new instructorPaymentHistory({
-        userId,
-        payment_method,
-        entity,
-        count_payment,
+    const newInstructorPaymentHistory = new historypayment({
+        userId: id,
+        ruc, 
+        business_name,
         ordersDetailsIds: orderDetailsIds,
-        total_instructor_payment_history
+        total_instructor_payment_history,
+        state: false,
     });
   
     await Promise.all([
-      _instructorPaymentHistory.save(),
-      orderDetails.update(
+        newInstructorPaymentHistory.save(),
+        orderDetails.update(
           {accredited: true},
           {where: {
               id: {
                   [Op.in]: orderDetailsIds,
                 },
-          }})
+          }}),
     ]);
   
-    res.json(_instructorPaymentHistory);
-  
+    res.json(newInstructorPaymentHistory);
   }
 
 module.exports = {
