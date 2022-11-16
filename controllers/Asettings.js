@@ -109,7 +109,7 @@ const postBanner = async (req, res = response) => {
             
         const uploadedImage = await driveHelpers.uploadBannerImage(tempFilePath, archivo.name, archivo.mimetype)
        
-        const fileURLs = await generatePublicUrl(uploadedImage);
+        const fileURLs = await driveHelpers.generatePublicUrl(uploadedImage);
 
         const Banner = new banner({banner_name, banner_link: fileURLs.webContentLink});
                     
@@ -118,6 +118,7 @@ const postBanner = async (req, res = response) => {
         res.status(200).json({Banner});
     
     } catch (error) {
+        console.log(error);
         res.status(400).json({
             msg: 'error: ',
             error: error.message

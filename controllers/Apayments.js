@@ -336,53 +336,6 @@ const summaryNoPaymentInstructor = async (req, res = response) => {
     order: [[Sequelize.col("amount"), 'DESC NULLS LAST']]
   });
 
-  /* let arrPromise = [];
- 
-  instructores.map((instructor)=>{
-    let userId = instructor.dataValues.user.dataValues.id;
-    arrPromise.push(
-      new Promise((resolve, reject) => {
-        try {
-          orderDetails.findOne({
-            attributes: [
-                [Sequelize.fn('SUM', Sequelize.col('order_details.total_order_details')), 'amount']
-              ],
-            raw: true,
-            where:{
-                accredited: false
-            },
-            include: [
-              {
-                model: courses,
-                attributes: [],
-                required: true,
-                where: {
-                  userId: userId
-                },
-              },
-              {
-                model: orders,
-                attributes: [],
-                required: true,
-                where: {
-                  payment_status: "pagado",
-                },
-              },
-            ],
-          }).then((orders)=>{
-            instructor.dataValues.amount = orders.amount || 0;
-            resolve();
-          });  
-        } catch (error) {
-          reject();
-        }
-        
-      })
-    );
-  });
-
-  await Promise.all(arrPromise); */
-
   res.json({ instructores });
 };
 

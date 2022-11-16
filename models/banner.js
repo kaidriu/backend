@@ -5,7 +5,19 @@ module.exports = (sequelize , Sequelize) =>{
         },
         banner_link: {
             type : Sequelize.STRING
-        }
+        },
+        banner_button_name: {
+            type : Sequelize.STRING
+        },
+        banner_description: {
+            type : Sequelize.STRING
+        },
+        banner_redirection_link: {
+            type : Sequelize.STRING
+        },
+        banner_order: {
+            type : Sequelize.STRING
+        },
     });
 
     return banner;
