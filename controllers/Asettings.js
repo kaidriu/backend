@@ -86,7 +86,7 @@ const deleteBankAccount = async (req, res = response) => {
 const getBanners = async (req, res = response) => {
     try {
 
-        const banners = banner.findAll();
+        const banners = await banner.findAll();
 
         res.status(200).json({banners});
 
@@ -101,21 +101,52 @@ const getBanners = async (req, res = response) => {
 const postBanner = async (req, res = response) => {
     try {
 
-        const { banner_name } = req.body;
+        const { banner_name, banner_description, banner_button_name, banner_redirection_link } = req.body;
 
         const { archivo } = req.files;
         
         const { tempFilePath } = archivo;
+
+        let maxOrder = await banner.max('banner_order');
             
         const uploadedImage = await driveHelpers.uploadBannerImage(tempFilePath, archivo.name, archivo.mimetype)
        
         const fileURLs = await driveHelpers.generatePublicUrl(uploadedImage);
 
-        const Banner = new banner({banner_name, banner_link: fileURLs.webContentLink});
+        const Banner = new banner({banner_name, banner_description: banner_description, banner_button_name: banner_button_name, banner_link: fileURLs.webContentLink, banner_redirection_link:banner_redirection_link, banner_order: (maxOrder+1)});
                     
         await Banner.save();
 
         res.status(200).json({Banner});
+    
+    } catch (error) {
+        console.log(error);
+        res.status(400).json({
+            msg: 'error: ',
+            error: error.message
+        });
+    }
+}
+
+const putBanner = async (req, res = response) => {
+    try {
+
+        const { id, banner_name, banner_description, banner_button_name, banner_redirection_link, banner_order, banner_orders} = req.body;
+
+        if (id) {
+            const Banner = await banner.findByPk(id);
+            await Banner.update({
+                banner_name, banner_description, banner_button_name, banner_redirection_link, banner_order
+            });
+            
+            res.status(200).json({Banner});
+        }
+
+        if(banner_orders){
+            console.log(JSON.parse(banner_orders));
+        }
+
+        res.status(200).json({msg:'no'});
     
     } catch (error) {
         console.log(error);
@@ -131,9 +162,9 @@ const deleteBanner = async (req, res = response) => {
 
         const { id } = req.params;
 
-        const Banner = banner.findByPk(id);
+        const Banner = await banner.findByPk(id);
 
-        await deleteFile(driveHelpers.getIdFromUrl(Banner.banner_link));
+        await driveHelpers.deleteFile(driveHelpers.getIdFromUrl(Banner.banner_link));
 
         await Banner.destroy();
 
@@ -154,6 +185,7 @@ module.exports = {
     deleteBankAccount,
     getBanners,
     postBanner,
+    putBanner,
     deleteBanner
 }
 

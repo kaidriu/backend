@@ -405,8 +405,6 @@ const payInstructor = async (req, res = response) => {
 		str = parseInt(str);;
 	});
 
-	console.log(orderDetailsIds);
-
 	const _instructorPaymentHistory = new instructorPaymentHistory({
 		userId,
 		payment_method,

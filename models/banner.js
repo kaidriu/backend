@@ -16,7 +16,7 @@ module.exports = (sequelize , Sequelize) =>{
             type : Sequelize.STRING
         },
         banner_order: {
-            type : Sequelize.STRING
+            type : Sequelize.INTEGER
         },
     });
 

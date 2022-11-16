@@ -127,12 +127,10 @@ class Server {
         this.app.use(this.paths.notifications, require('../routes/notification'));
     }
 
-
     bd() {
         //db.sequelize.sync();
         //db.sequelize.sync({ alter: true });
     }
-
 
     listen() {
         this.server.listen(this.port, () => {

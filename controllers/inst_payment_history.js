@@ -2,6 +2,7 @@ const { response } = require("express");
 const db = require("../database/db");
 const { Op } = require("sequelize");
 const { Sequelize, history_payment_inst } = require("../database/db");
+const { historyOrders } = require("./Apayments");
 
 const Userdetails = db.userDetails;
 
@@ -93,11 +94,16 @@ const HistoryPayments = async (req, res = response) => {
         Sequelize.fn("count", Sequelize.col("order_details.courseId")),
         "Ventas",
       ],
-      [
+      /* [
         Sequelize.fn("sum", Sequelize.col("order_details.total_order_details")),
         "Ganancia",
+      ], */
+      [
+        Sequelize.literal(
+          `(select SUM("order_details"."total_order_details" * ( 1 - "commissions"."Percent" )) from "order_details" inner join "orders" on "order_details"."orderId" = "orders"."id" inner join "commissions" on "order_details"."commissionId" = "commissions"."id" where "orders"."payment_status"= 'pagado' AND "order_details"."courseId"="course"."id")`
+        ),
+        "Ganancia",
       ],
-      // exclude: [ "id", "discount_order_details", "total_order_details", "createdAt", "updatedAt", "orderId"]
     ],
     where: {
       courseId: {
@@ -116,7 +122,7 @@ const HistoryPayments = async (req, res = response) => {
       },
       {
         model: courses,
-        attributes: {
+        attributes: ['title'] /* {
           exclude: [
             "id",
             "description",
@@ -151,7 +157,7 @@ const HistoryPayments = async (req, res = response) => {
             "discountCode",
             "percentageDiscount",
           ],
-        },
+        }, */
       },
     ],
     group: [
@@ -768,12 +774,24 @@ const getHistoryInstructor = async (req, res = response) => {
 
   let [historyRequest, historyPayments] = await Promise.all([
     historyPayment.findAll({
+      attributes: ['updatedAt', 'total_instructor_payment_history', 'ordersDetailsIds'],
       where: { userId: id, state: false},
+      include:{
+        model: courses,
+        attributes: ['title', 'image_course']
+      }
     }),
     historyPayment.findAll({
+      attributes: ['updatedAt', 'total_instructor_payment_history', 'ordersDetailsIds'],
       where: { userId: id, state: true},
-    })
-  ]); 
+      include:{
+        model: courses,
+        attributes: ['title', 'image_course']
+      }
+    }),
+  ]);
+
+  console.table();
 
   res.json({historyRequest, historyPayments});
 };
@@ -781,7 +799,6 @@ const getHistoryInstructor = async (req, res = response) => {
 const getDetailTransfers = async (req, res = response) => {
   try {
     const { idT } = req.params;
-    console.log(idT);
 
     const history = await historyPayment.findByPk(idT);
 
@@ -909,7 +926,6 @@ const summaryCoursesNoPayment = async (req, res = response) => {
         ),
         "amountOrdersNoPayment",
       ],
-      //[Sequelize.literal('(select COUNT("enroll_courses"."id") from "enroll_courses" where "enroll_courses"."courseId"="course"."id")'), 'countStudents'],
     ],
     where: {
       userId: idU,
@@ -937,34 +953,10 @@ const summaryCoursesNoPayment = async (req, res = response) => {
   });
 
 
-
   courseOrders.map((val) => {
     val.dataValues
   })
 
-  /* const infoPayments = await userDetails.findOne({
-    attributes: [
-      "id",
-      "bank",
-      "account_type",
-      "account_number",
-      "account_paypal",
-      "owner_name",
-    ],
-    include: {
-      model: profile,
-      required: true,
-      attributes: ["id"],
-      include:
-        {
-          model: user,
-          attributes: [],
-          where: {
-            id: idU,
-          },
-        }
-    },
-  }); */
 
   res.json({ courseOrders });
 };
@@ -972,17 +964,11 @@ const summaryCoursesNoPayment = async (req, res = response) => {
 const requestOrdersPayment = async (req, res = response) => {
   const { id } = req.usuario;
 
-  const { ruc, business_name } = req.body;
+  const { ruc, business_name, courseId } = req.body;
 
   let { orderDetailsIds } = req.body;
 
   orderDetailsIds = JSON.parse(orderDetailsIds);
-
-  /* orderDetailsIds.map((str)=>{
-        str = parseInt(str);;
-    }); */
-
-  console.log(orderDetailsIds);
 
   let _orderDetails = await orderDetails.findAll({
     where: { id: { [Op.in]: orderDetailsIds } },
@@ -1001,9 +987,10 @@ const requestOrdersPayment = async (req, res = response) => {
   const newInstructorPaymentHistory = new historyPayment({
     userId: id,
     ruc: ruc,
+    courseId,
     business_name: business_name,
     ordersDetailsIds: orderDetailsIds,
-    total_instructor_payment_history,
+    total_instructor_payment_history: total_instructor_payment_history,
     state: false,
   });
 
