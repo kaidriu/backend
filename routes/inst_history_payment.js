@@ -8,7 +8,7 @@ const router = Router();
 router.get('/getpayments',[validarJWT,validarCampos], payments.getHistory);
 router.put('/savepayments',[validarJWT,validarCampos],payments.Putpaymentsinstructor);
 router.get('/historypayments',[validarJWT,validarCampos],payments.HistoryPayments);
-router.get('/graphichistorypayments/:from/:to/:idC',[validarJWT,validarCampos],payments.GraphicHistoryPayments);
+router.get('/graphichistorypayments',[validarJWT,validarCampos],payments.GraphicHistoryPayments);
 router.get('/gethistoryintructor',[validarJWT,validarCampos],payments.getHistoryInstructor);
 
 router.get('/historypaymentsdetails/:idC/:valor/:from/:to',[validarJWT,validarCampos],payments.HistoryPaymentsdetails);
