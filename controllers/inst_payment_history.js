@@ -418,14 +418,14 @@ const GraphicHistoryPayments = async (req, res = response) => {
   const { id } = req.usuario;
   const { from, to, courseId } = req.query;
 
-  let filterCurse = {
+  let filterCourse = {
     [Sequelize.Op.in]: [
       Sequelize.literal(`Select "id" from courses where "userId"=${id}`),
     ],
   };
 
   let whereBodyConditions = new Map([
-    ['courseId', filterCurse]
+    ['courseId', filterCourse]
   ]);
 
   let whereDateCondition = new Map();

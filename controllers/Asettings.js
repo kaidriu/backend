@@ -1,8 +1,9 @@
 const { response } = require("express");
 const db = require("../database/db");
-const { Op } = require("sequelize");
+const { Op, or, QueryTypes } = require("sequelize");
 
 const driveHelpers = require('../helpers/drive');
+const { Sequelize, sequelize } = require("../database/db");
 
 
 const bankAccount = db.bank_account;
@@ -86,7 +87,9 @@ const deleteBankAccount = async (req, res = response) => {
 const getBanners = async (req, res = response) => {
     try {
 
-        const banners = await banner.findAll();
+        const banners = await banner.findAll({
+            order: [['banner_order', 'ASC']]
+        });
 
         res.status(200).json({banners});
 
@@ -133,20 +136,40 @@ const putBanner = async (req, res = response) => {
 
         const { id, banner_name, banner_description, banner_button_name, banner_redirection_link, banner_order, banner_orders} = req.body;
 
+        let resBanner = {};
+        
         if (id) {
             const Banner = await banner.findByPk(id);
             await Banner.update({
                 banner_name, banner_description, banner_button_name, banner_redirection_link, banner_order
             });
-            
-            res.status(200).json({Banner});
+
+            resBanner.Banner = Banner;
         }
+        
 
         if(banner_orders){
-            console.log(JSON.parse(banner_orders));
+            const Orders = JSON.parse(banner_orders);
+
+            let whereBuilder = '';
+            Orders.map((order)=>{
+                whereBuilder += `WHEN id = ${order.id} THEN ${order.order} `
+            });
+
+            const query = `UPDATE banners SET banner_order = CASE ${whereBuilder}END;`
+
+            let newOrders = await sequelize.query(
+                query,
+                {
+                    type: QueryTypes.UPDATE
+                }
+            );
+
+            resBanner.newOrders = newOrders;
+
         }
 
-        res.status(200).json({msg:'no'});
+        res.status(200).json(resBanner);
     
     } catch (error) {
         console.log(error);

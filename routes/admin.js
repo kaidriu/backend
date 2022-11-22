@@ -81,7 +81,7 @@ router.put('/approveDeposit',[validarJWT,validarCampos], aPayments.approveDeposi
 router.put('/refuseDeposit',[validarJWT,validarCampos], aPayments.refuseDeposit);
 router.get('/payments/summaryCoursesNoPaymentsByUserId/:idU',[validarJWT,validarCampos], aPayments.summaryCoursesNoPayment);
 router.get('/payments/summaryInstructorsNoPayments',[validarJWT,validarCampos], aPayments.summaryNoPaymentInstructor);
-router.get('/payments/detailOrdersNoPaymentsByCourseId/:idC',[validarJWT,validarCampos], aPayments.detailOrdersNoPaymentByCurso);
+router.get('/payments/detailOrdersNoPaymentsByOrder/:id',[validarJWT,validarCampos], aPayments.detailOrdersNoPaymentByOrder);
 router.post('/payments/payInstructor',[validarJWT,validarCampos], aPayments.payInstructor);
 //Historial de Pagos
 router.get('/payments/historyPayments/:idU',[validarJWT,validarCampos], aPayments.getHistoryPaymentsInstructor);

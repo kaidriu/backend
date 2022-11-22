@@ -237,7 +237,7 @@ const getPackages = async (req, res=response) => {
   
   const Packages = await packages.findAll({
       attributes:{
-        exclude:["createdAt", "updatedAt"]
+        exclude:["updatedAt"]
       },
       order: [["createdAt", "DESC"]],
     });
