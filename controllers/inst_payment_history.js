@@ -533,8 +533,10 @@ const getHistoryInstructor = async (req, res = response) => {
   const { id } = req.usuario;
 
   let [historyRequest, historyPayments] = await Promise.all([
+    //Payment history
     historyPayment.findAll({
       attributes: [
+        "id",
         "updatedAt",
         "total_instructor_payment_history",
         "ordersDetailsIds",
@@ -545,11 +547,17 @@ const getHistoryInstructor = async (req, res = response) => {
         attributes: ["title", "image_course"],
       },
     }),
+
+    //Request payment history
+
     historyPayment.findAll({
       attributes: [
+        "id",
         "updatedAt",
         "total_instructor_payment_history",
         "ordersDetailsIds",
+        "entity",
+        "count_payment"
       ],
       where: { userId: id, state: true },
       include: {
@@ -566,6 +574,9 @@ const getHistoryInstructor = async (req, res = response) => {
 
 const getDetailTransfers = async (req, res = response) => {
   try {
+
+    // Calcular comision 
+    
     const { idT } = req.params;
 
     const history = await historyPayment.findByPk(idT);

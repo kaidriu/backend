@@ -273,7 +273,7 @@ const getCoursesPackages = async (req, res=response) => {
 
 const postPackages = async (req, res=response) => {
   try {
-      const { cant_course, title_package, price_package, state='pendiente', percents_package=0} = req.body;
+      const { cant_course, title_package, price_package, state='inactivo', percents_package=0} = req.body;
       
       if(cant_course >= 2){
         let Packages = new packages({
