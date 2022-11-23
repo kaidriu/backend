@@ -37,17 +37,19 @@ router.post('/inspectCourse',[validarJWT,validarCampos],aUsers.inspectCourse);
 -------------------------------------*/
 
 router.get('/cursosrevision',[validarJWT,validarCampos],aCourses.cursosRevision);
-router.get('/cursospublicados',[validarJWT,validarCampos],aCourses.cursosPublicados);
-router.put('/change-state-course', aCourses.changeStateCourse);
+router.get('/publishedCourses',[validarJWT,validarCampos],aCourses.cursosPublicados);
+router.put('/changeStateCourse', aCourses.changeStateCourse);
 router.get('/coursesByInstructor/:idt',[validarJWT,validarCampos],aCourses.getCoursesFromInstructor);
-
-
-router.put('/aceptarcourse/:idc',[validarJWT,validarCampos],aCourses.aceptarSolicitudCurso);
-
+router.put('/acceptCourseRequest/:idc',[validarJWT,validarCampos],aCourses.aceptarSolicitudCurso);
 router.put('/rejectCourseRequest/:idc',[validarJWT,validarCampos],aCourses.denegarSolicitudCurso);
 
 //observaciones de cursos
-router.put('/sendremarks',[validarJWT,validarCampos], aCourses.sendRemark);
+router.put('/sendRemarks',[validarJWT,validarCampos], aCourses.sendRemark);
+
+//cursos y estudiantes
+router.get('/coursesByStudent/:id',[validarJWT, validarCampos], aCourses.coursesByStudent);
+router.get('/studentsByCourse/:id',[validarJWT, validarCampos], aCourses.studentsByCourse);
+
 
 /*------------CATEGORÍAS---------------*/
 router.get('/categories',[validarJWT,validarCampos], aCourses.getCategory);

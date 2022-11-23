@@ -1,9 +1,14 @@
 const { response } = require("express");
 
 const db = require("../database/db");
-const { Op, QueryTypes} = require("sequelize");
+const { Op } = require("sequelize");
 const { sequelize } = require("../database/db");
-const { uploadPackageImage, generatePublicUrl, deleteFile, getIdFromUrl } = require('../helpers/drive');
+const {
+  uploadPackageImage,
+  generatePublicUrl,
+  deleteFile,
+  getIdFromUrl,
+} = require("../helpers/drive");
 const course = require("../models/course");
 
 const User = db.user;
@@ -20,7 +25,7 @@ const Category = db.category;
 const packages = db.packageCourse;
 const Enroll_course = db.enroll_course;
 const packagesOrdersDetails = db.detail_package_order;
-
+const Profile = db.profile;
 
 const cursosRevision = async (req, res = response) => {
   const cursos = await Curso.findAll({
@@ -47,37 +52,33 @@ const cursosRevision = async (req, res = response) => {
 };
 
 const cursosPublicados = async (req, res = response) => {
-  
-  const {category, subcategory, packageId} = req.query;
+  const { category, subcategory, packageId } = req.query;
 
   let filterCategory = category ? { id: category } : {};
 
   let filterSubcategory = subcategory ? { id: subcategory } : {};
 
-  let filterCourses = { 
-    state: { [Op.not]: ["revisión","proceso"]},
-  }
+  let filterCourses = {
+    state: { [Op.not]: ["revisión", "proceso"] },
+  };
 
   if (packageId) {
     const coursePackage = await Curso.findAll({
-      attributes: [
-        "id",
-      ],
+      attributes: ["id"],
       include: {
         model: packages,
-        as: 'PackageToCourse',
+        as: "PackageToCourse",
         attributes: [],
         where: {
-          id: packageId
+          id: packageId,
         },
-        required: true
-      }
+        required: true,
+      },
     });
 
-    const idCoursePackage = coursePackage.map( course => course.id);
+    const idCoursePackage = coursePackage.map((course) => course.id);
 
-    filterCourses.id = { [Op.notIn] : idCoursePackage }
-
+    filterCourses.id = { [Op.notIn]: idCoursePackage };
   }
 
   const cursos = await Curso.findAll({
@@ -92,140 +93,143 @@ const cursosPublicados = async (req, res = response) => {
         where: filterSubcategory,
         include: {
           model: Category,
-          where: filterCategory
+          where: filterCategory,
         },
       },
     ],
   });
 
-  res.json({cursos});
-
+  res.json({ cursos });
 };
 
 const getCoursesFromInstructor = async (req, res = response) => {
-	const { idt } = req.params;
+  const { idt } = req.params;
 
-	const curso = await Curso.findAll({
-		attributes: ["id", "title", "image_course", "price", "state", "createdAt", "updatedAt"],
-		where: { 
-			userId: idt
-		},
-	})
-	
-	res.json({curso});
-}
+  const curso = await Curso.findAll({
+    attributes: [
+      "id",
+      "title",
+      "image_course",
+      "price",
+      "state",
+      "createdAt",
+      "updatedAt",
+    ],
+    where: {
+      userId: idt,
+    },
+  });
+
+  res.json({ curso });
+};
 
 //SOLICITUDES
 
 const aceptarSolicitudCurso = async (req, res = response) => {
-
   const t = await sequelize.transaction();
 
-  try {  
+  try {
     const { idc } = req.params;
 
-    let actions = []; 
+    let actions = [];
 
-    const state = 'publicado';
+    const state = "publicado";
 
     actions.push(
-      Curso.findOne({
-        where: { id: idc },
-      },{ transaction: t}).then((curso)=>{
-        curso.update({ state })
+      Curso.findOne(
+        {
+          where: { id: idc },
+        },
+        { transaction: t }
+      ).then((curso) => {
+        curso.update({ state });
       })
     );
 
     actions.push(
-        sequelize.query(
-          'UPDATE "topics" SET "topicIsEditable" = false FROM "chapters" WHERE "chapters"."courseId" = ? AND "topics"."chapterId" = "chapters"."id"',
-          {
-            replacements:[idc],
-            type: QueryTypes.UPDATE,
-            transaction: t
-          }
-        )
+      sequelize.query(
+        'UPDATE "topics" SET "topicIsEditable" = false FROM "chapters" WHERE "chapters"."courseId" = ? AND "topics"."chapterId" = "chapters"."id"',
+        {
+          replacements: [idc],
+          type: sequelize.QueryTypes.UPDATE,
+          transaction: t,
+        }
+      )
     );
-  
+
     await Promise.all(actions);
 
     await t.commit();
 
-    res.status(200).json({state});
-    
+    res.status(200).json({ state });
   } catch (err) {
-
     console.log(err.message);
 
     await t.rollback();
-    
-    res.status(500).json({error: err.message})
-  }
 
-}
+    res.status(500).json({ error: err.message });
+  }
+};
 
 const denegarSolicitudCurso = async (req, res = response) => {
-
   const { idc } = req.params;
 
   const Course = await Curso.findOne({
     where: { id: idc },
-  }).then((curso)=>{
-    curso.update({ state: 'proceso' })
+  }).then((curso) => {
+    curso.update({ state: "proceso" });
   });
 
-  res.json({ Course }) 
-
-}
+  res.json({ Course });
+};
 
 const changeStateCourse = async (req, res = response) => {
-  
   const { idc, state } = req.body;
-  const t = await sequelize.transaction();
 
-  try {  
-    
-    let actions = []; 
+  let t = await sequelize.transaction();
+
+  try {
+    let actions = [];
 
     actions.push(
       Curso.findOne({
         where: { id: idc },
-      }).then((curso)=>{
-        curso.update({ state },{ transaction: t})
+      },{ transaction: t }).then((curso) => {
+        curso.update({ state });
       })
     );
 
-    if(state=='publicado'){
+    if (state == "publicado") {
       actions.push(
         sequelize.query(
           'UPDATE "topics" SET "topicIsEditable" = false FROM "chapters" WHERE "chapters"."courseId" = ? AND "topics"."chapterId" = "chapters"."id"',
           {
-            replacements:[idc],
-            type: QueryTypes.SELECT,
-            transaction: t
+            replacements: [idc],
+            type: sequelize.QueryTypes.SELECT,
+            transaction: t,
           }
         )
-      )
+      );
     }
-  
+
     await Promise.all(actions);
 
     await t.commit();
 
-    res.status(200).send({state});
-    
+    res.status(200).send({ state });
   } catch (err) {
+    console.log(err);
     await t.rollback();
-    res.status(500).send({error: err.message})
+    res.status(500).send({ error: err.message });
   }
- 
+  
 };
 
 //OBSERVACIONES
 
 const sendRemark = async (req, res = response) => {
   const { idc, remarks } = req.body;
-  
+
   const curso = await Curso.findByPk(idc);
 
   curso.update({ remark: remarks });
@@ -233,163 +237,175 @@ const sendRemark = async (req, res = response) => {
 };
 
 //PAQUETES DE CURSOS
-const getPackages = async (req, res=response) => {
-  
+const getPackages = async (req, res = response) => {
   const Packages = await packages.findAll({
-      attributes:{
-        exclude:["updatedAt"]
-      },
-      order: [["createdAt", "DESC"]],
-    });
+    attributes: {
+      exclude: ["updatedAt"],
+    },
+    order: [["createdAt", "DESC"]],
+  });
 
-  res.json({Packages});
-}
+  res.json({ Packages });
+};
 
-const getCoursesPackages = async (req, res=response) => {
-  
+const getCoursesPackages = async (req, res = response) => {
   const { idP } = req.params;
-  
+
   const cursos = await Curso.findAll({
-    attributes: [
-      "title",
-      "createdAt",
-      "id",
-      "image_course",
-      "price"
-    ],
+    attributes: ["title", "createdAt", "id", "image_course", "price"],
     include: {
       model: packages,
-      as: 'PackageToCourse',
+      as: "PackageToCourse",
       attributes: [],
       where: {
-        id: idP
+        id: idP,
       },
-      required: true
-    }
+      required: true,
+    },
   });
-  
-  res.json({cursos});
-}
 
-const postPackages = async (req, res=response) => {
+  res.json({ cursos });
+};
+
+const postPackages = async (req, res = response) => {
   try {
-      const { cant_course, title_package, price_package, state='inactivo', percents_package=0} = req.body;
-      
-      if(cant_course >= 2){
-        let Packages = new packages({
-          cant_course,
-          price_package,
-          title_package,
-          percents_package,
-          state
-        });
+    const {
+      cant_course,
+      title_package,
+      price_package,
+      state = "inactivo",
+      percents_package = 0,
+    } = req.body;
 
-        if (req.files) {
-          const { archivo } = req.files;
-          const { tempFilePath } = archivo;
-
-          await uploadPackageImage(tempFilePath, archivo.name, archivo.mimetype).then(async (resp) => {
-            await generatePublicUrl(resp).then(async (fileURLs) => {
-              Packages.image_url = fileURLs.webContentLink;
-            })
-          });          
-        }
-        
-        await Packages.save();
-        res.status(200).json({Packages});
-      }else{
-        res.status(400).send("La cantidad de cursos por paquete no puede ser menor a 2");
-      }
-  } catch (error) {
-    res.status(500).json({
-      msg: errOpNotCompleted + error
-    });
-  }
-  
-}
-
-const putPackages = async (req, res=response) => {
-  try {
-      const { id, cant_course, title_package, state, price_package, coursesIds, percents_package=0} = req.body;
-
-
-      const Packages = await packages.findByPk(id);
-
-      if (coursesIds) {
-
-        let IdsCourses = JSON.parse(coursesIds)
-
-        const courses = await Curso.findAll({ where: { id: { [Op.in]: IdsCourses } } });
-        
-        await Packages.setCourseToPackage(courses);
-      }
+    if (cant_course >= 2) {
+      let Packages = new packages({
+        cant_course,
+        price_package,
+        title_package,
+        percents_package,
+        state,
+      });
 
       if (req.files) {
-
         const { archivo } = req.files;
         const { tempFilePath } = archivo;
 
-        if(Packages.image_url){
-          await deleteFile( getIdFromUrl(Packages.image_url) );
-        }
-
-        await uploadPackageImage(tempFilePath, archivo.name, archivo.mimetype).then(async (resp) => {
+        await uploadPackageImage(
+          tempFilePath,
+          archivo.name,
+          archivo.mimetype
+        ).then(async (resp) => {
           await generatePublicUrl(resp).then(async (fileURLs) => {
-            await Packages.update({image_url: fileURLs.webContentLink});
-          })
-        });          
+            Packages.image_url = fileURLs.webContentLink;
+          });
+        });
       }
 
-      await Packages.update({
-          cant_course,
-          title_package,
-          price_package,
-          percents_package,
-          state
+      await Packages.save();
+      res.status(200).json({ Packages });
+    } else {
+      res
+        .status(400)
+        .send("La cantidad de cursos por paquete no puede ser menor a 2");
+    }
+  } catch (error) {
+    res.status(500).json({
+      msg: errOpNotCompleted + error,
+    });
+  }
+};
+
+const putPackages = async (req, res = response) => {
+  try {
+    const {
+      id,
+      cant_course,
+      title_package,
+      state,
+      price_package,
+      coursesIds,
+      percents_package = 0,
+    } = req.body;
+
+    const Packages = await packages.findByPk(id);
+
+    if (coursesIds) {
+      let IdsCourses = JSON.parse(coursesIds);
+
+      const courses = await Curso.findAll({
+        where: { id: { [Op.in]: IdsCourses } },
       });
 
-      res.json({Packages});        
+      await Packages.setCourseToPackage(courses);
+    }
+
+    if (req.files) {
+      const { archivo } = req.files;
+      const { tempFilePath } = archivo;
+
+      if (Packages.image_url) {
+        await deleteFile(getIdFromUrl(Packages.image_url));
+      }
+
+      await uploadPackageImage(
+        tempFilePath,
+        archivo.name,
+        archivo.mimetype
+      ).then(async (resp) => {
+        await generatePublicUrl(resp).then(async (fileURLs) => {
+          await Packages.update({ image_url: fileURLs.webContentLink });
+        });
+      });
+    }
+
+    await Packages.update({
+      cant_course,
+      title_package,
+      price_package,
+      percents_package,
+      state,
+    });
+
+    res.json({ Packages });
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      msg: errOpNotCompleted, error
+      msg: errOpNotCompleted,
+      error,
     });
   }
-}
+};
 
-const deletePackage = async (req, res=response) => {
+const deletePackage = async (req, res = response) => {
   try {
+    const { idP } = req.params;
 
-      const { idP } = req.params;
+    const orders = await packagesOrdersDetails.count({
+      where: {
+        packageCourseId: idP,
+      },
+    });
 
-      const orders = await packagesOrdersDetails.count({
-        where: {
-          packageCourseId: idP
-        }
-      });
+    if (orders > 0) {
+      throw new Error("Este paquete ya tiene ventas registradas");
+    }
 
-      if (orders > 0) {
-        throw new Error('Este paquete ya tiene ventas registradas');
-      }
+    const Packages = await packages.findByPk(idP);
 
-      const Packages = await packages.findByPk(idP);
+    if (Packages.image_url) {
+      await deleteFile(getIdFromUrl(Packages.image_url));
+    }
 
-      if(Packages.image_url){
-        await deleteFile( getIdFromUrl(Packages.image_url) );
-      }
+    await Packages.destroy();
 
-      await Packages.destroy();
-
-      res.json({Packages});
-
+    res.json({ Packages });
   } catch (error) {
     res.status(400).json({
-      msg: errOpNotCompleted, error
+      msg: errOpNotCompleted,
+      error,
     });
   }
-}
-
-
+};
 
 //CATEGORÍAS
 
@@ -398,50 +414,48 @@ const getCategory = async (req, res = response) => {
     const { id } = req.query;
 
     let where;
-    
-    if(id){
-      where = { id }
+
+    if (id) {
+      where = { id };
     }
 
     const category = await Category.findAll({
-      where: where
+      where: where,
     });
 
-    res.json({category});
-     
+    res.json({ category });
   } catch (error) {
     res.status(400).json({
-      msg: errOpNotCompleted, error
+      msg: errOpNotCompleted,
+      error,
     });
   }
-}
+};
 
 const getSubCategory = async (req, res = response) => {
   try {
     const { id } = req.query;
     let where;
-    
-    if(id){
-      where = { categoryId: id }
+
+    if (id) {
+      where = { categoryId: id };
     }
 
     const subcategory = await Subcategory.findAll({
-      where: where
+      where: where,
     });
 
-    res.json({subcategory});
-    
+    res.json({ subcategory });
   } catch (error) {
     console.log(error);
     res.status(400).json({
-      msg: errOpNotCompleted, error
+      msg: errOpNotCompleted,
+      error,
     });
   }
-}
-
+};
 
 const PostCategory = async (req, res = response) => {
-
   try {
     const { name_category } = req.body;
 
@@ -450,173 +464,225 @@ const PostCategory = async (req, res = response) => {
     await category.save();
 
     res.json({
-      category
-  });
-
-
-  } catch (error) {
-
-    res.status(500).json({
-      msg: errOpNotCompleted, 
-      error
+      category,
     });
-  
+  } catch (error) {
+    res.status(500).json({
+      msg: errOpNotCompleted,
+      error,
+    });
   }
-  
-
-  
-}
+};
 
 const DeleteCategory = async (req, res = response) => {
   try {
-      const { idc } = req.params;
-      let subcategoriesIds = [];
+    const { idc } = req.params;
+    let subcategoriesIds = [];
 
-      const subcategories = await Subcategory.findAll({
-        attributes:['id'],
-        where: { 
-          categoryId: idc 
-        }
-      });
+    const subcategories = await Subcategory.findAll({
+      attributes: ["id"],
+      where: {
+        categoryId: idc,
+      },
+    });
 
-      subcategories.forEach(element => {
-        subcategoriesIds.push(element.id);
-      });
+    subcategories.forEach((element) => {
+      subcategoriesIds.push(element.id);
+    });
 
-      const uses =  await Curso.count({
+    const uses = await Curso.count({
+      where: {
+        subcategoryId: {
+          [Op.in]: subcategoriesIds,
+        },
+      },
+    });
+
+    if (uses > 0) {
+      res
+        .status(400)
+        .json({
+          msg: "No es posible eliminar la categoría. La categoría o sus subcategorías están siendo usadas por uno o varios cursos",
+        });
+    } else {
+      const category = await Category.findByPk(idc);
+
+      await category.destroy();
+
+      res.status(200).json({ category });
+    }
+  } catch (error) {
+    res.status(500).json({
+      msg: errOpNotCompleted,
+      error,
+    });
+  }
+};
+
+const coursesByStudent = async (req, res = response) => {
+  try {
+
+    const {id} = req.params;
+
+    const courses = await Curso.findAll({
+      attributes: ['id', 'title', 'image_course', 'price'],
+      include: {
+        model: Enroll_course,
+        attributes:[],
         where: {
-          subcategoryId: {
-            [Op.in]: subcategoriesIds
-          },
+          userId: id
         }
-      });
-
-      if(uses > 0){
-        res.status(400).json({ msg: 'No es posible eliminar la categoría. La categoría o sus subcategorías están siendo usadas por uno o varios cursos'});
-      }else{
-        
-        const category = await Category.findByPk(idc);
-        
-        await category.destroy();
-
-        res.status(200).json({ category });
       }
+    });
+   
+    res.json({courses})
 
   } catch (error) {
-      res.status(500).json({
-          msg: errOpNotCompleted,
-          error
-      })
-
+    console.log(error);
+    res.status(500).json({
+      msg: errOpNotCompleted,
+      error,
+    });
   }
-}
+};
+
+const studentsByCourse = async (req, res = response) => {
+  try {
+
+    const {id} = req.params;
+
+    const students = await User.findAll({
+      attributes: ['id', 'name', 'email'],
+      include: [{
+        model: Enroll_course,
+        attributes:[],
+        where: {
+          courseId: id,
+          status_enroll:{
+            [Op.notIn]: ['owner', 'admin']
+          }
+        }
+      },
+      {
+        model: Profile,
+        attributes: ["image_perfil"],
+      },
+    ]
+    });
+   
+    res.json({students})
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      msg: errOpNotCompleted,
+      error,
+    });
+  }
+};
+
+
 
 const PutCategory = async (req, res = response) => {
-
   try {
-    
     const { id_category, new_name_category } = req.body;
 
     const category = await Category.findByPk(id_category);
-  
+
     await category.update({ name_category: new_name_category });
-  
+
     res.json({
-        category
-    })     
+      category,
+    });
   } catch (error) {
     res.status(500).json({
       msg: errOpNotCompleted,
-      error
+      error,
     });
   }
-}
+};
 
 const putCoursesPackages = async (req, res = response) => {
-
   try {
-    
     const { id_category, new_name_category } = req.body;
 
     const category = await Category.findByPk(id_category);
-  
+
     await category.update({ name_category: new_name_category });
-  
+
     res.json({
-        category
-    })     
+      category,
+    });
   } catch (error) {
     res.status(500).json({
       msg: errOpNotCompleted,
-      error
+      error,
     });
   }
-}
+};
 
 const PostSubCategory = async (req, res = response) => {
-
   try {
-
     const { id_category, name_subcategory } = req.body;
 
     const category = await Category.findByPk(id_category);
 
     if (!category) {
       res.status(400).json({
-        msg: "No existe esa categoria"
+        msg: "No existe esa categoria",
       });
     } else {
-
-      const subcategory = new Subcategory({ name_subcategory, categoryId: id_category });
+      const subcategory = new Subcategory({
+        name_subcategory,
+        categoryId: id_category,
+      });
 
       await subcategory.save();
 
       res.status(200).json({
-        subcategory
+        subcategory,
       });
     }
-    
   } catch (error) {
     res.status(500).json({
       msg: errOpNotCompleted,
-      error
+      error,
     });
   }
-
-}
+};
 
 const DeleteSubCategory = async (req, res = response) => {
   try {
-      const { ids } = req.params;
+    const { ids } = req.params;
 
-      const uses =  await Curso.count({
-        where: {
-          subcategoryId: ids,
-        }
-      });
+    const uses = await Curso.count({
+      where: {
+        subcategoryId: ids,
+      },
+    });
 
-      if(uses > 0){
-        res.status(400).json({ msg: 'No es posible eliminar la subcategoría. La subcategoría está siendo usada por uno o varios cursos'});
-      }else{
-        
-        const subcategory = await Subcategory.findByPk(ids);
-        
-        await subcategory.destroy();
+    if (uses > 0) {
+      res
+        .status(400)
+        .json({
+          msg: "No es posible eliminar la subcategoría. La subcategoría está siendo usada por uno o varios cursos",
+        });
+    } else {
+      const subcategory = await Subcategory.findByPk(ids);
 
-        res.status(200).json({ subcategory });
-      }
+      await subcategory.destroy();
 
+      res.status(200).json({ subcategory });
+    }
   } catch (error) {
-      res.status(500).json({
-          msg: errOpNotCompleted,
-          error
-      })
-
+    res.status(500).json({
+      msg: errOpNotCompleted,
+      error,
+    });
   }
-}
+};
 
 const PutSubcategory = async (req, res = response) => {
-
   const { id_subcategory, new_name_subcategory } = req.body;
 
   const subcategory = await Subcategory.findByPk(id_subcategory);
@@ -624,10 +690,9 @@ const PutSubcategory = async (req, res = response) => {
   await subcategory.update({ name_subcategory: new_name_subcategory });
 
   res.json({
-      subcategory
-  })
-}
-
+    subcategory,
+  });
+};
 
 module.exports = {
   cursosRevision,
@@ -638,7 +703,7 @@ module.exports = {
   getPackages,
   postPackages,
   deletePackage,
-  aceptarSolicitudCurso, 
+  aceptarSolicitudCurso,
   denegarSolicitudCurso,
   getCategory,
   getSubCategory,
@@ -650,5 +715,7 @@ module.exports = {
   PutSubcategory,
   putPackages,
   getCoursesPackages,
-  putCoursesPackages
+  putCoursesPackages,
+  coursesByStudent,
+  studentsByCourse
 };
