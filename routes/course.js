@@ -50,16 +50,16 @@ router.get('/check_weight_activity/:idc', [validarJWT,validarCampos], checkWeigh
 
 router.post('/chapter',[validarJWT,validarCampos],PostChapter);
 router.get  ('/getchapter/:id',GetChapter);
-router.put('/putchapter/:idch',PutChatper)
-router.delete('/deleteChapter/:idch',DeleteChapter);
+router.put('/putchapter/:idch',[validarJWT,validarCampos],PutChatper)
+router.delete('/deleteChapter/:idch',[validarJWT,validarCampos],DeleteChapter);
 
 
 // SOLICITUDES TEMAS
 
 router.post('/topic',[validarJWT,validarCampos],PostTopic);
 router.get  ('/gettopic/:id',GetTopic);
-router.delete('/deletetopic/:idt',deleteTopic);
-router.put('/puttopic/:idz',puttopic);
+router.delete('/deletetopic/:idt',[validarJWT,validarCampos],deleteTopic);
+router.put('/puttopic/:idz',[validarJWT,validarCampos],puttopic);
 
 
 

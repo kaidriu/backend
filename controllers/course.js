@@ -49,7 +49,7 @@ const PostCourse = async (req, res = response) => {
   // const usuario = await User.findByPk(id);
   const image_course =
     "https://res.cloudinary.com/dvwve4ocp/image/upload/v1647996109/logo_final2_skubul.png";
-  const state = "proceso";
+  let state = "proceso";
   const userId = id;
   const remark = [];
 
@@ -107,6 +107,8 @@ const PostCourse = async (req, res = response) => {
   });
 };
 
+
+//Arreglar Refactorizar Optimizar
 const PutCourse = async (req, res = response) => {
   let {
     title,
@@ -174,13 +176,16 @@ const PutCourse = async (req, res = response) => {
     where: { id: idc },
   });
 
-  const state = curso.state;
+  let state = curso.state;
+
+  if(state == 'publicado')
+    state = 'proceso'
+
   if (labels) {
     labels = labels.split(",");
   } else {
     labels = curso.labels;
   }
-
 
   if (!req.files || Object.keys(req.files).length === 0 || !req.files.image) {
     image_course = curso.image_course;
@@ -335,7 +340,7 @@ const PostChapter = async (req, res = response) => {
   let number_chapter = parseInt(num_chapter);
 
   const course = await Course.findOne({
-    where: { id: idc },
+    where: { id: idc }
   });
 
   if (!course) {
@@ -343,6 +348,7 @@ const PostChapter = async (req, res = response) => {
       msg: "No existe el curso",
     });
   } else {
+    
     const chapter = new Chapter({
       number_chapter,
       title_chapter,
@@ -1127,17 +1133,37 @@ const getAllCourseID = async (req, res = response) => {
   res.json({ curso });
 };
 
+
+//hacer pruebas si se borran los contenidos de los topics, tareas, pruebas, etc.
 const deleteCourse = async (req, res = response) => {
   const { idc } = req.params;
-  const deletevideitos = true;
+  
+  const enrolled = await enroll_course.count({
+    where: {
+      courseId: idc,
+      status_enroll: {
+        [Op.notIn]: ['owner', 'admin'],
+      }
+    }
+  });
+
+  if(enrolled > 0){
+    res.status(423).send("No se puede eliminar el curso, hay estudiantes registrados");
+    return false;
+  }
+
+
   const curso = await Course.findOne({
     where: { id: idc },
   });
 
-  deleteFolder(curso.uri_folder, deletevideitos).then(async (resp) => {
+  deleteFolder(curso.uri_folder).then(async (resp) => {
     await curso.destroy();
     res.json({ curso });
   });
+
+  return true;
+
 };
 
 const deleteTopic = async (req, res = response) => {

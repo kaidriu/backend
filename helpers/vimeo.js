@@ -25,7 +25,7 @@ const createFolder = function create(name) {
 
 }
 
-const deleteFolder = function create(path,deleteclips) {
+const deleteFolder = function create(path) {
     return new Promise((resolve) => {
         setTimeout(() => {
 

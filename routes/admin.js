@@ -119,7 +119,7 @@ router.put('/bankAccount',[validarJWT,validarCampos],settings.putBankAccount);
 router.delete('/bankAccount/:id',[validarJWT,validarCampos],settings.deleteBankAccount);
 
 //BANNERS
-router.get('/banner',[validarJWT,validarCampos], settings.getBanners);
+router.get('/banner', settings.getBanners);
 router.post('/banner',[validarJWT,validarCampos], settings.postBanner);
 router.put('/banner',[validarJWT,validarCampos], settings.putBanner);
 router.delete('/banner/:id',[validarJWT,validarCampos], settings.deleteBanner);
