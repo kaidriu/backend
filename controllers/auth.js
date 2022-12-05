@@ -7,7 +7,7 @@ const { googleVerify } = require("../helpers/google-verify");
 
 const User = db.user;
 const Profile = db.profile;
-const Type = db.UserType;
+const UserTypes = db.UserType;
 const UserDetails = db.userDetails;
 const Ubication = db.Ubication;
 
@@ -24,7 +24,7 @@ const login = async (req, res = response) => {
             where: { email },
             include:{
                 model:Profile,
-                attributes: { exclude: ['createdAt', 'updatedAt', 'ubication-Id', 'userTypeId', 'userDetailId'] },
+                attributes: { exclude: ['createdAt', 'updatedAt', 'ubication-Id', 'userDetailId'] },
             }
         });
 
@@ -62,25 +62,33 @@ const login = async (req, res = response) => {
     
 }
 
-const loginadministrador = async (req, res = response) => {
+const loginAdmin = async (req, res = response) => {
 
     const { email, password } = req.body;
 
     try {
-        //verificar si existe el email
-
+        //verificar usuario administrador por el email
         const usuario = await User.findOne({
-            where: { email }
+            where: { email },
+            include: {
+                required: true,
+                model: UserTypes,
+                as: "roles",
+                attributes: [],
+                through: {
+                    attributes: [],
+                },
+                where: {
+                    nametype: "administrador",
+                },
+            }
         });
 
         if (!usuario) {
             return res.status(400).json({
-                msg: `No existe un usuario con ese email : ${email}`
-            })
+                msg: `No existe el usuario administrador: ${email}`
+            });
         }
-
-        //si existe el usuario
-        //verificar la contraseña
 
         const validarPassword = bcrypts.compareSync(password, usuario.password);
 
@@ -89,40 +97,13 @@ const loginadministrador = async (req, res = response) => {
                 msg: `El password esta mal : ${password}`
             })
         }
-        const id = usuario.id;
-        // const {id} = req.params;
 
-        const perfil = await Profile.findOne({
-            where: { id },
-            attributes: { exclude: ['createdAt', 'updatedAt', 'ubicationId', 'userTypeId', 'userDetailId'] },
-            include: [
-                {
-                    model: Type,
-                    attributes: { exclude: ['createdAt', 'updatedAt', 'id'] },
-                }
-            ],
+        const token = await generarJWT(usuario.id);
 
-
-        });
-
-        // console.log(perfil.userType.nametype);
-
-        if (perfil.userType.nametype == 'administrador') {
-            //Generar JWT
-            const token = await generarJWT(usuario.id);
-
-            res.json({
-                usuario,
-                token
-            })
-
-        } else {
-            return res.status(400).json({
-                msg: `Usuario Denegado`
-            })
-        }
-
-
+        res.json({
+            usuario,
+            token
+        })
 
     } catch (error) {
         console.log(error);
@@ -140,22 +121,10 @@ const   renewToken = async (req, res = response) => {
     // Generar el TOKEN - JWT
     const token = await generarJWT(id);
 
-    // console.log(email);
-
-    // let usuario = await User.findOne({
-    //     where: {email},
-    //     attributes: {exclude: ['password','google']},
-    //     include: [{
-    //         model: Profile,
-    //         where:{id}
-    //     }]
-    // })
-    // let perfil = await Profile.findByPk(usuario.id);
-
     const perfil = await Profile.findOne({
 
         where: { id },
-        attributes: { exclude: ['createdAt', 'updatedAt', 'ubicationId', 'userTypeId', 'userDetailId'] },
+        attributes: { exclude: ['createdAt', 'updatedAt', 'ubicationId', 'userDetailId'] },
         include: [
             {
                 model: User,
@@ -169,19 +138,12 @@ const   renewToken = async (req, res = response) => {
                 model: UserDetails,
                 attributes: { exclude: ['createdAt', 'updatedAt', 'id'] },
             },
-            {
-                model: Type,
-                attributes: { exclude: ['createdAt', 'updatedAt', 'id'] },
-            }
         ],
-
-
     });
 
     res.json({
         ok: true,
         token,
-        // usuario,
         perfil
     });
 
@@ -338,7 +300,7 @@ module.exports = {
     login,
     renewToken,
     GoogleSingIn,
-    loginadministrador,
+    loginAdmin,
     PasswordRecovery,
     ValidarUsuarioConectado
 }

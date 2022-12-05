@@ -26,6 +26,7 @@ const packages = db.packageCourse;
 const Enroll_course = db.enroll_course;
 const packagesOrdersDetails = db.detail_package_order;
 const Profile = db.profile;
+const ReviewCourse = db.courseReview;
 
 const cursosRevision = async (req, res = response) => {
   const cursos = await Curso.findAll({
@@ -67,7 +68,7 @@ const cursosPublicados = async (req, res = response) => {
       attributes: ["id"],
       include: {
         model: packages,
-        as: "PackageToCourse",
+        as: "packages",
         attributes: [],
         where: {
           id: packageId,
@@ -255,7 +256,7 @@ const getCoursesPackages = async (req, res = response) => {
     attributes: ["title", "createdAt", "id", "image_course", "price"],
     include: {
       model: packages,
-      as: "PackageToCourse",
+      as: "packages",
       attributes: [],
       where: {
         id: idP,
@@ -581,8 +582,6 @@ const studentsByCourse = async (req, res = response) => {
   }
 };
 
-
-
 const PutCategory = async (req, res = response) => {
   try {
     const { id_category, new_name_category } = req.body;
@@ -694,6 +693,23 @@ const PutSubcategory = async (req, res = response) => {
   });
 };
 
+const putBanStatus = async (req, res = response) => {
+  let { id, status } = req.body;
+
+  try {
+
+    const review = await ReviewCourse.findByPk(id);
+
+    await review.update({ isBan: status });
+
+    res.json({review});
+
+    
+  } catch (error) {
+    res.status(400).send(error);
+  }
+}
+
 module.exports = {
   cursosRevision,
   cursosPublicados,
@@ -717,5 +733,6 @@ module.exports = {
   getCoursesPackages,
   putCoursesPackages,
   coursesByStudent,
-  studentsByCourse
+  studentsByCourse,
+  putBanStatus
 };

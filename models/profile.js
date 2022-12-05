@@ -8,14 +8,12 @@ module.exports = (sequelize, Sequelize) => {
       },
       image_perfil: {
         type: Sequelize.STRING
-        
       },
       profession: {
         type: Sequelize.STRING
       },
       aboutMe: {
         type: Sequelize.STRING(600),
-
       },
       phone: {
         type: Sequelize.STRING      
@@ -26,14 +24,6 @@ module.exports = (sequelize, Sequelize) => {
       user_id_drive:{
         type: Sequelize.STRING
       }
-      // userId: {
-      //   allowNull: true,
-      //   type: Sequelize.INTEGER,
-      //   references: {
-      //     model: 'users',
-      //     key: 'id'
-      //   }
-      // }
     });
   
     return Profile;

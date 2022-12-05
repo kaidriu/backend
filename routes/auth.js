@@ -1,6 +1,6 @@
 const {Router} = require('express');
 const { check } = require('express-validator');
-const { login, renewToken, GoogleSingIn, loginadministrador, PasswordRecovery, ValidarUsuarioConectado } = require('../controllers/auth');
+const { login, renewToken, GoogleSingIn, loginAdmin, PasswordRecovery, ValidarUsuarioConectado } = require('../controllers/auth');
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJWT } = require('../middlewares/validar-JWT');
 const router = Router();
@@ -18,7 +18,7 @@ router.post('/loginadministrador',[
     check('password','debe ingresar el password').notEmpty(),
     validarCampos
 
-],loginadministrador);
+],loginAdmin);
 
 
 router.post('/login/google',

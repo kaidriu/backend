@@ -50,6 +50,9 @@ router.put('/sendRemarks',[validarJWT,validarCampos], aCourses.sendRemark);
 router.get('/coursesByStudent/:id',[validarJWT, validarCampos], aCourses.coursesByStudent);
 router.get('/studentsByCourse/:id',[validarJWT, validarCampos], aCourses.studentsByCourse);
 
+//comentarios
+router.put('/reviews/banStatus',[validarJWT, validarCampos], aCourses.putBanStatus);
+
 
 /*------------CATEGORÍAS---------------*/
 router.get('/categories',[validarJWT,validarCampos], aCourses.getCategory);

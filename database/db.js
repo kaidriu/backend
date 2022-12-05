@@ -110,17 +110,17 @@ db.module = require("../models/module")(sequelize, Sequelize);
 db.user.belongsTo(db.profile);
 db.profile.hasOne(db.user);
 
-db.profile.belongsTo(db.UserType);
-db.UserType.hasOne(db.profile);
-
 db.profile.belongsTo(db.Ubication);
 db.Ubication.hasOne(db.profile);
 
 db.userDetails.hasOne(db.profile);
 db.profile.belongsTo(db.userDetails);
 
-db.title.belongsTo(db.user);
-db.user.hasMany(db.title);
+db.UserType.belongsToMany(db.user, { as: 'users', through: 'userTypeUser' });
+db.user.belongsToMany(db.UserType, { as: 'roles', through: 'userTypeUser' });
+
+db.title.belongsTo(db.profile);
+db.profile.hasMany(db.title);
 
 db.requestI.belongsTo(db.profile);
 db.profile.hasOne(db.requestI);
@@ -221,9 +221,6 @@ db.chat.belongsTo(db.user, { as: 'from' });
 db.chat.belongsTo(db.user, { as: 'to' });
 
 
-// db.user.hasMany(db.header_chat, { as: 'from' });  
-
-
 db.message.belongsTo(db.header_chat);
 db.header_chat.hasOne(db.message,{ onDelete: 'cascade', hooks: true, });
 
@@ -248,21 +245,21 @@ db.user.hasMany(db.courseReview);
 db.courseReview.belongsTo(db.course);
 db.course.hasMany(db.courseReview);
 
-db.courseReview.belongsToMany(db.courseReview, { as: 'Children', through: 'repliesCourseReview' });
+db.courseReview.belongsToMany(db.courseReview, { as: 'replies', through: 'repliesCourseReview' });
 
 //questions
 db.question.belongsTo(db.archive);
 db.archive.hasOne(db.question);
 
 
-db.course.belongsToMany(db.packageCourse, { as: 'PackageToCourse', through: 'packageCourse_course' });
-db.packageCourse.belongsToMany(db.course, { as: 'CourseToPackage', through: 'packageCourse_course' });
+db.course.belongsToMany(db.packageCourse, { as: 'packages', through: 'packageCourse_course' });
+db.packageCourse.belongsToMany(db.course, { as: 'courses', through: 'packageCourse_course' });
 
-db.certificate.belongsToMany(db.entity_certificate, { as: 'certificSateToEntity', through: 'throughEntityCertificate' });
-db.entity_certificate.belongsToMany(db.certificate, { as: 'entityToCertificate', through: 'throughEntityCertificate' });
+db.certificate.belongsToMany(db.entity_certificate, { as: 'entities', through: 'throughEntityCertificate' });
+db.entity_certificate.belongsToMany(db.certificate, { as: 'certificates', through: 'throughEntityCertificate' });
 
-db.module.belongsToMany(db.user, { as: 'Permits', through: 'permits' });
-db.user.belongsToMany(db.module, { as: 'Permits', through: 'permits' });
+db.module.belongsToMany(db.user, { as: 'users', through: 'permits' });
+db.user.belongsToMany(db.module, { as: 'modules', through: 'permits' });
 
 //certificates
 
