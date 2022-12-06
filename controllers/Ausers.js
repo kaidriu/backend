@@ -168,42 +168,41 @@ const inspectCourse = async (req, res = response) => {
 const postAdmin = async (req, res = response) => {
   const { id } = req.body;
 
-  console.log(id);
-
   const user = await User.findOne({
     where: { id },
+    attributes:['id'],
     include: {
-      model: Profile,
       required: true,
+      model: UserTypes,
+      as: "roles",
       attributes: [],
-      include: {
-        model: UserTypes,
-        where: {
-          nametype: {
-            [Op.not]: "Administrador",
-          },
-        },
+      where:{
+        nametype: 'administrador'
       },
-    },
+      through: {
+        attributes: [],
+      }
+    }
   });
 
-  if (!user) {
-    throw new Error("Este usuario no existe o ya es administrador");
+  if (user) {
+    res.status(400).send("Este usuario no existe o ya es administrador");
+    return false;
   }
+
+  const userAdmin = await User.findByPk(id);
 
   const userType = await UserTypes.findOne({
     where: { nametype: "administrador" },
   });
 
-  const profile = await Profile.findByPk(user.profileId);
+  await userAdmin.addRoles(userType);
 
   const firstModule = await Module.findByPk(0);
 
-  await profile.update({ userTypeId: userType.id });
+  await userAdmin.setModules(firstModule);
 
-  await user.addPermits(firstModule);
-
-  res.json({ user });
+  res.json({ userAdmin });
 };
 
 const getMyPermits = async (req, res = response) => {
@@ -243,19 +242,11 @@ const putPermits = async (req, res = response) => {
 
   const user = await User.findByPk(id);
 
-  const userType = await UserTypes.findOne({
-    where: { nametype: "administrador" },
-  });
-
-  const profile = await Profile.findByPk(user.profileId);
-
-  await profile.update({ userTypeId: userType.id });
-
   const adminModules = await Module.findAll({
     where: { id: { [Op.in]: modules } },
   });
 
-  await user.setPermits(adminModules);
+  await user.setModules(adminModules);
 
   res.json({ user });
 };
@@ -265,22 +256,11 @@ const deleteAdmin = async (req, res = response) => {
 
   const user = await User.findByPk(id);
 
-  const profile = await Profile.findByPk(user.profileId);
+  await user.setModules([]);
 
-  await user.setPermits([]);
+  const userType = await UserTypes.findOne({ where: { nametype: 'administrador' } });
 
-  //Verificar antiguo rol
-  const requestI = await RequestInstructor.findOne({
-    where: { profileId: profile.id, state: "aceptado" },
-  });
-
-  let nametype = "usuario";
-
-  if (requestI) nametype = "instructor";
-
-  const userType = await UserTypes.findOne({ where: { nametype } });
-
-  await profile.update({ userTypeId: userType.id });
+  await user.removeRoles(userType);
 
   res.json({ user });
 };

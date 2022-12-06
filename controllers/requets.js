@@ -132,7 +132,6 @@ const getRequestInstructor = async (req, res = response) => {
 const getSolicitudInstructor = async (req, res = response) => {
 
     const request = await Request.findAll({
-        offset: desde, limit: 5,
         order: [['id', 'ASC']],
         where: { state: 'pendiente' },
         attributes: { exclude: ['createdAt', 'updatedAt', 'profileId'] },
