@@ -24,7 +24,7 @@ const SolicitudInstructor = async (req, res = response) => {
     const ver = await Request.findOne({
         where: {
             [Op.and]: [
-                { profileId: id },
+                { userId: id },
                 { state: 'pendiente' }
             ]
         }
@@ -39,28 +39,25 @@ const SolicitudInstructor = async (req, res = response) => {
     } else {
 
         const state = "pendiente";
-        const profileId = id;
+        const userId = id;
 
 
-        const requestI = new Request({ aboutMe, linkYT, category, state, profileId });
+        const requestI = new Request({ aboutMe, linkYT, category, state, userId });
 
         await requestI.save();
 
         const requ = await Request.findOne({
-            where: { profileId },
+            where: { userId },
             include: [
                 {
-                    model: Profile,
+                    model: User,
                 }
             ],
 
         });
 
-
-
         const variable = requ.createdAt;
-
-
+        
         date = new Date(variable);
         year = date.getFullYear();
         month = date.getMonth();
@@ -95,12 +92,10 @@ const getRequestInstructor = async (req, res = response) => {
     
     const { id } = req.usuario;
 
-    // const usuario = await User.findByPk(id);
-
     const ver = await Request.findOne({
         where: {
             [Op.and]: [
-                { profileId: id },
+                { userId: id },
                 { state: 'pendiente' }
             ]
         }
@@ -109,7 +104,7 @@ const getRequestInstructor = async (req, res = response) => {
     const aceptado = await Request.findOne({
         where: {
             [Op.and]: [
-                { profileId: id },
+                { userId: id },
                 { state: 'aceptado' }
             ]
         }
@@ -136,51 +131,27 @@ const getRequestInstructor = async (req, res = response) => {
 
 const getSolicitudInstructor = async (req, res = response) => {
 
-    const desde = Number(req.query.desde) || 0;
-
-    const [request, total] = await Promise.all([
-
-        Request.findAll({
-
-            offset: desde, limit: 5,
-            order: [['id', 'ASC']],
-            where: { state: 'pendiente' },
-            attributes: { exclude: ['createdAt', 'updatedAt', 'profileId'] },
-            include: [
-                {
-                    model: Profile,
-                    attributes: { exclude: ['createdAt', 'updatedAt', 'ubicationId', 'userTypeId', 'userDetailId', 'profession', 'aboutMe', 'phone', 'education', 'edad', 'gender'] },
-                    include: [
-                        {
-                            model: User,
-                            attributes: { exclude: ['password', 'createdAt', 'updatedAt', 'id', 'is_active', 'google', 'profileId'] },
-                        },
-                        //  {
-                        //      model: Ubication,
-                        //      attributes: {exclude: ['createdAt','updatedAt','id'] },
-                        //  },
-                        //  {
-                        //      model: UserDetails,
-                        //      attributes: {exclude: ['createdAt','updatedAt','id'] },
-                        //  },
-                        //  {
-                        //      model:Type,
-                        //      attributes: {exclude: ['createdAt','updatedAt','id'] },
-                        //  }
-                    ],
-                }
-            ]
-        }),
-        Request.count({
-            where:{state:'pendiente'}
-        })
-
-    ])
-
+    const request = await Request.findAll({
+        offset: desde, limit: 5,
+        order: [['id', 'ASC']],
+        where: { state: 'pendiente' },
+        attributes: { exclude: ['createdAt', 'updatedAt', 'profileId'] },
+        include: [
+            {
+                model: User,
+                attributes: ['name', 'email'],
+                include: [
+                    {
+                        model: Profile,
+                        attributes: ['image_perfil']
+                    }
+                ],
+            }
+        ]
+    });
 
     res.json({
-        request,
-        total
+        request
     })
 
 }

@@ -286,28 +286,35 @@ const deleteAdmin = async (req, res = response) => {
 };
 
 const getAdmins = async (req, res = response) => {
-  const admins = await Profile.findAll({
+
+  const admins =  await User.findAll({
     order: [["id", "ASC"]],
-    attributes: ["id", "image_perfil"],
+    attributes: ["id", "name", "email"],
     include: [
       {
-        model: User,
         required: true,
-        attributes: ["name", "email"],
-        include: {
-          model: Module,
-          as: "Permits",
-          attributes: ["id", "name"],
-        },
-      },
-      {
         model: UserTypes,
-        required: true,
+        as: "roles",
         attributes: [],
+        through: {
+          attributes: [],
+        },
         where: {
           nametype: "administrador",
         },
       },
+      {
+        model: Profile,
+        attributes: ['id', 'image_perfil'],
+      },
+      {
+        model: Module,
+        as: "modules",
+        attributes: ["id", "name"],
+        through: {
+          attributes: [],
+        }
+      }
     ],
   });
 

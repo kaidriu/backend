@@ -11,7 +11,7 @@ const profile = db.profile;
 const commission = db.commission;
 const ubication = db.Ubication;
 const userDetails = db.userDetails;
-const type = db.UserType;
+const UserTypes = db.UserType;
 const payment_method = db.payment_method;
 const subcategory = db.subcategory;
 const category = db.category;
@@ -365,6 +365,18 @@ const summaryNoPaymentInstructor = async (req, res = response) => {
         },
       },
       {
+        required: true,
+        model: UserTypes,
+        as: "roles",
+        attributes: [],
+        through: {
+          attributes: [],
+        },
+        where: {
+          nametype: "instructor",
+        },
+      },
+      {
         model: profile,
         required: true,
         attributes: ["image_perfil", "phone"],
@@ -373,13 +385,6 @@ const summaryNoPaymentInstructor = async (req, res = response) => {
             model: ubication,
             attributes: ["country", "state"],
           },
-          {
-            model: type,
-            attributes: [],
-            where: {
-              nametype: 'instructor'
-            }
-          }
         ],
       }
     ],

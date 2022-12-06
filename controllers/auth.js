@@ -10,6 +10,7 @@ const Profile = db.profile;
 const UserTypes = db.UserType;
 const UserDetails = db.userDetails;
 const Ubication = db.Ubication;
+const Request = db.requestI;
 
 const jwt = require('jsonwebtoken');
 
@@ -121,25 +122,49 @@ const   renewToken = async (req, res = response) => {
     // Generar el TOKEN - JWT
     const token = await generarJWT(id);
 
-    const perfil = await Profile.findOne({
-
+    const perfil = await User.findOne({
+        attributes: {
+          exclude: ["createdAt", "updatedAt", "google", "is_active", 'password'],
+        },
         where: { id },
-        attributes: { exclude: ['createdAt', 'updatedAt', 'ubicationId', 'userDetailId'] },
         include: [
-            {
-                model: User,
-                attributes: { exclude: ['password', 'createdAt', 'updatedAt', 'id'] },
+          {
+            required: true,
+            model: UserTypes,
+            as: "roles",
+            attributes: ['nametype'],
+            through: {
+              attributes: [],
+            }
+          },
+          {
+            model: Profile,
+            attributes: {
+              exclude: [
+                "createdAt",
+                "updatedAt",
+                "ubicationId",
+                "userTypeId",
+                "userDetailId",
+              ],
             },
-            {
+            include:[
+              {
                 model: Ubication,
-                attributes: { exclude: ['createdAt', 'updatedAt', 'id'] },
-            },
-            {
+                attributes: { exclude: ["createdAt", "updatedAt", "id"] },
+              },
+              {
                 model: UserDetails,
-                attributes: { exclude: ['createdAt', 'updatedAt', 'id'] },
-            },
+              },
+            ]     
+          },
+          {
+            model: Request,
+            attributes: ["category"],
+          },
         ],
-    });
+      });
+    
 
     res.json({
         ok: true,

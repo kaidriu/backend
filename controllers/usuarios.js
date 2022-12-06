@@ -175,36 +175,45 @@ const usuariosPost = async (req, res = response) => {
 
 const usuariosGet = async (req, res = response) => {
   const { id } = req.usuario;
-  // const {id} = req.params;
 
-  const perfil = await Profile.findOne({
+  const perfil = await User.findOne({
+    attributes: { exclude: ["password", "createdAt", "updatedAt", "id"] },
     where: { id },
-    attributes: {
-      exclude: [
-        "createdAt",
-        "updatedAt",
-        "ubicationId",
-        "userTypeId",
-        "userDetailId",
-      ],
-    },
     include: [
       {
-        model: User,
-        attributes: { exclude: ["password", "createdAt", "updatedAt", "id"] },
-      },
-      {
-        model: Ubication,
-        attributes: { exclude: ["createdAt", "updatedAt", "id"] },
-      },
-      {
-        model: UserDetails,
-        attributes: { exclude: ["createdAt", "updatedAt", "id"] },
-      },
-      {
+        required: true,
         model: UserTypes,
-        attributes: { exclude: ["createdAt", "updatedAt", "id"] },
+        as: "roles",
+        attributes: ['nametype'],
+        through: {
+          attributes: [],
+        },
+        where: {
+          nametype: "instructor",
+        },
       },
+      {
+        model: Profile,
+        attributes: {
+          exclude: [
+            "createdAt",
+            "updatedAt",
+            "ubicationId",
+            "userTypeId",
+            "userDetailId",
+          ],
+        },
+        include:[
+          {
+            model: Ubication,
+            attributes: { exclude: ["createdAt", "updatedAt", "id"] },
+          },
+          {
+            model: UserDetails,
+            attributes: { exclude: ["createdAt", "updatedAt", "id"] },
+          },
+        ]     
+      }, 
     ],
   });
 
@@ -212,7 +221,10 @@ const usuariosGet = async (req, res = response) => {
     res.status(404).json({
       msg: `No exite el usuario con el id : ${id}`,
     });
+
+    return false;
   }
+
   res.json({
     perfil,
   });
@@ -361,58 +373,60 @@ const instructorAllGet = async (req, res = response) => {
 };
 
 const GetAllInstructor = async (req, res = response) => {
-  const [instructores] = await Promise.all([
-    Profile.findAll({
-      attributes: {
-        exclude: [
-          "createdAt",
-          "updatedAt",
-          "ubicationId",
-          "userTypeId",
-          "userDetailId",
+
+  const instructores =  await User.findAll({
+    attributes: 
+      [
+        [
+          sequelize.literal(
+            `(SELECT COUNT(*) FROM  courses WHERE courses."userId"="user".id AND courses."state"='publicado')`
+          ),
+          "cursos_totales",
         ],
-      },
-      include: [
-        {
-          model: User,
-          attributes: {
-            include: [
-              [
-                sequelize.literal(
-                  `(SELECT COUNT(*) FROM  courses WHERE courses."userId"="user".id AND courses."state"='publicado')`
-                ),
-                "cursos_totales",
-              ],
-            ],
-            exclude: ["createdAt", "updatedAt", "google", "is_active"],
-          },
-        },
-        {
-          model: UserTypes,
-          where: {
-            nametype: "instructor",
-          },
-          attributes: { exclude: ["createdAt", "updatedAt", "id"] },
-        },
-        {
-          model: Ubication,
-          attributes: { exclude: ["createdAt", "updatedAt", "id"] },
-        },
-        {
-          model: UserDetails,
-          attributes: {
-            include: ["user_labels"],
-            exclude: ["createdAt", "updatedAt", "id"],
-          },
-        },
-        {
-          model: Request,
-          attributes: ["category"],
-        },
       ],
-    }),
-  ]);
+    include: [
+      {
+        required: true,
+        model: UserTypes,
+        as: "roles",
+        attributes: [],
+        through: {
+          attributes: [],
+        },
+        where: {
+          nametype: "instructor",
+        },
+      },
+      {
+        model: Profile,
+        attributes: {
+          exclude: [
+            "createdAt",
+            "updatedAt",
+            "ubicationId",
+            "userTypeId",
+            "userDetailId",
+          ],
+        },
+        include:[
+          {
+            model: Ubication,
+            attributes: { exclude: ["createdAt", "updatedAt", "id"] },
+          },
+          {
+            model: UserDetails,
+          },
+        ]     
+      },
+      {
+        model: Request,
+        attributes: ["category"],
+      },
+    ],
+  });
+
   res.json({ instructores });
+
 };
 
 const GetOneInstructor = async (req, res = response) => {

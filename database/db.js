@@ -2,7 +2,7 @@ const dbConfig = require("./config.js");
 
 const Sequelize = require("sequelize");
 
- const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
+const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
   host: dbConfig.HOST,
   dialect: dbConfig.dialect,
   dialectOptions: {
@@ -28,17 +28,12 @@ sequelize
 
 // const sequelize = new Sequelize(process.env.DATABASE_URL);
 
-
 const db = {};
-
-
 
 //relaciones
 
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
-
-
 
 db.user = require("../models/user.js")(sequelize, Sequelize);
 db.profile = require("../models/profile.js")(sequelize, Sequelize);
@@ -122,8 +117,8 @@ db.user.belongsToMany(db.UserType, { as: 'roles', through: 'userTypeUser' });
 db.title.belongsTo(db.profile);
 db.profile.hasMany(db.title);
 
-db.requestI.belongsTo(db.profile);
-db.profile.hasOne(db.requestI);
+db.requestI.belongsTo(db.user);
+db.user.hasOne(db.requestI);
 
 db.course.belongsTo(db.user);
 db.user.hasMany(db.course);
