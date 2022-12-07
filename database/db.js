@@ -253,6 +253,8 @@ db.packageCourse.belongsToMany(db.course, { as: 'courses', through: 'packageCour
 db.certificate.belongsToMany(db.entity_certificate, { as: 'entities', through: 'throughEntityCertificate' });
 db.entity_certificate.belongsToMany(db.certificate, { as: 'certificates', through: 'throughEntityCertificate' });
 
+//db.certificate.belongsToMany(db.course, {as: 'courses'})
+
 db.module.belongsToMany(db.user, { as: 'users', through: 'permits' });
 db.user.belongsToMany(db.module, { as: 'modules', through: 'permits' });
 

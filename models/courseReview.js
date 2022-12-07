@@ -6,6 +6,10 @@ module.exports = (sequelize, Sequelize) => {
       courseReview: {
         type: Sequelize.STRING
       },
+      isReported:{
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
       isBan:{
         type: Sequelize.BOOLEAN,
         defaultValue: false,

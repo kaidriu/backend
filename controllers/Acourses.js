@@ -17,7 +17,7 @@ const errOpNotCompleted = "Servidor: No se pudo completar la operación. ";
 const Ubication = db.Ubication;
 const UserDetails = db.userDetails;
 const Type = db.UserType;
-const Curso = db.course;
+const Course = db.course;
 const Topic = db.topic;
 const Chapter = db.chapter;
 const Subcategory = db.subcategory;
@@ -29,7 +29,7 @@ const Profile = db.profile;
 const ReviewCourse = db.courseReview;
 
 const cursosRevision = async (req, res = response) => {
-  const cursos = await Curso.findAll({
+  const cursos = await Course.findAll({
     order: [["id", "DESC"]],
     where: {
       state: "revisión",
@@ -64,7 +64,7 @@ const cursosPublicados = async (req, res = response) => {
   };
 
   if (packageId) {
-    const coursePackage = await Curso.findAll({
+    const coursePackage = await Course.findAll({
       attributes: ["id"],
       include: {
         model: packages,
@@ -82,7 +82,7 @@ const cursosPublicados = async (req, res = response) => {
     filterCourses.id = { [Op.notIn]: idCoursePackage };
   }
 
-  const cursos = await Curso.findAll({
+  const cursos = await Course.findAll({
     order: [["id", "DESC"]],
     where: filterCourses,
     include: [
@@ -106,7 +106,7 @@ const cursosPublicados = async (req, res = response) => {
 const getCoursesFromInstructor = async (req, res = response) => {
   const { idt } = req.params;
 
-  const curso = await Curso.findAll({
+  const curso = await Course.findAll({
     attributes: [
       "id",
       "title",
@@ -137,7 +137,7 @@ const aceptarSolicitudCurso = async (req, res = response) => {
     const state = "publicado";
 
     actions.push(
-      Curso.findOne(
+      Course.findOne(
         {
           where: { id: idc },
         },
@@ -175,13 +175,13 @@ const aceptarSolicitudCurso = async (req, res = response) => {
 const denegarSolicitudCurso = async (req, res = response) => {
   const { idc } = req.params;
 
-  const Course = await Curso.findOne({
+  const course = await Course.findOne({
     where: { id: idc },
   }).then((curso) => {
     curso.update({ state: "proceso" });
   });
 
-  res.json({ Course });
+  res.json({ course });
 };
 
 const changeStateCourse = async (req, res = response) => {
@@ -193,7 +193,7 @@ const changeStateCourse = async (req, res = response) => {
     let actions = [];
 
     actions.push(
-      Curso.findOne({
+      Course.findOne({
         where: { id: idc },
       },{ transaction: t }).then((curso) => {
         curso.update({ state });
@@ -231,7 +231,7 @@ const changeStateCourse = async (req, res = response) => {
 const sendRemark = async (req, res = response) => {
   const { idc, remarks } = req.body;
 
-  const curso = await Curso.findByPk(idc);
+  const curso = await Course.findByPk(idc);
 
   curso.update({ remark: remarks });
   res.json("Cambios guardados");
@@ -252,7 +252,7 @@ const getPackages = async (req, res = response) => {
 const getCoursesPackages = async (req, res = response) => {
   const { idP } = req.params;
 
-  const cursos = await Curso.findAll({
+  const cursos = await Course.findAll({
     attributes: ["title", "createdAt", "id", "image_course", "price"],
     include: {
       model: packages,
@@ -333,7 +333,7 @@ const putPackages = async (req, res = response) => {
     if (coursesIds) {
       let IdsCourses = JSON.parse(coursesIds);
 
-      const courses = await Curso.findAll({
+      const courses = await Course.findAll({
         where: { id: { [Op.in]: IdsCourses } },
       });
 
@@ -491,7 +491,7 @@ const DeleteCategory = async (req, res = response) => {
       subcategoriesIds.push(element.id);
     });
 
-    const uses = await Curso.count({
+    const uses = await Course.count({
       where: {
         subcategoryId: {
           [Op.in]: subcategoriesIds,
@@ -525,7 +525,7 @@ const coursesByStudent = async (req, res = response) => {
 
     const {id} = req.params;
 
-    const courses = await Curso.findAll({
+    const courses = await Course.findAll({
       attributes: ['id', 'title', 'image_course', 'price'],
       include: {
         model: Enroll_course,
@@ -654,7 +654,7 @@ const DeleteSubCategory = async (req, res = response) => {
   try {
     const { ids } = req.params;
 
-    const uses = await Curso.count({
+    const uses = await Course.count({
       where: {
         subcategoryId: ids,
       },
@@ -693,17 +693,57 @@ const PutSubcategory = async (req, res = response) => {
   });
 };
 
-const putBanStatus = async (req, res = response) => {
-  let { id, status } = req.body;
+const putCourseReviews = async (req, res = response) => {
+  let { id, isBan, isReported } = req.body;
 
   try {
 
     const review = await ReviewCourse.findByPk(id);
 
-    await review.update({ isBan: status });
+    await review.update({ isBan: isBan, isReported: isReported});
 
     res.json({review});
 
+    
+  } catch (error) {
+    res.status(400).send(error);
+  }
+}
+
+const getCourseReviews = async (req, res = response) => {
+  try {
+
+    let {id, isBan, isReported} = req.params;
+
+    let where = {};
+
+    if(id)
+      where.id = id
+    if(isBan)
+      where.isBan = isBan
+    if(isReported)
+      where.isReported = isReported
+
+    const reviews = await ReviewCourse.findAll({
+      where: where,
+      attributes:['id', 'courseReview', 'courseStars', 'isBan', 'updatedAt'],
+      include:[
+        {
+          model: Course,
+          attributes: ['title']
+        },
+        {
+          model: User,
+          attributes: ['name'],
+          include:{
+            model: Profile,
+            attributes: ['image_perfil']
+          }
+        },
+      ]
+    });
+
+    res.json({reviews});
     
   } catch (error) {
     res.status(400).send(error);
@@ -734,5 +774,6 @@ module.exports = {
   putCoursesPackages,
   coursesByStudent,
   studentsByCourse,
-  putBanStatus
+  putCourseReviews,
+  getCourseReviews
 };
